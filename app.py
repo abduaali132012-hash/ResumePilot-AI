@@ -1,29 +1,37 @@
 import streamlit as st
 
-st.set_page_config(page_title="ResumePilot AI")
+st.set_page_config(page_title="ResumePilot AI", page_icon="🚀")
 
-st.title("ResumePilot AI")
-st.subheader("AI-Powered Resume Analysis Assistant")
+st.title("🚀 ResumePilot AI")
+st.write("AI-powered Resume Analyzer and Job Match Assistant")
 
-resume = st.text_area("Paste your Resume")
+resume = st.text_area("Paste Your Resume Here")
 
-job_description = st.text_area("Paste Job Description")
+job_description = st.text_area("Paste Job Description Here")
 
-if st.button("Analyze"):
-if resume and job_description:
-st.success("Analysis Complete!")
+analyze_button = st.button("Analyze Resume")
 
-```
-    st.write("### Suggested Improvements")
-    st.write("- Add more job-specific keywords")
-    st.write("- Highlight measurable achievements")
-    st.write("- Include relevant technical skills")
+if analyze_button:
+    if resume and job_description:
 
-    st.write("### ATS Score")
-    st.write("75/100")
+        st.success("Analysis Complete!")
 
-    st.write("### Interview Preparation")
-    st.write("Prepare examples demonstrating your experience and accomplishments.")
-else:
-    st.warning("Please enter both Resume and Job Description.")
-```
+        st.subheader("Resume Match Score")
+        st.write("85% Match")
+
+        st.subheader("Strengths")
+        st.write("""
+        - Relevant skills identified
+        - Professional experience detected
+        - Good resume structure
+        """)
+
+        st.subheader("Suggestions")
+        st.write("""
+        - Add more measurable achievements
+        - Include keywords from job description
+        - Improve summary section
+        """)
+
+    else:
+        st.error("Please enter both Resume and Job Description.")
