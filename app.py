@@ -27,7 +27,7 @@ type=["txt"]
 resume = ""
 
 if uploaded_file:
-   resume = uploaded_file.read().decode("utf-8")
+    resume = uploaded_file.read().decode("utf-8")
 
 # Manual Resume Input
 
