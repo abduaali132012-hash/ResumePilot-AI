@@ -16,3 +16,5 @@ uploaded_file = st.file_uploader(
     "Upload Resume",
     type=["txt"]
 )
+if uploaded_file:
+    resume = uploaded_file.read().decode("utf-8")
