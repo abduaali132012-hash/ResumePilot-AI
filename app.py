@@ -43,3 +43,8 @@ tab1, tab2, tab3 = st.tabs([
     "Skill Gaps",
     "Interview Tips"
 ])
+Tell me about yourself.
+
+What Python projects have you worked on?
+
+How do you debug code?
