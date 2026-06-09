@@ -38,3 +38,8 @@ Missing:
 ✗ AWS
 ✗ Docker
 st.write("Missing Skills:")
+tab1, tab2, tab3 = st.tabs([
+    "ATS Score",
+    "Skill Gaps",
+    "Interview Tips"
+])
