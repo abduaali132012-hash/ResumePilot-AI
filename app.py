@@ -51,14 +51,18 @@ if st.button("Analyze Resume"):
 ```
 if resume and job_description:
 
-    # Simple ATS Score Example
     resume_words = set(resume.lower().split())
     job_words = set(job_description.lower().split())
 
     matched = len(resume_words.intersection(job_words))
     required = len(job_words)
 
-    score = int((matched / required) * 100) if required > 0 else 0
+    score = min(
+        int((matched / required) * 100),
+        100
+    ) if required > 0 else 0
+
+    st.divider()
 
     tab1, tab2, tab3 = st.tabs(
         ["ATS Score", "Skill Gaps", "Interview Tips"]
