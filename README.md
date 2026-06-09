@@ -1,26 +1,11 @@
-# ResumePilot AI
+# Features
 
-ResumePilot AI is an AI-powered career assistant that helps job seekers improve their resumes and prepare for interviews.
+✅ ATS Score
 
-## Features
+✅ Skill Gap Analysis
 
-* Resume analysis
-* ATS score estimation
-* Job description matching
-* Interview preparation suggestions
-* Career improvement recommendations
+✅ Resume Review
 
-## Technologies
+✅ Interview Preparation
 
-* Python
-* Streamlit
-* Artificial Intelligence
-* Natural Language Processing
-
-## Author
-
-Abdu Ali
-
-LinkedIn: https://www.linkedin.com/in/abdu-ali-backend
-
-GitHub: https://github.com/abduaali132012-hash
+✅ Career Recommendations
