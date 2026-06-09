@@ -18,3 +18,8 @@ uploaded_file = st.file_uploader(
 score = int((matched / required) * 100)
 st.metric("ATS Score", f"{score}%")
     st.write("Missing Skills:")
+tab1, tab2, tab3 = st.tabs([
+    "ATS Score",
+    "Skill Gaps",
+    "Interview Tips"
+])
