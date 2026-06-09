@@ -16,4 +16,5 @@ uploaded_file = st.file_uploader(
  uploaded_file:
     resume = uploaded_file.read().decode("utf-8")
 score = int((matched / required) * 100)
+st.metric("ATS Score", f"{score}%")
     
