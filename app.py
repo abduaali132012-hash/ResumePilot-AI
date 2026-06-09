@@ -23,3 +23,4 @@ tab1, tab2, tab3 = st.tabs([
     "Skill Gaps",
     "Interview Tips"
 ])
+st.subheader("Interview Questions")
