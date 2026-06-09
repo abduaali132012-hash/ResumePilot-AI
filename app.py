@@ -50,3 +50,6 @@ What Python projects have you worked on?
 How do you debug code?
 st.subheader("Interview Questions")
 ResumePilot AI
+ATS Score
+Skill Gaps
+Interview Questions
