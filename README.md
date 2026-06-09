@@ -1,1 +1,1 @@
-This version is valid Markdown and will display properly on GitHub.
+This version uses valid Markdown syntax and will display correctly on GitHub.
