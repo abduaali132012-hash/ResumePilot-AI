@@ -21,3 +21,6 @@ Automatic Reading
 Python
 SQL
 Excel
+Python
+AWS
+SQL
