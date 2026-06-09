@@ -17,4 +17,4 @@ uploaded_file = st.file_uploader(
     resume = uploaded_file.read().decode("utf-8")
 score = int((matched / required) * 100)
 st.metric("ATS Score", f"{score}%")
-    
+    st.write("Missing Skills:")
