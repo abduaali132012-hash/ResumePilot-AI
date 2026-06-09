@@ -12,3 +12,7 @@ st.info(
 Upload Resume
 OR
 Paste Resume
+uploaded_file = st.file_uploader(
+    "Upload Resume",
+    type=["txt"]
+)
