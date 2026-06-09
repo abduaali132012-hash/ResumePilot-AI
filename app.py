@@ -37,3 +37,4 @@ Skills Found:
 Missing:
 ✗ AWS
 ✗ Docker
+st.write("Missing Skills:")
