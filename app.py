@@ -26,3 +26,4 @@ AWS
 SQL
 Python
 SQL
+score = int((matched / required) * 100)
