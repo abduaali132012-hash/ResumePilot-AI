@@ -24,3 +24,5 @@ Excel
 Python
 AWS
 SQL
+Python
+SQL
