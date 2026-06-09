@@ -18,3 +18,6 @@ uploaded_file = st.file_uploader(
 )
 if uploaded_file:
     resume = uploaded_file.read().decode("utf-8")
+    Upload Resume
+↓
+Automatic Reading
