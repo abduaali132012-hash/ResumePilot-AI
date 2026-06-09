@@ -1,12 +1,1 @@
-# Features
-
-✅ ATS Score
-
-✅ Skill Gap Analysis
-
-✅ Resume Review
-
-✅ Interview Preparation
-
-✅ Career Recommendations
-## Screenshots
+This version is valid Markdown and will display properly on GitHub.
