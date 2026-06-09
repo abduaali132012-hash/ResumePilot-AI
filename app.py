@@ -30,3 +30,10 @@ score = int((matched / required) * 100)
 st.metric("ATS Score", f"{score}%")
 ATS Score
 67%
+Skills Found:
+✓ Python
+✓ SQL
+
+Missing:
+✗ AWS
+✗ Docker
