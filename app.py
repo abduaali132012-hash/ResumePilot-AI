@@ -28,3 +28,5 @@ Python
 SQL
 score = int((matched / required) * 100)
 st.metric("ATS Score", f"{score}%")
+ATS Score
+67%
