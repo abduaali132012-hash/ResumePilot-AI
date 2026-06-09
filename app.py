@@ -53,3 +53,8 @@ ResumePilot AI
 ATS Score
 Skill Gaps
 Interview Questions
+screenshots/
+home.png
+
+screenshots/
+results.png
