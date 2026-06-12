@@ -1,4 +1,6 @@
 import streamlit as st
+import pdfplumber
+from docx import Document
 
 # Page Configuration
 st.set_page_config(
@@ -15,16 +17,31 @@ st.info(
     "Upload your resume or paste it below, then paste a job description."
 )
 
-# Resume Upload
 uploaded_file = st.file_uploader(
-    "Upload Resume (.txt)",
-    type=["txt"]
+    "Upload Resume",
+    type=["txt", "pdf", "docx"]
 )
 
 resume = ""
 
 if uploaded_file:
-    resume = uploaded_file.read().decode("utf-8")
+
+    if uploaded_file.name.endswith(".txt"):
+        resume = uploaded_file.read().decode("utf-8")
+
+    elif uploaded_file.name.endswith(".pdf"):
+
+        with pdfplumber.open(uploaded_file) as pdf:
+
+            for page in pdf.pages:
+                resume += page.extract_text() or ""
+
+    elif uploaded_file.name.endswith(".docx"):
+
+        doc = Document(uploaded_file)
+
+        for para in doc.paragraphs:
+            resume += para.text + "\n"
 
 # Resume Text Area
 resume = st.text_area(
