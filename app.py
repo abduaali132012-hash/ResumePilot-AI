@@ -1,121 +1,47 @@
-tab1, tab2, tab3, tab4, tab5 = st.tabs(
-    [
-        "ATS Score",
-        "Skill Gaps",
-        "Interview Tips",
-        "Resume Summary",
-        "Analysis"
-    ]
-)
+import streamlit as st
 
-# Resume Summary Tab
-with tab4:
+st.set_page_config(...)
 
-    st.subheader("Resume Summary")
+st.title(...)
 
-    word_count = len(resume.split()) if resume else 0
+uploaded_file = st.file_uploader(...)
 
-    st.write(f"Resume Length: {word_count} words")
+resume = ...
 
-    if word_count < 150:
-        st.warning("Resume appears too short.")
+job_description = ...
 
-    elif word_count > 800:
-        st.warning("Resume may be too long.")
+if st.button("Analyze Resume"):
 
-    else:
-        st.success("Resume length looks good.")
+    if resume and job_description:
 
-    if word_count >= 300:
-        st.success("Good resume depth detected.")
+        resume_words = ...
+        job_words = ...
 
-    elif word_count >= 150:
-        st.info("Resume is reasonably detailed.")
+        score = ...
 
-    else:
-        st.warning("Consider adding more details.")
+        missing_skills = ...
 
-
-# Analysis Tab
-with tab5:
-
-    st.subheader("Strength Analysis")
-
-    strengths = []
-
-    if score >= 70:
-        strengths.append(
-            "Strong keyword alignment"
+        tab1, tab2, tab3, tab4, tab5 = st.tabs(
+            [
+                "ATS Score",
+                "Skill Gaps",
+                "Interview Tips",
+                "Resume Summary",
+                "Analysis"
+            ]
         )
 
-    if word_count > 150:
-        strengths.append(
-            "Detailed resume content"
-        )
+        with tab1:
+            ...
 
-    if strengths:
+        with tab2:
+            ...
 
-        for item in strengths:
-            st.success(item)
+        with tab3:
+            ...
 
-    else:
+        with tab4:
+            ...
 
-        st.warning(
-            "No major strengths detected."
-        )
-
-    st.subheader("Weakness Analysis")
-
-    if missing_skills:
-
-        for skill in sorted(missing_skills)[:5]:
-
-            st.error(
-                f"Missing keyword: {skill}"
-            )
-
-    else:
-
-        st.success(
-            "No major weaknesses detected."
-        )
-
-    st.subheader("Recommendations")
-
-    st.info(
-        "Add missing keywords from the job description."
-    )
-
-    st.info(
-        "Quantify achievements using measurable results."
-    )
-
-    st.info(
-        "Customize your resume for every application."
-    )
-
-    st.info(
-        "Highlight relevant projects and achievements."
-    )
-
-    st.markdown("---")
-
-    st.subheader("Overall Match Rating")
-
-    if score >= 80:
-
-        st.success(
-            "🏆 Excellent Match"
-        )
-
-    elif score >= 60:
-
-        st.warning(
-            "⚡ Moderate Match"
-        )
-
-    else:
-
-        st.error(
-            "❌ Low Match"
-        )
+        with tab5:
+            ...
