@@ -13,7 +13,7 @@ with tab4:
 
     st.subheader("Resume Summary")
 
-    word_count = len(resume.split())
+    word_count = len(resume.split()) if resume else 0
 
     st.write(f"Resume Length: {word_count} words")
 
@@ -25,6 +25,15 @@ with tab4:
 
     else:
         st.success("Resume length looks good.")
+
+    if word_count >= 300:
+        st.success("Good resume depth detected.")
+
+    elif word_count >= 150:
+        st.info("Resume is reasonably detailed.")
+
+    else:
+        st.warning("Consider adding more details.")
 
 
 # Analysis Tab
@@ -39,15 +48,18 @@ with tab5:
             "Strong keyword alignment"
         )
 
-    if len(resume.split()) > 150:
+    if word_count > 150:
         strengths.append(
             "Detailed resume content"
         )
 
     if strengths:
+
         for item in strengths:
             st.success(item)
+
     else:
+
         st.warning(
             "No major strengths detected."
         )
@@ -56,7 +68,7 @@ with tab5:
 
     if missing_skills:
 
-        for skill in missing_skills[:5]:
+        for skill in sorted(missing_skills)[:5]:
 
             st.error(
                 f"Missing keyword: {skill}"
@@ -75,15 +87,15 @@ with tab5:
     )
 
     st.info(
-        "Quantify achievements using numbers."
+        "Quantify achievements using measurable results."
     )
 
     st.info(
-        "Customize resume for every application."
+        "Customize your resume for every application."
     )
 
     st.info(
-        "Highlight relevant projects."
+        "Highlight relevant projects and achievements."
     )
 
     st.markdown("---")
@@ -91,10 +103,19 @@ with tab5:
     st.subheader("Overall Match Rating")
 
     if score >= 80:
-        st.success("🏆 Excellent Match")
+
+        st.success(
+            "🏆 Excellent Match"
+        )
 
     elif score >= 60:
-        st.warning("⚡ Moderate Match")
+
+        st.warning(
+            "⚡ Moderate Match"
+        )
 
     else:
-        st.error("❌ Low Match")
+
+        st.error(
+            "❌ Low Match"
+        )
