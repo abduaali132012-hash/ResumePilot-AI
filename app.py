@@ -84,8 +84,29 @@ if st.button("Analyze Resume"):
             ]
         )
 
-        with tab1:
-            st.metric("ATS Score", f"{score}%")
+       with tab1:
+
+    st.metric(
+        "ATS Score",
+        f"{score}%"
+    )
+
+    st.progress(score / 100)
+
+    if score >= 80:
+        st.success(
+            "Excellent ATS Match"
+        )
+
+    elif score >= 60:
+        st.warning(
+            "Moderate ATS Match"
+        )
+
+    else:
+        st.error(
+            "Low ATS Match"
+        )
 
         with tab2:
             st.subheader("Missing Keywords")
@@ -109,23 +130,112 @@ if st.button("Analyze Resume"):
             for q in questions:
                 st.write(f"• {q}")
 
-        with tab4:
-            word_count = len(resume.split())
+      with tab4:
 
-            st.subheader("Resume Summary")
-            st.write(f"Resume Length: {word_count} words")
+    st.subheader("Resume Summary")
 
-        with tab5:
-            st.subheader("Analysis")
+    word_count = len(resume.split())
 
-            if score >= 80:
-                st.success("🏆 Excellent Match")
-            elif score >= 60:
-                st.warning("⚡ Moderate Match")
-            else:
-                st.error("❌ Low Match")
+    st.write(f"📄 Resume Length: {word_count} words")
+
+    skills_found = len(
+        resume_words.intersection(job_words)
+    )
+
+    st.write(
+        f"✅ Matching Keywords: {skills_found}"
+    )
+
+    if word_count < 150:
+        st.warning(
+            "Resume appears too short."
+        )
+
+    elif word_count > 800:
+        st.warning(
+            "Resume may be too long."
+        )
+
+    else:
+        st.success(
+            "Resume length looks good."
+        )
+
+      with tab5:
+
+    st.subheader("Strength Analysis")
+
+    strengths = []
+
+    if score >= 70:
+        strengths.append(
+            "Strong keyword alignment"
+        )
+
+    if len(resume.split()) > 150:
+        strengths.append(
+            "Detailed resume content"
+        )
+
+    if strengths:
+
+        for item in strengths:
+            st.success(item)
 
     else:
         st.warning(
-            "Please provide both a resume and a job description."
+            "No major strengths detected."
+        )
+
+    st.subheader("Weakness Analysis")
+
+    if missing_skills:
+
+        for skill in missing_skills[:5]:
+
+            st.error(
+                f"Missing keyword: {skill}"
+            )
+
+    else:
+
+        st.success(
+            "No major weaknesses detected."
+        )
+
+    st.subheader("AI Suggestions")
+
+    st.info(
+        "Add missing keywords from the job description."
+    )
+
+    st.info(
+        "Quantify achievements with numbers."
+    )
+
+    st.info(
+        "Customize your resume for each application."
+    )
+
+    st.info(
+        "Highlight relevant projects and certifications."
+    )
+
+    st.markdown("---")
+
+    st.subheader("Overall Match Rating")
+
+    if score >= 80:
+        st.success(
+            "🏆 Excellent Match"
+        )
+
+    elif score >= 60:
+        st.warning(
+            "⚡ Moderate Match"
+        )
+
+    else:
+        st.error(
+            "❌ Low Match"
         )
