@@ -1,3 +1,5 @@
+from reportlab.pdfgen import canvas
+import tempfile
 import streamlit as st
 import pdfplumber
 from docx import Document
@@ -71,6 +73,37 @@ job_description = st.text_area(
 # --------------------------------------------------
 # ANALYSIS
 # --------------------------------------------------
+
+if st.button("Generate PDF Report"):
+
+    pdf_file = tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=".pdf"
+    )
+
+    c = canvas.Canvas(pdf_file.name)
+
+    c.drawString(
+        100,
+        800,
+        f"ResumePilot AI Report"
+    )
+
+    c.drawString(
+        100,
+        770,
+        f"ATS Score: {score}%"
+    )
+
+    c.save()
+
+    with open(pdf_file.name, "rb") as f:
+
+        st.download_button(
+            "Download Report",
+            f,
+            file_name="ResumePilot_Report.pdf"
+        )
 
 if st.button("Analyze Resume"):
 
