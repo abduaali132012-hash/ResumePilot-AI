@@ -72,24 +72,27 @@ if st.button("Analyze Resume"):
         # ---------------- TAB 1 ----------------
         with tab1:
 
-    st.metric(
-        "ATS Score",
-        f"{score}%"
+            st.metric(
+                "ATS Score",
+               f"{score}%"
     )
 
     st.progress(score / 100)
 
     if score >= 80:
+
         st.success(
             "Excellent ATS Match"
         )
 
     elif score >= 60:
+
         st.warning(
             "Moderate ATS Match"
         )
 
     else:
+
         st.error(
             "Low ATS Match"
         )
