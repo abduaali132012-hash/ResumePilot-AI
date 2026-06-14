@@ -2,18 +2,30 @@ import streamlit as st
 import pdfplumber
 from docx import Document
 
+# -------------------------------
 # Page Configuration
+# -------------------------------
+
 st.set_page_config(
     page_title="ResumePilot AI",
     page_icon="🚀",
     layout="wide"
 )
 
+# -------------------------------
 # Header
+# -------------------------------
+
 st.title("🚀 ResumePilot AI")
 st.subheader("AI-Powered Resume Analyzer & Career Assistant")
 
-st.info("Upload your resume or paste it below, then paste a job description.")
+st.info(
+    "Upload your resume or paste it below, then paste a job description."
+)
+
+# -------------------------------
+# Resume Upload
+# -------------------------------
 
 uploaded_file = st.file_uploader(
     "Upload Resume",
@@ -34,23 +46,33 @@ if uploaded_file:
 
     elif uploaded_file.name.endswith(".docx"):
         doc = Document(uploaded_file)
+
         for para in doc.paragraphs:
             resume += para.text + "\n"
 
+# -------------------------------
 # Resume Text Area
+# -------------------------------
+
 resume = st.text_area(
     "Paste Your Resume Here",
     value=resume,
     height=200
 )
 
+# -------------------------------
 # Job Description
+# -------------------------------
+
 job_description = st.text_area(
     "Paste Job Description Here",
     height=200
 )
 
+# -------------------------------
 # Analyze Button
+# -------------------------------
+
 if st.button("Analyze Resume"):
 
     if resume and job_description:
@@ -58,15 +80,26 @@ if st.button("Analyze Resume"):
         resume_words = set(resume.lower().split())
         job_words = set(job_description.lower().split())
 
-        matched = len(resume_words.intersection(job_words))
+        matched = len(
+            resume_words.intersection(job_words)
+        )
+
         required = len(job_words)
 
-        score = min(int((matched / required) * 100), 100) if required > 0 else 0
+        score = (
+            min(
+                int((matched / required) * 100),
+                100
+            )
+            if required > 0
+            else 0
+        )
 
-        missing_skills = list(job_words - resume_words)
+        missing_skills = list(
+            job_words - resume_words
+        )
 
-       
-                   tab1, tab2, tab3, tab4, tab5 = st.tabs(
+        tab1, tab2, tab3, tab4, tab5 = st.tabs(
             [
                 "ATS Score",
                 "Skill Gaps",
@@ -76,7 +109,10 @@ if st.button("Analyze Resume"):
             ]
         )
 
+        # --------------------------------
         # ATS Score
+        # --------------------------------
+
         with tab1:
 
             st.metric(
@@ -87,15 +123,24 @@ if st.button("Analyze Resume"):
             st.progress(score / 100)
 
             if score >= 80:
-                st.success("Excellent ATS Match")
+                st.success(
+                    "🏆 Excellent ATS Match"
+                )
 
             elif score >= 60:
-                st.warning("Moderate ATS Match")
+                st.warning(
+                    "⚡ Moderate ATS Match"
+                )
 
             else:
-                st.error("Low ATS Match")
+                st.error(
+                    "❌ Low ATS Match"
+                )
 
+        # --------------------------------
         # Skill Gaps
+        # --------------------------------
+
         with tab2:
 
             st.subheader("Missing Keywords")
@@ -106,36 +151,51 @@ if st.button("Analyze Resume"):
                     st.error(skill)
 
             else:
-                st.success("No major skill gaps found.")
+                st.success(
+                    "No major skill gaps found."
+                )
 
+        # --------------------------------
         # Interview Tips
+        # --------------------------------
+
         with tab3:
 
-            st.subheader("Interview Questions")
+            st.subheader(
+                "Suggested Interview Questions"
+            )
 
             questions = [
                 "Tell me about yourself.",
                 "What projects have you worked on?",
                 "Why are you interested in this role?",
-                "What are your strengths and weaknesses?"
+                "What are your strengths and weaknesses?",
+                "How do you solve technical problems?"
             ]
 
             for q in questions:
                 st.write(f"• {q}")
 
+        # --------------------------------
         # Resume Summary
+        # --------------------------------
+
         with tab4:
 
             st.subheader("Resume Summary")
 
-            word_count = len(resume.split())
-
-            st.write(
-                f"📄 Resume Length: {word_count} words"
+            word_count = len(
+                resume.split()
             )
 
             skills_found = len(
-                resume_words.intersection(job_words)
+                resume_words.intersection(
+                    job_words
+                )
+            )
+
+            st.write(
+                f"📄 Resume Length: {word_count} words"
             )
 
             st.write(
@@ -143,21 +203,27 @@ if st.button("Analyze Resume"):
             )
 
             if word_count < 150:
+
                 st.warning(
                     "Resume appears too short."
                 )
 
             elif word_count > 800:
+
                 st.warning(
                     "Resume may be too long."
                 )
 
             else:
+
                 st.success(
                     "Resume length looks good."
                 )
 
+        # --------------------------------
         # Analysis
+        # --------------------------------
+
         with tab5:
 
             st.subheader("Strength Analysis")
@@ -180,11 +246,14 @@ if st.button("Analyze Resume"):
                     st.success(item)
 
             else:
+
                 st.warning(
                     "No major strengths detected."
                 )
 
-            st.subheader("Weakness Analysis")
+            st.subheader(
+                "Weakness Analysis"
+            )
 
             if missing_skills:
 
@@ -200,7 +269,9 @@ if st.button("Analyze Resume"):
                     "No major weaknesses detected."
                 )
 
-            st.subheader("AI Suggestions")
+            st.subheader(
+                "AI Suggestions"
+            )
 
             st.info(
                 "Add missing keywords from the job description."
@@ -220,16 +291,27 @@ if st.button("Analyze Resume"):
 
             st.markdown("---")
 
-            st.subheader("Overall Match Rating")
+            st.subheader(
+                "Overall Match Rating"
+            )
 
             if score >= 80:
-                st.success("🏆 Excellent Match")
+
+                st.success(
+                    "🏆 Excellent Match"
+                )
 
             elif score >= 60:
-                st.warning("⚡ Moderate Match")
+
+                st.warning(
+                    "⚡ Moderate Match"
+                )
 
             else:
-                st.error("❌ Low Match")
+
+                st.error(
+                    "❌ Low Match"
+                )
 
     else:
 
