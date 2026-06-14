@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 import pdfplumber
 from docx import Document
@@ -18,6 +19,21 @@ st.set_page_config(
 
 st.title("🚀 ResumePilot AI")
 st.subheader("AI-Powered Resume Analyzer & Career Assistant")
+st.sidebar.title("🚀 ResumePilot AI")
+
+st.sidebar.markdown("---")
+
+st.sidebar.info(
+    "Analyze resumes, identify skill gaps, and improve ATS compatibility."
+)
+
+st.sidebar.markdown("### Features")
+
+st.sidebar.success("ATS Score")
+st.sidebar.success("Skill Gap Analysis")
+st.sidebar.success("Resume Summary")
+st.sidebar.success("Interview Preparation")
+st.sidebar.success("AI Suggestions")
 
 st.info(
     "Upload your resume or paste it below, then paste a job description."
@@ -119,6 +135,10 @@ if st.button("Analyze Resume"):
                 "ATS Score",
                 f"{score}%"
             )
+            st.progress(score / 100)
+
+if score >= 80:
+    st.balloons()
 
             st.progress(score / 100)
 
@@ -183,6 +203,21 @@ if st.button("Analyze Resume"):
         with tab4:
 
             st.subheader("Resume Summary")
+            st.subheader("Keyword Statistics")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.metric(
+        "Matched Keywords",
+        matched
+    )
+
+with col2:
+    st.metric(
+        "Missing Keywords",
+        len(missing_skills)
+    )
 
             word_count = len(
                 resume.split()
@@ -225,6 +260,22 @@ if st.button("Analyze Resume"):
         # --------------------------------
 
         with tab5:
+            st.subheader("Keyword Analysis")
+
+data = pd.DataFrame({
+    "Category": [
+        "Matched",
+        "Missing"
+    ],
+    "Count": [
+        matched,
+        len(missing_skills)
+    ]
+})
+
+st.bar_chart(
+    data.set_index("Category")
+)
 
             st.subheader("Strength Analysis")
 
@@ -318,3 +369,19 @@ if st.button("Analyze Resume"):
         st.warning(
             "Please provide both a resume and a job description."
         )
+        report = f"""
+ResumePilot AI Report
+
+ATS Score: {score}%
+
+Matched Keywords: {matched}
+
+Missing Keywords:
+{', '.join(missing_skills[:20])}
+"""
+
+st.download_button(
+    "📥 Download Report",
+    report,
+    file_name="ResumePilot_Report.txt"
+)
