@@ -1,12 +1,12 @@
-from reportlab.pdfgen import canvas
-import tempfile
 import streamlit as st
 import pdfplumber
 from docx import Document
+from reportlab.pdfgen import canvas
+import tempfile
 
-# --------------------------------------------------
+# ----------------------------------
 # PAGE CONFIG
-# --------------------------------------------------
+# ----------------------------------
 
 st.set_page_config(
     page_title="ResumePilot AI",
@@ -14,9 +14,9 @@ st.set_page_config(
     layout="wide"
 )
 
-# --------------------------------------------------
+# ----------------------------------
 # HEADER
-# --------------------------------------------------
+# ----------------------------------
 
 st.title("🚀 ResumePilot AI")
 st.subheader("AI-Powered Resume Analyzer & Career Assistant")
@@ -25,9 +25,9 @@ st.info(
     "Upload your resume or paste it below, then paste a job description."
 )
 
-# --------------------------------------------------
+# ----------------------------------
 # FILE UPLOAD
-# --------------------------------------------------
+# ----------------------------------
 
 uploaded_file = st.file_uploader(
     "Upload Resume",
@@ -55,55 +55,24 @@ if uploaded_file:
         for para in doc.paragraphs:
             resume += para.text + "\n"
 
-# --------------------------------------------------
-# TEXT INPUTS
-# --------------------------------------------------
+# ----------------------------------
+# INPUTS
+# ----------------------------------
 
 resume = st.text_area(
     "Paste Your Resume Here",
     value=resume,
-    height=200
+    height=250
 )
 
 job_description = st.text_area(
     "Paste Job Description Here",
-    height=200
+    height=250
 )
 
-# --------------------------------------------------
-# ANALYSIS
-# --------------------------------------------------
-
-if st.button("Generate PDF Report"):
-
-    pdf_file = tempfile.NamedTemporaryFile(
-        delete=False,
-        suffix=".pdf"
-    )
-
-    c = canvas.Canvas(pdf_file.name)
-
-    c.drawString(
-        100,
-        800,
-        f"ResumePilot AI Report"
-    )
-
-    c.drawString(
-        100,
-        770,
-        f"ATS Score: {score}%"
-    )
-
-    c.save()
-
-    with open(pdf_file.name, "rb") as f:
-
-        st.download_button(
-            "Download Report",
-            f,
-            file_name="ResumePilot_Report.pdf"
-        )
+# ----------------------------------
+# ANALYZE BUTTON
+# ----------------------------------
 
 if st.button("Analyze Resume"):
 
@@ -118,8 +87,6 @@ if st.button("Analyze Resume"):
 
         required = len(job_words)
 
-                missing_skills =
-
         score = (
             min(
                 int((matched / required) * 100),
@@ -133,6 +100,66 @@ if st.button("Analyze Resume"):
             job_words - resume_words
         )
 
+        # --------------------------
+        # TOP METRICS
+        # --------------------------
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric("ATS Score", f"{score}%")
+
+        with col2:
+            st.metric(
+                "Matched Keywords",
+                matched
+            )
+
+        with col3:
+            st.metric(
+                "Missing Keywords",
+                len(missing_skills)
+            )
+
+        st.progress(score / 100)
+
+        # --------------------------
+        # PDF REPORT
+        # --------------------------
+
+        pdf_file = tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".pdf"
+        )
+
+        c = canvas.Canvas(pdf_file.name)
+
+        c.drawString(
+            100,
+            800,
+            "ResumePilot AI Report"
+        )
+
+        c.drawString(
+            100,
+            770,
+            f"ATS Score: {score}%"
+        )
+
+        c.save()
+
+        with open(pdf_file.name, "rb") as f:
+
+            st.download_button(
+                "📄 Download PDF Report",
+                f,
+                file_name="ResumePilot_Report.pdf"
+            )
+
+        # --------------------------
+        # TABS
+        # --------------------------
+
         tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
             [
                 "ATS Score",
@@ -144,37 +171,35 @@ if st.button("Analyze Resume"):
             ]
         )
 
-        # ATS SCORE TAB
+        # --------------------------
+        # TAB 1
+        # --------------------------
 
-        col1, col2, col3 = st.columns(3)
+        with tab1:
 
-        with col1:
-            st.metric("ATS Score", f"{score}%")
-
-        with col2:
             st.metric(
-                "Matched Keywords",
-                len(resume_words.intersection(job_words))
+                "ATS Score",
+                f"{score}%"
             )
 
-       with col3:
-           st.metric(
-               "Missing Keywords",
-               len(missing_skills)
-          )
-
-     st.progress(score / 100)
-
             if score >= 80:
-                st.success("🏆 Excellent ATS Match")
+                st.success(
+                    "🏆 Excellent ATS Match"
+                )
 
             elif score >= 60:
-                st.warning("⚡ Moderate ATS Match")
+                st.warning(
+                    "⚡ Moderate ATS Match"
+                )
 
             else:
-                st.error("❌ Low ATS Match")
+                st.error(
+                    "❌ Low ATS Match"
+                )
 
-        # SKILL GAPS TAB
+        # --------------------------
+        # TAB 2
+        # --------------------------
 
         with tab2:
 
@@ -186,11 +211,14 @@ if st.button("Analyze Resume"):
                     st.error(skill)
 
             else:
+
                 st.success(
                     "No major skill gaps found."
                 )
 
-        # INTERVIEW TAB
+        # --------------------------
+        # TAB 3
+        # --------------------------
 
         with tab3:
 
@@ -198,29 +226,19 @@ if st.button("Analyze Resume"):
                 "Suggested Interview Questions"
             )
 
-            qa = {
-                "Tell me about yourself.":
-                    "I am a motivated professional with experience relevant to this position.",
+            questions = [
+                "Tell me about yourself.",
+                "Why are you interested in this role?",
+                "What projects have you worked on?",
+                "What are your strengths and weaknesses?"
+            ]
 
-               "Why are you interested in this role?":
-                    "This role aligns with my skills and career goals.",
+            for q in questions:
+                st.write(f"• {q}")
 
-               "What projects have you worked on?":
-                    "I have built several technical and problem-solving projects.",
-
-               "What are your strengths and weaknesses?":
-                    "My strength is continuous learning. My weakness is perfectionism."
-            }
-
-            for question, answer in qa.items():
-
-               st.markdown(f"### {question}")
-
-               st.success(answer)
-
-    pip install reportlab
-
-        # RESUME SUMMARY TAB
+        # --------------------------
+        # TAB 4
+        # --------------------------
 
         with tab4:
 
@@ -234,12 +252,8 @@ if st.button("Analyze Resume"):
                 f"📄 Resume Length: {word_count} words"
             )
 
-            skills_found = len(
-                resume_words.intersection(job_words)
-            )
-
             st.write(
-                f"✅ Matching Keywords: {skills_found}"
+                f"✅ Matching Keywords: {matched}"
             )
 
             if word_count < 150:
@@ -260,7 +274,9 @@ if st.button("Analyze Resume"):
                     "Resume length looks good."
                 )
 
-        # ANALYSIS TAB
+        # --------------------------
+        # TAB 5
+        # --------------------------
 
         with tab5:
 
@@ -325,95 +341,31 @@ if st.button("Analyze Resume"):
                 "Highlight relevant projects and certifications."
             )
 
-            st.markdown("---")
+        # --------------------------
+        # TAB 6
+        # --------------------------
+
+        with tab6:
 
             st.subheader(
-                "Overall Match Rating"
+                "Resume Rewrite Suggestions"
             )
 
-            if score >= 80:
+            rewritten = resume
 
-                st.success(
-                    "🏆 Excellent Match"
+            for skill in missing_skills[:5]:
+                rewritten += (
+                    f"\n• Experience with {skill}"
                 )
 
-            elif score >= 60:
-
-                st.warning(
-                    "⚡ Moderate Match"
-                )
-
-            else:
-
-                st.error(
-                    "❌ Low Match"
-                )
+            st.text_area(
+                "Improved Resume Version",
+                rewritten,
+                height=300
+            )
 
     else:
 
         st.warning(
             "Please provide both a resume and a job description."
         )
-
-with tab6:
-
-    st.subheader("Resume Rewrite Suggestions")
-
-    rewritten = resume
-
-    for skill in missing_skills[:5]:
-        rewritten += f"\n• Experience with {skill}"
-
-    st.text_area(
-        "Improved Resume Version",
-        rewritten,
-        height=300
-    )
-
-import google.generativeai as genai
-
-genai.configure(
-    api_key=st.secrets["GEMINI_API_KEY"]
-)
-
-model = genai.GenerativeModel(
-    "gemini-1.5-flash"
-)
-
-prompt = f"""
-Resume:
-{resume}
-
-Job Description:
-{job_description}
-
-Analyze:
-1. ATS score improvement
-2. Missing skills
-3. Resume rewrite suggestions
-4. Interview preparation
-"""
-
-response = model.generate_content(
-    prompt
-)
-
-st.write(response.text)
-
-Python
-Java
-SQL
-AWS
-Docker
-Kubernetes
-React
-Node.js
-
-plotly
-
-Data Analyst
-Backend Developer
-AI Engineer
-Machine Learning Engineer
-
-Custom Cover Letter
