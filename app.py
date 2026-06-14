@@ -118,8 +118,13 @@ if st.button("Analyze Resume"):
 
         required = len(job_words)
 
+                missing_skills =
+
         score = (
-            min(int((matched / required) * 100), 100)
+            min(
+                int((matched / required) * 100),
+                100
+            )
             if required > 0
             else 0
         )
@@ -128,16 +133,16 @@ if st.button("Analyze Resume"):
             job_words - resume_words
         )
 
-  tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
-    [
-        "ATS Score",
-        "Skill Gaps",
-        "Interview Tips",
-        "Resume Summary",
-        "Analysis",
-        "Resume Rewrite"
-    ]
-)
+        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+            [
+                "ATS Score",
+                "Skill Gaps",
+                "Interview Tips",
+                "Resume Summary",
+                "Analysis",
+                "Resume Rewrite"
+            ]
+        )
 
         # ATS SCORE TAB
 
