@@ -1,11 +1,10 @@
-import pandas as pd
 import streamlit as st
 import pdfplumber
 from docx import Document
 
-# -------------------------------
-# Page Configuration
-# -------------------------------
+# --------------------------------------------------
+# PAGE CONFIG
+# --------------------------------------------------
 
 st.set_page_config(
     page_title="ResumePilot AI",
@@ -13,36 +12,20 @@ st.set_page_config(
     layout="wide"
 )
 
-# -------------------------------
-# Header
-# -------------------------------
+# --------------------------------------------------
+# HEADER
+# --------------------------------------------------
 
 st.title("🚀 ResumePilot AI")
 st.subheader("AI-Powered Resume Analyzer & Career Assistant")
-
-st.sidebar.title("🚀 ResumePilot AI")
-
-st.sidebar.markdown("---")
-
-st.sidebar.info(
-    "Analyze resumes, identify skill gaps, and improve ATS compatibility."
-)
-
-st.sidebar.markdown("### Features")
-
-st.sidebar.success("ATS Score")
-st.sidebar.success("Skill Gap Analysis")
-st.sidebar.success("Resume Summary")
-st.sidebar.success("Interview Preparation")
-st.sidebar.success("AI Suggestions")
 
 st.info(
     "Upload your resume or paste it below, then paste a job description."
 )
 
-# -------------------------------
-# Resume Upload
-# -------------------------------
+# --------------------------------------------------
+# FILE UPLOAD
+# --------------------------------------------------
 
 uploaded_file = st.file_uploader(
     "Upload Resume",
@@ -57,19 +40,22 @@ if uploaded_file:
         resume = uploaded_file.read().decode("utf-8")
 
     elif uploaded_file.name.endswith(".pdf"):
+
         with pdfplumber.open(uploaded_file) as pdf:
+
             for page in pdf.pages:
                 resume += page.extract_text() or ""
 
     elif uploaded_file.name.endswith(".docx"):
+
         doc = Document(uploaded_file)
 
         for para in doc.paragraphs:
             resume += para.text + "\n"
 
-# -------------------------------
-# Resume Text Area
-# -------------------------------
+# --------------------------------------------------
+# TEXT INPUTS
+# --------------------------------------------------
 
 resume = st.text_area(
     "Paste Your Resume Here",
@@ -77,18 +63,14 @@ resume = st.text_area(
     height=200
 )
 
-# -------------------------------
-# Job Description
-# -------------------------------
-
 job_description = st.text_area(
     "Paste Job Description Here",
     height=200
 )
 
-# -------------------------------
-# Analyze Button
-# -------------------------------
+# --------------------------------------------------
+# ANALYSIS
+# --------------------------------------------------
 
 if st.button("Analyze Resume"):
 
@@ -104,10 +86,7 @@ if st.button("Analyze Resume"):
         required = len(job_words)
 
         score = (
-            min(
-                int((matched / required) * 100),
-                100
-            )
+            min(int((matched / required) * 100), 100)
             if required > 0
             else 0
         )
@@ -116,7 +95,13 @@ if st.button("Analyze Resume"):
             job_words - resume_words
         )
 
-        tab1, tab2, tab3, tab4, tab5 = st.tabs(
+        (
+            tab1,
+            tab2,
+            tab3,
+            tab4,
+            tab5
+        ) = st.tabs(
             [
                 "ATS Score",
                 "Skill Gaps",
@@ -126,9 +111,7 @@ if st.button("Analyze Resume"):
             ]
         )
 
-        # --------------------------------
-        # ATS Score
-        # --------------------------------
+        # ATS SCORE TAB
 
         with tab1:
 
@@ -140,28 +123,15 @@ if st.button("Analyze Resume"):
             st.progress(score / 100)
 
             if score >= 80:
-                st.balloons()
-
-            st.progress(score / 100)
-
-            if score >= 80:
-                st.success(
-                    "🏆 Excellent ATS Match"
-                )
+                st.success("🏆 Excellent ATS Match")
 
             elif score >= 60:
-                st.warning(
-                    "⚡ Moderate ATS Match"
-                )
+                st.warning("⚡ Moderate ATS Match")
 
             else:
-                st.error(
-                    "❌ Low ATS Match"
-                )
+                st.error("❌ Low ATS Match")
 
-        # --------------------------------
-        # Skill Gaps
-        # --------------------------------
+        # SKILL GAPS TAB
 
         with tab2:
 
@@ -177,9 +147,7 @@ if st.button("Analyze Resume"):
                     "No major skill gaps found."
                 )
 
-        # --------------------------------
-        # Interview Tips
-        # --------------------------------
+        # INTERVIEW TAB
 
         with tab3:
 
@@ -198,42 +166,22 @@ if st.button("Analyze Resume"):
             for q in questions:
                 st.write(f"• {q}")
 
-        # --------------------------------
-        # Resume Summary
-        # --------------------------------
+        # RESUME SUMMARY TAB
 
         with tab4:
 
             st.subheader("Resume Summary")
 
-            st.subheader("Keyword Statistics")
-
-            col1, col2 = st.columns(2)
-
-            with col1:
-                st.metric(
-                    "Matched Keywords",
-                    matched
-                )
-
-            with col2:
-                st.metric(
-                    "Missing Keywords",
-                    len(missing_skills)
-                 )
-
             word_count = len(
                 resume.split()
             )
 
-            skills_found = len(
-                resume_words.intersection(
-                    job_words
-                )
-            )
-
             st.write(
                 f"📄 Resume Length: {word_count} words"
+            )
+
+            skills_found = len(
+                resume_words.intersection(job_words)
             )
 
             st.write(
@@ -258,30 +206,11 @@ if st.button("Analyze Resume"):
                     "Resume length looks good."
                 )
 
-        # --------------------------------
-        # Analysis
-        # --------------------------------
+        # ANALYSIS TAB
 
         with tab5:
 
             st.subheader("Strength Analysis")
-
-            st.subheader("Keyword Analysis")
-
-            data = pd.DataFrame({
-                "Category": [
-                    "Matched",
-                    "Missing"
-                 ],
-                 "Count": [
-                     matched,
-                     len(missing_skills)
-                 ]
-               })
-
-               st.bar_chart(
-                   data.set_index("Category")
-               )
 
             strengths = []
 
@@ -324,9 +253,7 @@ if st.button("Analyze Resume"):
                     "No major weaknesses detected."
                 )
 
-            st.subheader(
-                "AI Suggestions"
-            )
+            st.subheader("AI Suggestions")
 
             st.info(
                 "Add missing keywords from the job description."
@@ -373,20 +300,3 @@ if st.button("Analyze Resume"):
         st.warning(
             "Please provide both a resume and a job description."
         )
-
-report = f"""
-ResumePilot AI Report
-
-ATS Score: {score}%
-
-Matched Keywords: {matched}
-
-Missing Keywords:
-{', '.join(missing_skills[:20])}
-"""
-
-st.download_button(
-    "📥 Download Report",
-    report,
-    file_name="ResumePilot_Report.txt"
-)
