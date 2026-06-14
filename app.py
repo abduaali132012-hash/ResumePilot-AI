@@ -364,3 +364,51 @@ with tab6:
         rewritten,
         height=300
     )
+
+import google.generativeai as genai
+
+genai.configure(
+    api_key=st.secrets["GEMINI_API_KEY"]
+)
+
+model = genai.GenerativeModel(
+    "gemini-1.5-flash"
+)
+
+prompt = f"""
+Resume:
+{resume}
+
+Job Description:
+{job_description}
+
+Analyze:
+1. ATS score improvement
+2. Missing skills
+3. Resume rewrite suggestions
+4. Interview preparation
+"""
+
+response = model.generate_content(
+    prompt
+)
+
+st.write(response.text)
+
+Python
+Java
+SQL
+AWS
+Docker
+Kubernetes
+React
+Node.js
+
+plotly
+
+Data Analyst
+Backend Developer
+AI Engineer
+Machine Learning Engineer
+
+Custom Cover Letter
