@@ -95,32 +95,37 @@ if st.button("Analyze Resume"):
             job_words - resume_words
         )
 
-        (
-            tab1,
-            tab2,
-            tab3,
-            tab4,
-            tab5
-        ) = st.tabs(
-            [
-                "ATS Score",
-                "Skill Gaps",
-                "Interview Tips",
-                "Resume Summary",
-                "Analysis"
-            ]
-        )
+  tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
+    [
+        "ATS Score",
+        "Skill Gaps",
+        "Interview Tips",
+        "Resume Summary",
+        "Analysis",
+        "Resume Rewrite"
+    ]
+)
 
         # ATS SCORE TAB
 
-        with tab1:
+        col1, col2, col3 = st.columns(3)
 
+        with col1:
+            st.metric("ATS Score", f"{score}%")
+
+        with col2:
             st.metric(
-                "ATS Score",
-                f"{score}%"
+                "Matched Keywords",
+                len(resume_words.intersection(job_words))
             )
 
-            st.progress(score / 100)
+       with col3:
+           st.metric(
+               "Missing Keywords",
+               len(missing_skills)
+          )
+
+     st.progress(score / 100)
 
             if score >= 80:
                 st.success("🏆 Excellent ATS Match")
@@ -155,16 +160,27 @@ if st.button("Analyze Resume"):
                 "Suggested Interview Questions"
             )
 
-            questions = [
-                "Tell me about yourself.",
-                "What projects have you worked on?",
-                "Why are you interested in this role?",
-                "What are your strengths and weaknesses?",
-                "How do you solve technical problems?"
-            ]
+            qa = {
+                "Tell me about yourself.":
+                    "I am a motivated professional with experience relevant to this position.",
 
-            for q in questions:
-                st.write(f"• {q}")
+               "Why are you interested in this role?":
+                    "This role aligns with my skills and career goals.",
+
+               "What projects have you worked on?":
+                    "I have built several technical and problem-solving projects.",
+
+               "What are your strengths and weaknesses?":
+                    "My strength is continuous learning. My weakness is perfectionism."
+            }
+
+            for question, answer in qa.items():
+
+               st.markdown(f"### {question}")
+
+               st.success(answer)
+
+    pip install reportlab
 
         # RESUME SUMMARY TAB
 
@@ -300,3 +316,18 @@ if st.button("Analyze Resume"):
         st.warning(
             "Please provide both a resume and a job description."
         )
+
+with tab6:
+
+    st.subheader("Resume Rewrite Suggestions")
+
+    rewritten = resume
+
+    for skill in missing_skills[:5]:
+        rewritten += f"\n• Experience with {skill}"
+
+    st.text_area(
+        "Improved Resume Version",
+        rewritten,
+        height=300
+    )
