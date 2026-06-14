@@ -2,4 +2,3 @@ streamlit
 pdfplumber
 python-docx
 reportlab
-google-generativeai
