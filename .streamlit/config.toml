@@ -1,2 +1,7 @@
-# .streamlit/secrets.toml
-GEMINI_API_KEY = "AIzaSy..."
+[theme]
+base = "dark"
+primaryColor = "#00E5FF"
+backgroundColor = "#0A0F1C"
+secondaryBackgroundColor = "#151B2D"
+textColor = "#FFFFFF"
+font = "sans serif"
