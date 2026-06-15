@@ -174,29 +174,28 @@ Analyze:
 4. Resume Weaknesses
 5. Career Recommendations
 """
+                 if gemini_enabled:
 
-      if gemini_enabled:
+            try:
 
-    try:
+                ai_response = model.generate_content(
+                    ai_prompt
+                )
 
-        ai_response = model.generate_content(
-            ai_prompt
-        )
+                ai_analysis = ai_response.text
 
-        ai_analysis = ai_response.text
+            except Exception:
 
-    except Exception:
+                ai_analysis = (
+                    "Gemini analysis unavailable."
+                )
 
-        ai_analysis = (
-            "Gemini analysis unavailable."
-        )
+        else:
 
-else:
-
-    ai_analysis = (
-        "Gemini analysis unavailable."
-    )
-
+            ai_analysis = (
+                "Gemini analysis unavailable."
+            )
+  
         # -------------------------
         # TABS
         # -------------------------
@@ -274,7 +273,7 @@ else:
         # TAB 3
         # -------------------------
 
-        with tab3:
+                with tab3:
 
             interview_prompt = f"""
 Generate interview questions and answers.
@@ -284,27 +283,29 @@ Job Description:
 {job_description}
 """
 
-         if gemini_enabled:
+            if gemini_enabled:
 
-    try:
+                try:
 
-        ai_response = model.generate_content(
-            ai_prompt
-        )
+                    interview_response = model.generate_content(
+                        interview_prompt
+                    )
 
-        ai_analysis = ai_response.text
+                    st.write(
+                        interview_response.text
+                    )
 
-    except Exception:
+                except Exception:
 
-        ai_analysis = (
-            "Gemini analysis unavailable."
-        )
+                    st.error(
+                        "Interview tips generation failed."
+                    )
 
-else:
+            else:
 
-    ai_analysis = (
-        "Gemini analysis unavailable."
-    )
+                st.warning(
+                    "Gemini AI unavailable."
+                )
 
         # -------------------------
         # TAB 4
@@ -341,8 +342,7 @@ else:
         # -------------------------
         # TAB 6
         # -------------------------
-
-        with tab6:
+                with tab6:
 
             rewrite_prompt = f"""
 Rewrite this resume professionally.
@@ -358,33 +358,33 @@ Job Description:
 Improve ATS compatibility.
 """
 
-          if gemini_enabled:
+            if gemini_enabled:
 
-    try:
+                try:
 
-        rewrite_response = (
-            model.generate_content(
-                rewrite_prompt
-            )
-        )
+                    rewrite_response = (
+                        model.generate_content(
+                            rewrite_prompt
+                        )
+                    )
 
-        st.text_area(
-            "Improved Resume",
-            rewrite_response.text,
-            height=400
-        )
+                    st.text_area(
+                        "Improved Resume",
+                        rewrite_response.text,
+                        height=400
+                    )
 
-    except Exception:
+                except Exception:
 
-        st.error(
-            "Resume rewrite failed."
-        )
+                    st.error(
+                        "Resume rewrite failed."
+                    )
 
-else:
+            else:
 
-    st.warning(
-        "Gemini AI unavailable."
-    )
+                st.warning(
+                    "Gemini AI unavailable."
+                )
         # -------------------------
         # TAB 7
         # -------------------------
@@ -403,7 +403,7 @@ else:
         # TAB 8
         # -------------------------
 
-        with tab8:
+                with tab8:
 
             cover_prompt = f"""
 Create a professional cover letter.
@@ -417,36 +417,45 @@ Job Description:
 {job_description}
 """
 
-     if gemini_enabled:
+            if gemini_enabled:
 
-    try:
+                try:
 
-        cover_response = (
-            model.generate_content(
-                cover_prompt
-            )
-        )
+                    cover_response = (
+                        model.generate_content(
+                            cover_prompt
+                        )
+                    )
 
-        st.text_area(
-            "Generated Cover Letter",
-            cover_response.text,
-            height=400
-        )
+                    st.text_area(
+                        "Generated Cover Letter",
+                        cover_response.text,
+                        height=400
+                    )
 
-    except Exception:
+                except Exception:
 
-        st.error(
-            "Cover letter generation failed."
-        )
+                    st.error(
+                        "Cover letter generation failed."
+                    )
 
-else:
+            else:
 
-    st.warning(
-        "Gemini AI unavailable."
-    )
+                st.warning(
+                    "Gemini AI unavailable."
+                )
 
     else:
 
         st.warning(
             "Please provide both a resume and a job description."
         )
+
+if resume and job_description:
+
+    st.set_page_config(
+    page_title="ResumePilot AI",
+    page_icon="🚀",
+    layout="wide"
+)
+      
