@@ -1,3 +1,11 @@
+import google.generativeai as genai
+genai.configure(
+    api_key=st.secrets["GEMINI_API_KEY"]
+)
+
+model = genai.GenerativeModel(
+    "gemini-1.5-flash"
+)
 import streamlit as st
 import pdfplumber
 from docx import Document
@@ -77,6 +85,26 @@ job_description = st.text_area(
 if st.button("Analyze Resume"):
 
     if resume and job_description:
+
+       prompt = f"""
+Resume:
+{resume}
+
+Job Description:
+{job_description}
+
+Analyze:
+
+1. ATS Score Improvement
+2. Missing Skills
+3. Resume Strengths
+4. Resume Weaknesses
+5. Career Recommendations
+"""
+
+response = model.generate_content(prompt)
+
+ai_analysis = response.text 
 
         resume_words = set(resume.lower().split())
         job_words = set(job_description.lower().split())
@@ -369,3 +397,17 @@ if st.button("Analyze Resume"):
         st.warning(
             "Please provide both a resume and a job description."
         )
+
+tab7
+
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(
+[
+"ATS Score",
+"Skill Gaps",
+"Interview Tips",
+"Resume Summary",
+"Analysis",
+"Resume Rewrite",
+"AI Coach"
+]
+)
