@@ -375,23 +375,31 @@ ai_analysis = response.text
 
         with tab6:
 
-            st.subheader(
-                "Resume Rewrite Suggestions"
-            )
+        rewrite_prompt = f"""
+Rewrite this resume professionally.
 
-            rewritten = resume
+Resume:
 
-            for skill in missing_skills[:5]:
-                rewritten += (
-                    f"\n• Experience with {skill}"
-                )
+{resume}
 
-            st.text_area(
-                "Improved Resume Version",
-                rewritten,
-                height=300
-            )
+Job Description:
 
+{job_description}
+
+Improve ATS compatibility.
+"""
+
+rewrite_response = model.generate_content(
+    rewrite_prompt
+)
+
+rewritten_resume = rewrite_response.text
+
+st.text_area(
+    "Improved Resume",
+    rewritten_resume,
+    height=400
+)
     else:
 
         st.warning(
@@ -399,6 +407,14 @@ ai_analysis = response.text
         )
 
 tab7
+
+with tab7:
+
+    st.subheader(
+        "🤖 Gemini Career Coach"
+    )
+
+    st.write(ai_analysis)
 
 tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(
 [
@@ -409,5 +425,18 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(
 "Analysis",
 "Resume Rewrite",
 "AI Coach"
+]
+)
+
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(
+[
+"ATS Score",
+"Skill Gaps",
+"Interview Tips",
+"Resume Summary",
+"Analysis",
+"Resume Rewrite",
+"AI Coach",
+"Cover Letter"
 ]
 )
