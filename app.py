@@ -86,6 +86,26 @@ job_description = st.text_area(
 
 if st.button("Analyze Resume"):
 
+
+
+    if st.button("Analyze Resume"):
+
+    if resume and job_description:
+
+        resume_words = set(
+            resume.lower().split()
+        )
+
+        job_words = set(
+            job_description.lower().split()
+        )
+
+        matched = len(
+            resume_words.intersection(job_words)
+        )
+
+        required = len(job_words)
+
     if resume and job_description:
 
        prompt = f"""
