@@ -11,6 +11,8 @@ import pdfplumber
 from docx import Document
 from reportlab.pdfgen import canvas
 import tempfile
+import pandas as pd
+import plotly.express as px
 
 # ----------------------------------
 # PAGE CONFIG
@@ -254,15 +256,23 @@ ai_analysis = response.text
                 "Suggested Interview Questions"
             )
 
-            questions = [
-                "Tell me about yourself.",
-                "Why are you interested in this role?",
-                "What projects have you worked on?",
-                "What are your strengths and weaknesses?"
-            ]
+           interview_prompt = f"""
+Generate interview questions
+and strong sample answers
+for this job.
 
-            for q in questions:
-                st.write(f"• {q}")
+Job Description:
+
+{job_description}
+"""
+
+interview_response = model.generate_content(
+    interview_prompt
+)
+
+st.write(
+    interview_response.text
+)
 
         # --------------------------
         # TAB 4
@@ -307,6 +317,31 @@ ai_analysis = response.text
         # --------------------------
 
         with tab5:
+
+            skills_data = pd.DataFrame(
+{
+"Category":[
+"Matched",
+"Missing"
+],
+"Count":[
+matched,
+len(missing_skills)
+]
+}
+)
+
+fig = px.bar(
+skills_data,
+x="Category",
+y="Count",
+title="Keyword Analysis"
+)
+
+st.plotly_chart(
+fig,
+use_container_width=True
+)
 
             st.subheader("Strength Analysis")
 
@@ -429,7 +464,32 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(
 )
 
 tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(
+
+    with tab8:
+
+    cover_prompt = f"""
+Create a professional cover letter.
+
+Resume:
+
+{resume}
+
+Job Description:
+
+{job_description}
+"""
+
+    cover_letter = model.generate_content(
+        cover_prompt
+    )
+
+    st.text_area(
+        "Generated Cover Letter",
+        cover_letter.text,
+        height=400
+    )
 [
+
 "ATS Score",
 "Skill Gaps",
 "Interview Tips",
