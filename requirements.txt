@@ -2,3 +2,6 @@ streamlit
 pdfplumber
 python-docx
 google-generativeai
+plotly
+reportlab
+pandas
