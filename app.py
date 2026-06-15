@@ -500,3 +500,21 @@ Job Description:
 "Cover Letter"
 ]
 )
+
+job_description_2 = st.text_area(
+    "Second Job Description",
+    height=200
+)
+
+score_job1
+score_job2
+
+st.metric(
+    "Job 1 Match",
+    f"{score_job1}%"
+)
+
+st.metric(
+    "Job 2 Match",
+    f"{score_job2}%"
+)
