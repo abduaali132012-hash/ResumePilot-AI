@@ -7,14 +7,25 @@ import google.generativeai as genai
 # GEMINI CONFIG
 # -----------------------------
 
-genai.configure(
-    api_key=st.secrets["GEMINI_API_KEY"]
-)
+try:
 
-model = genai.GenerativeModel(
-    "gemini-1.5-flash"
-)
+    genai.configure(
+        api_key=st.secrets["GEMINI_API_KEY"]
+    )
 
+    model = genai.GenerativeModel(
+        "gemini-1.5-flash"
+    )
+
+    gemini_enabled = True
+
+except Exception as e:
+
+    gemini_enabled = False
+
+    st.warning(
+        "Gemini AI is not configured."
+    )
 # -----------------------------
 # PAGE CONFIG
 # -----------------------------
@@ -164,11 +175,27 @@ Analyze:
 5. Career Recommendations
 """
 
+      if gemini_enabled:
+
+    try:
+
         ai_response = model.generate_content(
             ai_prompt
         )
 
         ai_analysis = ai_response.text
+
+    except Exception:
+
+        ai_analysis = (
+            "Gemini analysis unavailable."
+        )
+
+else:
+
+    ai_analysis = (
+        "Gemini analysis unavailable."
+    )
 
         # -------------------------
         # TABS
@@ -257,15 +284,27 @@ Job Description:
 {job_description}
 """
 
-            interview_response = (
-                model.generate_content(
-                    interview_prompt
-                )
-            )
+         if gemini_enabled:
 
-            st.write(
-                interview_response.text
-            )
+    try:
+
+        ai_response = model.generate_content(
+            ai_prompt
+        )
+
+        ai_analysis = ai_response.text
+
+    except Exception:
+
+        ai_analysis = (
+            "Gemini analysis unavailable."
+        )
+
+else:
+
+    ai_analysis = (
+        "Gemini analysis unavailable."
+    )
 
         # -------------------------
         # TAB 4
@@ -319,18 +358,33 @@ Job Description:
 Improve ATS compatibility.
 """
 
-            rewrite_response = (
-                model.generate_content(
-                    rewrite_prompt
-                )
-            )
+          if gemini_enabled:
 
-            st.text_area(
-                "Improved Resume",
-                rewrite_response.text,
-                height=400
-            )
+    try:
 
+        rewrite_response = (
+            model.generate_content(
+                rewrite_prompt
+            )
+        )
+
+        st.text_area(
+            "Improved Resume",
+            rewrite_response.text,
+            height=400
+        )
+
+    except Exception:
+
+        st.error(
+            "Resume rewrite failed."
+        )
+
+else:
+
+    st.warning(
+        "Gemini AI unavailable."
+    )
         # -------------------------
         # TAB 7
         # -------------------------
@@ -363,17 +417,33 @@ Job Description:
 {job_description}
 """
 
-            cover_response = (
-                model.generate_content(
-                    cover_prompt
-                )
-            )
+     if gemini_enabled:
 
-            st.text_area(
-                "Generated Cover Letter",
-                cover_response.text,
-                height=400
+    try:
+
+        cover_response = (
+            model.generate_content(
+                cover_prompt
             )
+        )
+
+        st.text_area(
+            "Generated Cover Letter",
+            cover_response.text,
+            height=400
+        )
+
+    except Exception:
+
+        st.error(
+            "Cover letter generation failed."
+        )
+
+else:
+
+    st.warning(
+        "Gemini AI unavailable."
+    )
 
     else:
 
