@@ -174,27 +174,10 @@ Analyze:
 4. Resume Weaknesses
 5. Career Recommendations
 """
-                 if gemini_enabled:
-
-            try:
-
-                ai_response = model.generate_content(
-                    ai_prompt
-                )
-
-                ai_analysis = ai_response.text
-
-            except Exception:
-
-                ai_analysis = (
-                    "Gemini analysis unavailable."
-                )
-
-        else:
-
-            ai_analysis = (
-                "Gemini analysis unavailable."
-            )
+                 File "/mount/src/resumepilot-ai/app.py", line 177
+                   if gemini_enabled:
+                  ^
+IndentationError: unexpected indent
   
         # -------------------------
         # TABS
