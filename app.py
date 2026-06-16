@@ -17,15 +17,14 @@ st.set_page_config(
 # -----------------------------
 try:
 
-    api_key = st.secrets["GEMINI_API_KEY"]
+    
+genai.configure(
+    api_key=st.secrets["GEMINI_API_KEY"]
+)
 
-    genai.configure(
-        api_key=api_key
-    )
-
-    model = genai.GenerativeModel(
-        "gemini-1.5-flash"
-    )
+model = genai.GenerativeModel(
+    "gemini-1.5-flash"
+)
 
     gemini_enabled = True
 
@@ -243,3 +242,19 @@ if st.session_state.analysis_results:
     with tab8:
         st.header("Custom Tailored Cover Letter Generator")
         st.text_area("Generated Output (Editable)", res['cover_letter'], height=450)
+
+if st.button("Test Gemini"):
+
+    try:
+
+        response = model.generate_content(
+            "Say hello"
+        )
+
+        st.success("Gemini Connected!")
+
+        st.write(response.text)
+
+    except Exception as e:
+
+        st.error(f"Error: {e}")
