@@ -185,6 +185,30 @@ if st.session_state.analysis_results:
 
     # 1. ATS SCORE TAB
     with tab1:
+        chart_data = pd.DataFrame(
+    {
+        "Category": [
+            "Matched",
+            "Missing"
+        ],
+        "Count": [
+            matched,
+            len(missing_skills)
+        ]
+    }
+)
+
+fig = px.pie(
+    chart_data,
+    values="Count",
+    names="Category",
+    title="Keyword Coverage"
+)
+
+st.plotly_chart(
+    fig,
+    use_container_width=True
+)
         st.header("ATS Match Optimization Breakdown")
         st.metric("Calculated Match", f"{res['score']}%")
         if res['score'] >= 80:
