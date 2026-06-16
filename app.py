@@ -1,26 +1,27 @@
-st.markdown(
-"""
-# 🚀 ResumePilot AI
-
-### Smart Resume Optimization Platform
-""")
-from reportlab.pdfgen import canvas
-import tempfile
-import plotly.express as px
-import pandas as pd
 import streamlit as st
 import pdfplumber
 from docx import Document
 import google.generativeai as genai
+import pandas as pd
+import plotly.express as px
+import tempfile
+from reportlab.pdfgen import canvas
 
 # -----------------------------
-# PAGE CONFIG (MUST BE FIRST)
+# PAGE CONFIG (MUST BE THE FIRST STREAMLIT COMMAND)
 # -----------------------------
 st.set_page_config(
     page_title="ResumePilot AI",
     page_icon="🚀",
     layout="wide"
 )
+
+# Banner rendered immediately AFTER page config
+st.markdown("""
+# 🚀 ResumePilot AI
+### Smart Resume Optimization Platform
+---
+""")
 
 # -----------------------------
 # GEMINI CONFIG
@@ -29,29 +30,26 @@ try:
     genai.configure(
         api_key=st.secrets["GEMINI_API_KEY"]
     )
-
-    # Upgraded to 2.5-flash for perfect compatibility with new auth keys
-    model = genai.GenerativeModel(
-        "gemini-2.5-flash"
-    )
-
+    model = genai.GenerativeModel("gemini-2.5-flash")
     gemini_enabled = True
-
 except Exception as e:
     gemini_enabled = False
-    st.error(
-        "Gemini API is not configured correctly."
-    )
+    st.error("Gemini API is not configured correctly.")
 
 # -----------------------------
-# HEADER
+# HELPER CORE FUNCTIONS
 # -----------------------------
-st.title("🚀 ResumePilot AI")
-st.subheader("AI-Powered Resume Analyzer & Career Assistant")
-st.info("Upload your resume or paste it below, then paste a job description to get a full AI-powered analysis.")
+def calculate_score(resume_text, jd):
+    if not resume_text or not jd:
+        return 0
+    resume_words = set(resume_text.lower().split())
+    job_words = set(jd.lower().split())
+    matched = len(resume_words.intersection(job_words))
+    required = len(job_words)
+    return int((matched / required) * 100) if required > 0 else 0
 
 # -----------------------------
-# FILE UPLOAD
+# FILE UPLOAD SYSTEM
 # -----------------------------
 uploaded_file = st.file_uploader("Upload Resume", type=["txt", "pdf", "docx"])
 resume_text = ""
@@ -69,156 +67,54 @@ if uploaded_file:
             resume_text += para.text + "\n"
 
 # -----------------------------
-# INPUTS
+# TWO-COLUMN DATA INPUTS
 # -----------------------------
 col_res, col_jd = st.columns(2)
 
 with col_res:
-    resume = st.text_area("Paste / Verify Your Resume Here", value=resume_text, height=250)
+    resume = st.text_area("Paste / Verify Your Resume Here", value=resume_text, height=400)
 
 with col_jd:
-    job1 = st.text_area(
-    "Job Description 1",
-    height=200
-)
-
-job2 = st.text_area(
-    "Job Description 2",
-    height=200
-)
-
-job3 = st.text_area(
-    "Job Description 3",
-    height=200
-)
-
-def calculate_score(
-    resume_text,
-    jd
-):
-
-    resume_words = set(
-        resume_text.lower().split()
-    )
-
-    job_words = set(
-        jd.lower().split()
-    )
-
-    matched = len(
-        resume_words.intersection(job_words)
-    )
-
-    required = len(job_words)
-
-    return (
-        int(
-            (matched / required) * 100
-        )
-        if required > 0
-        else 0
-    )
-
-score1 = calculate_score(
-    resume,
-    job1
-)
-
-score2 = calculate_score(
-    resume,
-    job2
-)
-
-score3 = calculate_score(
-    resume,
-    job3
-)
+    st.markdown("### Target Job Descriptions")
+    job1 = st.text_area("Primary Job Description (Used for Main Analysis)", height=150)
+    job2 = st.text_area("Comparison Job Description 2 (Optional)", height=120)
+    job3 = st.text_area("Comparison Job Description 3 (Optional)", height=120)
 
 # -----------------------------
-# ANALYSIS LOGIC (SESSION STATE)
+# PROCESSING PIPELINE
 # -----------------------------
-# Initialize session state so reports don't disappear when shifting tabs
 if "analysis_results" not in st.session_state:
     st.session_state.analysis_results = None
 
 if st.button("Analyze Resume", type="primary"):
-    if not resume or not job_description:
-        pdf_file = tempfile.NamedTemporaryFile(
-    delete=False,
-    suffix=".pdf"
-)
-
-c = canvas.Canvas(
-    pdf_file.name
-)
-
-c.drawString(
-    100,
-    800,
-    "ResumePilot AI Report"
-)
-
-c.drawString(
-    100,
-    770,
-    f"ATS Score: {score}%"
-)
-
-c.drawString(
-    100,
-    740,
-    f"Matched Keywords: {matched}"
-)
-
-c.drawString(
-    100,
-    710,
-    f"Missing Keywords: {len(missing_skills)}"
-)
-
-c.save()
-with open(pdf_file.name, "rb") as f:
-
-    st.download_button(
-        "📄 Download PDF Report",
-        f,
-        file_name="ResumePilot_Report.pdf"
-    )
-        st.warning("Please provide both a resume and a job description.")
-    if st.button("Analyze Resume"):
-
-    if resume and job_description:
-
-        # all analysis code here
-
-        pass
-
-    else:
-
-        st.warning(
-            "Please provide both a resume and a job description."
-        )
+    if not resume or not job1:
+        st.warning("Please provide at least a resume and the Primary Job Description.")
     elif not gemini_enabled:
         st.error("Cannot perform analysis. Gemini API is not configured.")
     else:
         with st.spinner("🤖 Remote Pilot AI is scanning your credentials and simulating ATS filtering..."):
             
-            # 1. Keyword Math Calculation
+            # Primary Keyword Calculations
             resume_words = set(resume.lower().split())
-            job_words = set(job_description.lower().split())
+            job_words = set(job1.lower().split())
             matched_keywords = resume_words.intersection(job_words)
             missing_keywords = job_words - resume_words
 
-            # 2. Master Prompt to Gemini (Returns everything structured cleanly)
+            # Multi-Job Comparative Logic Calculations
+            score1 = calculate_score(resume, job1)
+            score2 = calculate_score(resume, job2) if job2 else 0
+            score3 = calculate_score(resume, job3) if job3 else 0
+
+            # Combined prompts for optimal single-token parsing
             master_prompt = f"""
-            You are an expert corporate Recruiter and an advanced ATS (Applicant Tracking System) parser.
-            Analyze the following Resume against the Job Description.
+            You are an expert corporate Recruiter and an advanced ATS parser.
+            Analyze the following Resume against the Primary Job Description.
 
             [RESUME]
             {resume}
 
             [JOB DESCRIPTION]
-            {job_description}
+            {job1}
 
             Provide a comprehensive evaluation divided explicitly into these sections using these exact headers:
             
@@ -238,17 +134,32 @@ with open(pdf_file.name, "rb") as f:
             Provide a restructured, high-impact rewrite of the candidate's professional summary and their top experience bullet points, optimized with keywords to rank highly.
 
             ### CAREER COACH GUIDANCE
-            Give 2-3 actionable career recommendations (e.g., certifications to get, project architectures to build) to permanently overcome the skill gaps discovered.
+            Give 2-3 actionable career recommendations to permanently overcome the skill gaps discovered.
 
             ### TAILORED COVER LETTER
             Write a professional, compelling, 3-4 paragraph cover letter customized for this applicant applying to this specific role. Include placeholder tags like [Your Name] where appropriate.
             """
 
+            scoring_prompt = f"""
+            Score this resume from 1-10 on these parameters. Return your complete answer strictly formatted as markdown bullet points:
+            - **Technical Skills**: [Score]/10
+            - **Experience**: [Score]/10
+            - **Leadership**: [Score]/10
+            - **Communication**: [Score]/10
+            - **ATS Compatibility**: [Score]/10
+
+            Resume: {resume}
+            Job Description: {job1}
+            """
+
             try:
+                # Fire queries simultaneously 
                 response = model.generate_content(master_prompt)
                 ai_text = response.text
 
-                # Parse sections safely using string partitions
+                score_response = model.generate_content(scoring_prompt)
+                score_text = score_response.text
+
                 def extract_section(text, header, next_header=None):
                     try:
                         part = text.split(header)[1]
@@ -256,13 +167,17 @@ with open(pdf_file.name, "rb") as f:
                             part = part.split(next_header)[0]
                         return part.strip()
                     except:
-                        return "Section generation misplaced. Please rerun analysis."
+                        return "Section layout mismatched. Please try analyzing again."
 
-                # Save results to session state
+                # Commit metrics data mapping objects directly to permanent memory
                 st.session_state.analysis_results = {
-                    "score": min(int((len(matched_keywords) / len(job_words)) * 100 + 40), 100) if len(job_words) > 0 else 0, # Balanced score algorithm
+                    "score": min(int((len(matched_keywords) / len(job_words)) * 100 + 40), 100) if len(job_words) > 0 else 0,
                     "matched_count": len(matched_keywords),
                     "missing_skills": sorted(list(missing_keywords)),
+                    "score1": score1,
+                    "score2": score2,
+                    "score3": score3,
+                    "ai_score_breakdown": score_text,
                     "summary": extract_section(ai_text, "### RESUME SUMMARY", "### CORE STRENGTHS"),
                     "strengths": extract_section(ai_text, "### CORE STRENGTHS", "### CRITICAL WEAKNESSES"),
                     "weaknesses": extract_section(ai_text, "### CRITICAL WEAKNESSES", "### INTERVIEW PREPARATION"),
@@ -276,88 +191,97 @@ with open(pdf_file.name, "rb") as f:
                 st.error(f"An error occurred during AI processing: {str(e)}")
 
 # -----------------------------
-# DISPLAY RESULTS TABS
+# RUNTIME UI DRAW RE-RENDER INTERFACE
 # -----------------------------
 if st.session_state.analysis_results:
     res = st.session_state.analysis_results
 
-    # Top KPI Dashboards
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("Overall ATS Match Score", f"{res['score']}%")
-    with col2:
-        st.metric("Matched Keywords Found", res['matched_count'])
-    with col3:
-        st.metric("Detected Missing Gaps", len(res['missing_skills']))
+    # Top Metric Dashboard Cards Array
+    m_col1, m_col2, m_col3, m_col4 = st.columns(4)
+    with m_col1:
+        st.metric("ATS Match Score", f"{res['score']}%")
+    with m_col2:
+        st.metric("Matched Keywords", res['matched_count'])
+    with m_col3:
+        st.metric("Missing Gaps", len(res['missing_skills']))
+    with m_col4:
+        st.metric("Resume Word Count", len(resume.split()))
     
     st.progress(res['score'] / 100)
+    
+    # -----------------------------
+    # ON-DEMAND GENERATE PDF ENGINE
+    # -----------------------------
+    try:
+        pdf_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+        c = canvas.Canvas(pdf_file.name)
+        c.drawString(100, 800, "ResumePilot AI Assessment Report")
+        c.drawString(100, 770, f"Primary ATS Score: {res['score']}%")
+        c.drawString(100, 740, f"Matched Keywords Found: {res['matched_count']}")
+        c.drawString(100, 710, f"Missing Keywords Logged: {len(res['missing_skills'])}")
+        c.save()
+        
+        with open(pdf_file.name, "rb") as f:
+            st.download_button(
+                label="📄 Download Executive Summary PDF Report",
+                data=f,
+                file_name="ResumePilot_Report.pdf",
+                mime="application/pdf"
+            )
+    except Exception as pdf_err:
+        st.info("PDF Summary compilation engine currently idling.")
+
     st.markdown("---")
 
-    # Render Your 8 Tabs Dynamically
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
+    # Render Your Updated 9 Tabs System
+    tabs = st.tabs([
         "📊 ATS Score", "🎯 Skill Gaps", "💡 Interview Tips", 
-        "📝 Resume Summary", "🔍 Detailed Analysis", "✍️ Resume Rewrite", 
-        "🧠 AI Coach", "✉️ Cover Letter"
+        "撕 Resume Summary", "🔍 Detailed Analysis", "✍️ Resume Rewrite", 
+        "🧠 AI Coach", "✉️ Cover Letter", "📈 Job Comparison"
     ])
 
-    # 1. ATS SCORE TAB
-    with tab1:
-        chart_data = pd.DataFrame(
-    {
-        "Category": [
-            "Matched",
-            "Missing"
-        ],
-        "Count": [
-            matched,
-            len(missing_skills)
-        ]
-    }
-)
-
-fig = px.pie(
-    chart_data,
-    values="Count",
-    names="Category",
-    title="Keyword Coverage"
-)
-
-st.plotly_chart(
-    fig,
-    use_container_width=True
-)
+    # Tab 1: ATS SCORE LAYOUT WITH PLOTLY PIE CHART
+    with tabs[0]:
         st.header("ATS Match Optimization Breakdown")
-        st.metric("Calculated Match", f"{res['score']}%")
+        
+        # Build Dataframe safely using dynamic variables mapped from session memory
+        chart_data = pd.DataFrame({
+            "Category": ["Matched Keywords", "Missing Deficiencies"],
+            "Count": [res['matched_count'], max(len(res['missing_skills']), 1)]
+        })
+        fig = px.pie(chart_data, values="Count", names="Category", title="Core Keyword Metric Density Coverage")
+        st.plotly_chart(fig, use_container_width=True)
+        
+        st.metric("Calculated Primary Matching Factor", f"{res['score']}%")
         if res['score'] >= 80:
-            st.success("🏆 **Excellent Alignment:** Your resume shares strong contextual parity with the requirements of this role.")
+            st.success("🏆 **Excellent Alignment:** Your profile shares close parity with the requirements of this role.")
         elif res['score'] >= 65:
-            st.warning("⚡ **Moderate Alignment:** Good base, but adding a few missing target phrases will place you in the top tier.")
+            st.warning("⚡ **Moderate Alignment:** Good base, but missing target terms should be blended in.")
         else:
-            st.error("❌ **Low Alignment:** Critical keyword gaps found. The automated parsers might filter this out before human eyes see it.")
+            st.error("❌ **Low Alignment:** Significant keyword gaps found. Automated parsers could reject this early.")
 
-    # 2. SKILL GAPS TAB
-    with tab2:
+    # Tab 2: SKILL GAPS
+    with tabs[1]:
         st.header("Target Keyword Deficiencies")
-        st.write("These specific contextual terms appear in the job description but were missing or phrased differently in your resume:")
+        st.write("These terms appear in your target specifications but were absent or phrased differently in your resume layout:")
         if res['missing_skills']:
             filtered_skills = [s for s in res['missing_skills'] if len(s) > 2 and s.isalpha()]
-            st.write(", ".join([f"`{skill}`" for skill in filtered_skills[:20]]))
+            st.write(", ".join([f"`{skill}`" for skill in filtered_skills[:30]]))
         else:
-            st.success("Phenomenal keyword optimization! No major contextual keyword missing.")
+            st.success("Phenomenal keyword optimization! No major contextual metrics missing.")
 
-    # 3. INTERVIEW TIPS TAB
-    with tab3:
+    # Tab 3: INTERVIEW PREPARATION
+    with tabs[2]:
         st.header("Tailored Interview Preparation Simulator")
         st.markdown(res['interview'])
 
-    # 4. RESUME SUMMARY TAB
-    with tab4:
+    # Tab 4: RESUME SUMMARY
+    with tabs[3]:
         st.header("Objective Profile Summary")
         st.write(res['summary'])
-        st.info(f"💡 **Tip:** Use this optimized structural layout in your resume's header segment.")
 
-    # 5. DETAILED ANALYSIS TAB
-    with tab5:
+    # Tab 5: DETAILED ANALYSIS & RAW SCORES
+    with tabs[4]:
         st.header("Comparative Structural Report")
         col_str, col_weak = st.columns(2)
         with col_str:
@@ -366,92 +290,44 @@ st.plotly_chart(
         with col_weak:
             st.subheader("⚠️ ATS Bottlenecks & Gaps")
             st.markdown(res['weaknesses'])
+        
+        st.markdown("---")
+        st.subheader("AI Scoring Breakdown Matrix")
+        st.markdown(res['ai_score_breakdown'])
 
-    # 6. RESUME REWRITE TAB
-    with tab6:
+    # Tab 6: REWRITE SUGGESTIONS
+    with tabs[5]:
         st.header("ATS-Optimized Phrasing Suggestions")
         st.markdown(res['rewrite'])
 
-    # 7. AI COACH TAB
-    with tab7:
+    # Tab 7: CAREER COACHING
+    with tabs[6]:
         st.header("Strategic Professional Development Plan")
         st.markdown(res['coach'])
 
-    # 8. COVER LETTER TAB
-    with tab8:
+    # Tab 8: TARGET COVER LETTER
+    with tabs[7]:
         st.header("Custom Tailored Cover Letter Generator")
         st.text_area("Generated Output (Editable)", res['cover_letter'], height=450)
 
-if st.button("Test Gemini"):
+    # Tab 9: MULTI-JOB SCORING COMPARISON GRAPH
+    with tabs[8]:
+        st.header("Multi-Job Intent Target Comparison Chart")
+        comparison_dict = {
+            "Primary Job (Job 1)": res['score1'],
+            "Comparison Job 2": res['score2'],
+            "Comparison Job 3": res['score3']
+        }
+        st.bar_chart(comparison_dict)
+        st.info("Use this visual data array to see which job profile variant matches best with your current resume version.")
+
+# -----------------------------
+# ISOLATED BACKEND TEST BUTTON
+# -----------------------------
+st.sidebar.markdown("---")
+if st.sidebar.button("Test Gemini Connection"):
     try:
-        response = model.generate_content(
-            "Say hello"
-        )
-        st.success("Gemini Connected!")
-        st.write(response.text)
+        response = model.generate_content("Say hello")
+        st.sidebar.success(f"Gemini Active: {response.text}")
     except Exception as e:
-        st.error(f"Error: {e}")
-
-tab9
-Job Comparison
-comparison = {
-    "Job 1": score1,
-    "Job 2": score2,
-    "Job 3": score3
-}
-
-st.bar_chart(
-    comparison
-)
-
-ai_prompt = f"""
-Score this resume from 1-10:
-
-1. Technical Skills
-2. Experience
-3. Leadership
-4. Communication
-5. ATS Compatibility
-
-Resume:
-
-{resume}
-
-Job Description:
-
-{job_description}
-"""
-
-st.subheader(
-    "AI Scoring Breakdown"
-)
-
-st.write(
-    ai_response.text
-)
-
-col1,col2,col3,col4 = st.columns(4)
-
-with col1:
-    st.metric(
-        "ATS",
-        f"{score}%"
-    )
-
-with col2:
-    st.metric(
-        "Matched",
-        matched
-    )
-
-with col3:
-    st.metric(
-        "Missing",
-        len(missing_skills)
-    )
-
-with col4:
-    st.metric(
-        "Words",
-        len(resume.split())
-    )
+        st.sidebar.error(f"Error: {e}")
