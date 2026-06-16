@@ -71,7 +71,62 @@ with col_res:
     resume = st.text_area("Paste / Verify Your Resume Here", value=resume_text, height=250)
 
 with col_jd:
-    job_description = st.text_area("Paste Job Description Here", height=250)
+    job1 = st.text_area(
+    "Job Description 1",
+    height=200
+)
+
+job2 = st.text_area(
+    "Job Description 2",
+    height=200
+)
+
+job3 = st.text_area(
+    "Job Description 3",
+    height=200
+)
+
+def calculate_score(
+    resume_text,
+    jd
+):
+
+    resume_words = set(
+        resume_text.lower().split()
+    )
+
+    job_words = set(
+        jd.lower().split()
+    )
+
+    matched = len(
+        resume_words.intersection(job_words)
+    )
+
+    required = len(job_words)
+
+    return (
+        int(
+            (matched / required) * 100
+        )
+        if required > 0
+        else 0
+    )
+
+score1 = calculate_score(
+    resume,
+    job1
+)
+
+score2 = calculate_score(
+    resume,
+    job2
+)
+
+score3 = calculate_score(
+    resume,
+    job3
+)
 
 # -----------------------------
 # ANALYSIS LOGIC (SESSION STATE)
@@ -317,3 +372,15 @@ if st.button("Test Gemini"):
         st.write(response.text)
     except Exception as e:
         st.error(f"Error: {e}")
+
+tab9
+Job Comparison
+comparison = {
+    "Job 1": score1,
+    "Job 2": score2,
+    "Job 3": score3
+}
+
+st.bar_chart(
+    comparison
+)
