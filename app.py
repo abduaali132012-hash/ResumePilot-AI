@@ -16,12 +16,26 @@ st.set_page_config(
 # GEMINI CONFIG
 # -----------------------------
 try:
-    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    model = genai.GenerativeModel("gemini-1.5-flash")
+
+    api_key = st.secrets["GEMINI_API_KEY"]
+
+    genai.configure(
+        api_key=api_key
+    )
+
+    model = genai.GenerativeModel(
+        "gemini-1.5-flash"
+    )
+
     gemini_enabled = True
+
 except Exception as e:
+
     gemini_enabled = False
-    st.error("Gemini AI API Key missing or invalid. Please check st.secrets[\"GEMINI_API_KEY\"].")
+
+    st.error(
+        "Gemini API is not configured correctly."
+    )
 
 # -----------------------------
 # HEADER
