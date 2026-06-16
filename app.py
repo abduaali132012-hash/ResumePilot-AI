@@ -185,6 +185,19 @@ with open(pdf_file.name, "rb") as f:
         file_name="ResumePilot_Report.pdf"
     )
         st.warning("Please provide both a resume and a job description.")
+    if st.button("Analyze Resume"):
+
+    if resume and job_description:
+
+        # all analysis code here
+
+        pass
+
+    else:
+
+        st.warning(
+            "Please provide both a resume and a job description."
+        )
     elif not gemini_enabled:
         st.error("Cannot perform analysis. Gemini API is not configured.")
     else:
