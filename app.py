@@ -1,3 +1,5 @@
+from reportlab.pdfgen import canvas
+import tempfile
 import plotly.express as px
 import pandas as pd
 import streamlit as st
@@ -80,6 +82,47 @@ if "analysis_results" not in st.session_state:
 
 if st.button("Analyze Resume", type="primary"):
     if not resume or not job_description:
+        pdf_file = tempfile.NamedTemporaryFile(
+    delete=False,
+    suffix=".pdf"
+)
+
+c = canvas.Canvas(
+    pdf_file.name
+)
+
+c.drawString(
+    100,
+    800,
+    "ResumePilot AI Report"
+)
+
+c.drawString(
+    100,
+    770,
+    f"ATS Score: {score}%"
+)
+
+c.drawString(
+    100,
+    740,
+    f"Matched Keywords: {matched}"
+)
+
+c.drawString(
+    100,
+    710,
+    f"Missing Keywords: {len(missing_skills)}"
+)
+
+c.save()
+with open(pdf_file.name, "rb") as f:
+
+    st.download_button(
+        "📄 Download PDF Report",
+        f,
+        file_name="ResumePilot_Report.pdf"
+    )
         st.warning("Please provide both a resume and a job description.")
     elif not gemini_enabled:
         st.error("Cannot perform analysis. Gemini API is not configured.")
