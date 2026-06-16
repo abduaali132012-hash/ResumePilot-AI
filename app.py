@@ -1,3 +1,9 @@
+st.markdown(
+"""
+# 🚀 ResumePilot AI
+
+### Smart Resume Optimization Platform
+""")
 from reportlab.pdfgen import canvas
 import tempfile
 import plotly.express as px
@@ -410,3 +416,29 @@ st.subheader(
 st.write(
     ai_response.text
 )
+
+col1,col2,col3,col4 = st.columns(4)
+
+with col1:
+    st.metric(
+        "ATS",
+        f"{score}%"
+    )
+
+with col2:
+    st.metric(
+        "Matched",
+        matched
+    )
+
+with col3:
+    st.metric(
+        "Missing",
+        len(missing_skills)
+    )
+
+with col4:
+    st.metric(
+        "Words",
+        len(resume.split())
+    )
