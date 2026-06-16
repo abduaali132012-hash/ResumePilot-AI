@@ -384,3 +384,29 @@ comparison = {
 st.bar_chart(
     comparison
 )
+
+ai_prompt = f"""
+Score this resume from 1-10:
+
+1. Technical Skills
+2. Experience
+3. Leadership
+4. Communication
+5. ATS Compatibility
+
+Resume:
+
+{resume}
+
+Job Description:
+
+{job_description}
+"""
+
+st.subheader(
+    "AI Scoring Breakdown"
+)
+
+st.write(
+    ai_response.text
+)
