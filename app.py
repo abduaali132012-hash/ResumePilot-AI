@@ -16,22 +16,19 @@ st.set_page_config(
 # GEMINI CONFIG
 # -----------------------------
 try:
+    genai.configure(
+        api_key=st.secrets["GEMINI_API_KEY"]
+    )
 
-    
-genai.configure(
-    api_key=st.secrets["GEMINI_API_KEY"]
-)
-
-model = genai.GenerativeModel(
-    "gemini-1.5-flash"
-)
+    # Upgraded to 2.5-flash for perfect compatibility with new auth keys
+    model = genai.GenerativeModel(
+        "gemini-2.5-flash"
+    )
 
     gemini_enabled = True
 
 except Exception as e:
-
     gemini_enabled = False
-
     st.error(
         "Gemini API is not configured correctly."
     )
@@ -200,7 +197,6 @@ if st.session_state.analysis_results:
         st.header("Target Keyword Deficiencies")
         st.write("These specific contextual terms appear in the job description but were missing or phrased differently in your resume:")
         if res['missing_skills']:
-            # Clean non-alphanumeric noise or short tokens safely
             filtered_skills = [s for s in res['missing_skills'] if len(s) > 2 and s.isalpha()]
             st.write(", ".join([f"`{skill}`" for skill in filtered_skills[:20]]))
         else:
@@ -244,17 +240,11 @@ if st.session_state.analysis_results:
         st.text_area("Generated Output (Editable)", res['cover_letter'], height=450)
 
 if st.button("Test Gemini"):
-
     try:
-
         response = model.generate_content(
             "Say hello"
         )
-
         st.success("Gemini Connected!")
-
         st.write(response.text)
-
     except Exception as e:
-
         st.error(f"Error: {e}")
