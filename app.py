@@ -331,3 +331,20 @@ if st.sidebar.button("Test Gemini Connection"):
         st.sidebar.success(f"Gemini Active: {response.text}")
     except Exception as e:
         st.sidebar.error(f"Error: {e}")
+
+import openai
+
+# Connect directly to your dedicated AMD Server node
+client = openai.OpenAI(
+    base_url="http://165.245.135.53:8000/v1",
+    api_key="not-needed-locally" 
+)
+
+# Swap out your generation call to use the hosted Llama model instance
+response = client.chat.completions.create(
+    model="meta-llama/Meta-Llama-3-8B-Instruct",
+    messages=[
+        {"role": "system", "content": "You are an elite talent acquisition agent matching resumes to ATS criteria."},
+        {"role": "user", "content": "Analyze this file structure..."}
+    ]
+)
