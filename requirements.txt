@@ -1,7 +1,8 @@
 streamlit
 pdfplumber
-python-docx
+docx2txt
 google-generativeai
-plotly
 pandas
+plotly
 reportlab
+openai
