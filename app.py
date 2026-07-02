@@ -6,6 +6,7 @@ import pandas as pd
 import plotly.express as px
 import tempfile
 from reportlab.pdfgen import canvas
+import openai
 
 # -----------------------------
 # PAGE CONFIG (MUST BE THE FIRST STREAMLIT COMMAND)
@@ -236,7 +237,7 @@ if st.session_state.analysis_results:
     # Render Your Updated 9 Tabs System
     tabs = st.tabs([
         "📊 ATS Score", "🎯 Skill Gaps", "💡 Interview Tips", 
-        "撕 Resume Summary", "🔍 Detailed Analysis", "✍️ Resume Rewrite", 
+        "📝 Resume Summary", "🔍 Detailed Analysis", "✍️ Resume Rewrite", 
         "🧠 AI Coach", "✉️ Cover Letter", "📈 Job Comparison"
     ])
 
@@ -322,9 +323,11 @@ if st.session_state.analysis_results:
         st.info("Use this visual data array to see which job profile variant matches best with your current resume version.")
 
 # -----------------------------
-# ISOLATED BACKEND TEST BUTTON
+# SIDEBAR BACKEND TEST BUTTONS
 # -----------------------------
 st.sidebar.markdown("---")
+st.sidebar.subheader("Infrastructure Connectivity Diagnostics")
+
 if st.sidebar.button("Test Gemini Connection"):
     try:
         response = model.generate_content("Say hello")
@@ -332,19 +335,20 @@ if st.sidebar.button("Test Gemini Connection"):
     except Exception as e:
         st.sidebar.error(f"Error: {e}")
 
-import openai
-
-# Connect directly to your dedicated AMD Server node
-client = openai.OpenAI(
-    base_url="http://165.245.135.53:8000/v1",
-    api_key="not-needed-locally" 
-)
-
-# Swap out your generation call to use the hosted Llama model instance
-response = client.chat.completions.create(
-    model="meta-llama/Meta-Llama-3-8B-Instruct",
-    messages=[
-        {"role": "system", "content": "You are an elite talent acquisition agent matching resumes to ATS criteria."},
-        {"role": "user", "content": "Analyze this file structure..."}
-    ]
-)
+if st.sidebar.button("Test AMD Llama Node"):
+    try:
+        client = openai.OpenAI(
+            base_url="http://165.245.135.53:8000/v1",
+            api_key="not-needed-locally" 
+        )
+        response = client.chat.completions.create(
+            model="meta-llama/Meta-Llama-3-8B-Instruct",
+            messages=[
+                {"role": "system", "content": "You are an elite talent acquisition agent matching resumes to ATS criteria."},
+                {"role": "user", "content": "Respond with 'AMD Node Active'"}
+            ],
+            timeout=10
+        )
+        st.sidebar.success(f"AMD Llama Configured: {response.choices[0].message.content}")
+    except Exception as e:
+        st.sidebar.error(f"Failed connecting to server endpoint: {e}")
