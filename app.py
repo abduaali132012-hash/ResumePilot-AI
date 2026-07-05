@@ -6,7 +6,6 @@ import pandas as pd
 import plotly.express as px
 import tempfile
 from reportlab.pdfgen import canvas
-import openai
 
 # -----------------------------
 # PAGE CONFIG (MUST BE THE FIRST STREAMLIT COMMAND)
@@ -40,6 +39,17 @@ except Exception as e:
 # -----------------------------
 # HELPER CORE FUNCTIONS
 # -----------------------------
+def generate_with_retry(prompt, retries=1):
+    """Call Gemini, retrying once on transient failures before giving up."""
+    last_error = None
+    for attempt in range(retries + 1):
+        try:
+            return model.generate_content(prompt)
+        except Exception as e:
+            last_error = e
+            print(f"[generate_with_retry] attempt {attempt + 1} failed: {e}")
+    raise last_error
+
 def calculate_score(resume_text, jd):
     if not resume_text or not jd:
         return 0
@@ -52,10 +62,17 @@ def calculate_score(resume_text, jd):
 # -----------------------------
 # FILE UPLOAD SYSTEM
 # -----------------------------
+MAX_UPLOAD_MB = 5
+
 uploaded_file = st.file_uploader("Upload Resume", type=["txt", "pdf", "docx"])
 resume_text = ""
 
 if uploaded_file:
+    file_size_mb = uploaded_file.size / (1024 * 1024)
+    if file_size_mb > MAX_UPLOAD_MB:
+        st.error(f"File is {file_size_mb:.1f}MB. Please upload a file under {MAX_UPLOAD_MB}MB.")
+        st.stop()
+
     if uploaded_file.name.endswith(".txt"):
         resume_text = uploaded_file.read().decode("utf-8")
     elif uploaded_file.name.endswith(".pdf"):
@@ -106,7 +123,6 @@ if st.button("Analyze Resume", type="primary"):
             score2 = calculate_score(resume, job2) if job2 else 0
             score3 = calculate_score(resume, job3) if job3 else 0
 
-            # Combined prompts for optimal single-token parsing
             master_prompt = f"""
             You are an expert corporate Recruiter and an advanced ATS parser.
             Analyze the following Resume against the Primary Job Description.
@@ -154,11 +170,10 @@ if st.button("Analyze Resume", type="primary"):
             """
 
             try:
-                # Fire queries simultaneously 
-                response = model.generate_content(master_prompt)
+                response = generate_with_retry(master_prompt)
                 ai_text = response.text
 
-                score_response = model.generate_content(scoring_prompt)
+                score_response = generate_with_retry(scoring_prompt)
                 score_text = score_response.text
 
                 def extract_section(text, header, next_header=None):
@@ -167,12 +182,14 @@ if st.button("Analyze Resume", type="primary"):
                         if next_header:
                             part = part.split(next_header)[0]
                         return part.strip()
-                    except:
+                    except Exception as extract_err:
+                        # Print to the terminal/logs running the app so you can see
+                        # exactly what went wrong instead of guessing.
+                        print(f"[extract_section error] header={header!r} -> {extract_err}")
                         return "Section layout mismatched. Please try analyzing again."
 
-                # Commit metrics data mapping objects directly to permanent memory
                 st.session_state.analysis_results = {
-                    "score": min(int((len(matched_keywords) / len(job_words)) * 100 + 40), 100) if len(job_words) > 0 else 0,
+                    "score": score1,
                     "matched_count": len(matched_keywords),
                     "missing_skills": sorted(list(missing_keywords)),
                     "score1": score1,
@@ -189,15 +206,15 @@ if st.button("Analyze Resume", type="primary"):
                 }
                 st.success("Analysis Complete!")
             except Exception as e:
-                st.error(f"An error occurred during AI processing: {str(e)}")
+                print(f"[AI processing error] {e}")
+                st.error(
+                    "Something went wrong while analyzing your resume. "
+                    "This is usually temporary — please try clicking Analyze again in a moment."
+                )
 
-# -----------------------------
-# RUNTIME UI DRAW RE-RENDER INTERFACE
-# -----------------------------
 if st.session_state.analysis_results:
     res = st.session_state.analysis_results
 
-    # Top Metric Dashboard Cards Array
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
     with m_col1:
         st.metric("ATS Match Score", f"{res['score']}%")
@@ -210,9 +227,6 @@ if st.session_state.analysis_results:
     
     st.progress(res['score'] / 100)
     
-    # -----------------------------
-    # ON-DEMAND GENERATE PDF ENGINE
-    # -----------------------------
     try:
         pdf_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
         c = canvas.Canvas(pdf_file.name)
@@ -234,18 +248,14 @@ if st.session_state.analysis_results:
 
     st.markdown("---")
 
-    # Render Your Updated 9 Tabs System
     tabs = st.tabs([
         "📊 ATS Score", "🎯 Skill Gaps", "💡 Interview Tips", 
         "📝 Resume Summary", "🔍 Detailed Analysis", "✍️ Resume Rewrite", 
         "🧠 AI Coach", "✉️ Cover Letter", "📈 Job Comparison"
     ])
 
-    # Tab 1: ATS SCORE LAYOUT WITH PLOTLY PIE CHART
     with tabs[0]:
         st.header("ATS Match Optimization Breakdown")
-        
-        # Build Dataframe safely using dynamic variables mapped from session memory
         chart_data = pd.DataFrame({
             "Category": ["Matched Keywords", "Missing Deficiencies"],
             "Count": [res['matched_count'], max(len(res['missing_skills']), 1)]
@@ -261,7 +271,6 @@ if st.session_state.analysis_results:
         else:
             st.error("❌ **Low Alignment:** Significant keyword gaps found. Automated parsers could reject this early.")
 
-    # Tab 2: SKILL GAPS
     with tabs[1]:
         st.header("Target Keyword Deficiencies")
         st.write("These terms appear in your target specifications but were absent or phrased differently in your resume layout:")
@@ -271,17 +280,14 @@ if st.session_state.analysis_results:
         else:
             st.success("Phenomenal keyword optimization! No major contextual metrics missing.")
 
-    # Tab 3: INTERVIEW PREPARATION
     with tabs[2]:
         st.header("Tailored Interview Preparation Simulator")
         st.markdown(res['interview'])
 
-    # Tab 4: RESUME SUMMARY
     with tabs[3]:
         st.header("Objective Profile Summary")
         st.write(res['summary'])
 
-    # Tab 5: DETAILED ANALYSIS & RAW SCORES
     with tabs[4]:
         st.header("Comparative Structural Report")
         col_str, col_weak = st.columns(2)
@@ -296,22 +302,18 @@ if st.session_state.analysis_results:
         st.subheader("AI Scoring Breakdown Matrix")
         st.markdown(res['ai_score_breakdown'])
 
-    # Tab 6: REWRITE SUGGESTIONS
     with tabs[5]:
         st.header("ATS-Optimized Phrasing Suggestions")
         st.markdown(res['rewrite'])
 
-    # Tab 7: CAREER COACHING
     with tabs[6]:
         st.header("Strategic Professional Development Plan")
         st.markdown(res['coach'])
 
-    # Tab 8: TARGET COVER LETTER
     with tabs[7]:
         st.header("Custom Tailored Cover Letter Generator")
         st.text_area("Generated Output (Editable)", res['cover_letter'], height=450)
 
-    # Tab 9: MULTI-JOB SCORING COMPARISON GRAPH
     with tabs[8]:
         st.header("Multi-Job Intent Target Comparison Chart")
         comparison_dict = {
@@ -322,9 +324,6 @@ if st.session_state.analysis_results:
         st.bar_chart(comparison_dict)
         st.info("Use this visual data array to see which job profile variant matches best with your current resume version.")
 
-# -----------------------------
-# SIDEBAR BACKEND TEST BUTTONS
-# -----------------------------
 st.sidebar.markdown("---")
 st.sidebar.subheader("Infrastructure Connectivity Diagnostics")
 
@@ -335,20 +334,7 @@ if st.sidebar.button("Test Gemini Connection"):
     except Exception as e:
         st.sidebar.error(f"Error: {e}")
 
-if st.sidebar.button("Test AMD Llama Node"):
-    try:
-        client = openai.OpenAI(
-            base_url="http://165.245.135.53:8000/v1",
-            api_key="not-needed-locally" 
-        )
-        response = client.chat.completions.create(
-            model="meta-llama/Meta-Llama-3-8B-Instruct",
-            messages=[
-                {"role": "system", "content": "You are an elite talent acquisition agent matching resumes to ATS criteria."},
-                {"role": "user", "content": "Respond with 'AMD Node Active'"}
-            ],
-            timeout=10
-        )
-        st.sidebar.success(f"AMD Llama Configured: {response.choices[0].message.content}")
-    except Exception as e:
-        st.sidebar.error(f"Failed connecting to server endpoint: {e}")
+# NOTE: The old "Test AMD Llama Node" button called a hardcoded, unauthenticated
+# IP address. That's a security risk in a public repo (anyone can see and hit it),
+# so it has been removed. If you need a second model provider later, load its
+# address from st.secrets instead of typing it directly into the code.
