@@ -39,6 +39,10 @@ TRIAL_DAYS = 7
 # -----------------------------
 if "user" not in st.session_state:
     st.session_state.user = None
+if "access_token" not in st.session_state:
+    st.session_state.access_token = None
+if "refresh_token" not in st.session_state:
+    st.session_state.refresh_token = None
 
 def show_auth_screen():
     st.subheader("Welcome — sign in or create an account to continue")
@@ -54,6 +58,8 @@ def show_auth_screen():
                         {"email": email, "password": password}
                     )
                     st.session_state.user = result.user
+                    st.session_state.access_token = result.session.access_token
+                    st.session_state.refresh_token = result.session.refresh_token
                     st.rerun()
                 except Exception as e:
                     st.error(f"Login failed: {e}")
@@ -71,16 +77,38 @@ def show_auth_screen():
                 except Exception as e:
                     st.error(f"Signup failed: {e}")
 
+def do_logout():
+    supabase.auth.sign_out()
+    st.session_state.user = None
+    st.session_state.access_token = None
+    st.session_state.refresh_token = None
+    st.rerun()
+
 if not st.session_state.user:
     show_auth_screen()
     st.stop()
+
+# Streamlit reruns this whole script on every interaction, which creates a
+# brand-new (unauthenticated) supabase client each time. Without this,
+# every request after login would be treated as anonymous and blocked by
+# Row Level Security. Re-applying the saved tokens restores the logged-in
+# session on the client before we make any table calls.
+try:
+    supabase.auth.set_session(
+        st.session_state.access_token, st.session_state.refresh_token
+    )
+except Exception:
+    st.error("Your session expired. Please log in again.")
+    do_logout()
 
 # -----------------------------
 # PAYWALL: CHECK TRIAL / SUBSCRIPTION STATUS
 # -----------------------------
 def get_profile(user_id):
-    response = supabase.table("profiles").select("*").eq("id", user_id).single().execute()
-    return response.data
+    response = (
+        supabase.table("profiles").select("*").eq("id", user_id).maybe_single().execute()
+    )
+    return response.data if response else None
 
 def has_active_access(profile):
     if profile["subscription_status"] == "active":
@@ -106,11 +134,15 @@ def show_paywall(profile):
         except Exception as e:
             st.error(f"Could not start checkout: {e}")
     if st.button("Log Out"):
-        supabase.auth.sign_out()
-        st.session_state.user = None
-        st.rerun()
+        do_logout()
 
 profile = get_profile(st.session_state.user.id)
+
+if not profile:
+    st.warning("Setting up your account — this can take a few seconds after signup. Please refresh.")
+    if st.button("Refresh"):
+        st.rerun()
+    st.stop()
 
 if not has_active_access(profile):
     show_paywall(profile)
@@ -123,9 +155,7 @@ with st.sidebar:
         days_left = TRIAL_DAYS - (datetime.now(timezone.utc) - trial_start).days
         st.info(f"Free trial: {max(days_left, 0)} day(s) left")
     if st.button("Log Out", key="sidebar_logout"):
-        supabase.auth.sign_out()
-        st.session_state.user = None
-        st.rerun()
+        do_logout()
 
 # -----------------------------
 # GEMINI CONFIG
