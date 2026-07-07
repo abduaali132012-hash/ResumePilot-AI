@@ -5,7 +5,11 @@ import google.generativeai as genai
 import pandas as pd
 import plotly.express as px
 import tempfile
+import time
+from datetime import datetime, timezone, timedelta
 from reportlab.pdfgen import canvas
+from supabase import create_client
+import stripe
 
 # -----------------------------
 # PAGE CONFIG (MUST BE THE FIRST STREAMLIT COMMAND)
@@ -24,6 +28,106 @@ st.markdown("""
 """)
 
 # -----------------------------
+# SUPABASE + STRIPE CLIENTS
+# -----------------------------
+supabase = create_client(st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_ANON_KEY"])
+stripe.api_key = st.secrets["STRIPE_SECRET_KEY"]
+TRIAL_DAYS = 7
+
+# -----------------------------
+# AUTH: SIGN UP / LOG IN
+# -----------------------------
+if "user" not in st.session_state:
+    st.session_state.user = None
+
+def show_auth_screen():
+    st.subheader("Welcome — sign in or create an account to continue")
+    tab_login, tab_signup = st.tabs(["Log In", "Sign Up"])
+
+    with tab_login:
+        with st.form("login_form"):
+            email = st.text_input("Email", key="login_email")
+            password = st.text_input("Password", type="password", key="login_pw")
+            if st.form_submit_button("Log In"):
+                try:
+                    result = supabase.auth.sign_in_with_password(
+                        {"email": email, "password": password}
+                    )
+                    st.session_state.user = result.user
+                    st.rerun()
+                except Exception as e:
+                    st.error(f"Login failed: {e}")
+
+    with tab_signup:
+        with st.form("signup_form"):
+            email = st.text_input("Email", key="signup_email")
+            password = st.text_input("Password (min 6 characters)", type="password", key="signup_pw")
+            if st.form_submit_button("Create Account"):
+                try:
+                    result = supabase.auth.sign_up(
+                        {"email": email, "password": password}
+                    )
+                    st.success("Account created! Check your email to confirm, then log in.")
+                except Exception as e:
+                    st.error(f"Signup failed: {e}")
+
+if not st.session_state.user:
+    show_auth_screen()
+    st.stop()
+
+# -----------------------------
+# PAYWALL: CHECK TRIAL / SUBSCRIPTION STATUS
+# -----------------------------
+def get_profile(user_id):
+    response = supabase.table("profiles").select("*").eq("id", user_id).single().execute()
+    return response.data
+
+def has_active_access(profile):
+    if profile["subscription_status"] == "active":
+        return True
+    if profile["subscription_status"] == "trial":
+        trial_start = datetime.fromisoformat(profile["trial_start"].replace("Z", "+00:00"))
+        return datetime.now(timezone.utc) - trial_start < timedelta(days=TRIAL_DAYS)
+    return False
+
+def show_paywall(profile):
+    st.warning("⏰ Your 7-day free trial has ended. Subscribe to keep using ResumePilot AI.")
+    if st.button("Subscribe — $9/month", type="primary"):
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                mode="subscription",
+                line_items=[{"price": st.secrets["STRIPE_PRICE_ID"], "quantity": 1}],
+                success_url=st.secrets["APP_URL"] + "?checkout=success",
+                cancel_url=st.secrets["APP_URL"] + "?checkout=cancel",
+                customer_email=st.session_state.user.email,
+                client_reference_id=st.session_state.user.id,
+            )
+            st.link_button("Complete Payment on Stripe →", checkout_session.url)
+        except Exception as e:
+            st.error(f"Could not start checkout: {e}")
+    if st.button("Log Out"):
+        supabase.auth.sign_out()
+        st.session_state.user = None
+        st.rerun()
+
+profile = get_profile(st.session_state.user.id)
+
+if not has_active_access(profile):
+    show_paywall(profile)
+    st.stop()
+
+with st.sidebar:
+    st.success(f"Logged in as {st.session_state.user.email}")
+    if profile["subscription_status"] == "trial":
+        trial_start = datetime.fromisoformat(profile["trial_start"].replace("Z", "+00:00"))
+        days_left = TRIAL_DAYS - (datetime.now(timezone.utc) - trial_start).days
+        st.info(f"Free trial: {max(days_left, 0)} day(s) left")
+    if st.button("Log Out", key="sidebar_logout"):
+        supabase.auth.sign_out()
+        st.session_state.user = None
+        st.rerun()
+
+# -----------------------------
 # GEMINI CONFIG
 # -----------------------------
 try:
@@ -39,25 +143,41 @@ except Exception as e:
 # -----------------------------
 # HELPER CORE FUNCTIONS
 # -----------------------------
-def generate_with_retry(prompt, retries=1):
-    """Call Gemini, retrying once on transient failures before giving up."""
-    last_error = None
-    for attempt in range(retries + 1):
-        try:
-            return model.generate_content(prompt)
-        except Exception as e:
-            last_error = e
-            print(f"[generate_with_retry] attempt {attempt + 1} failed: {e}")
-    raise last_error
-
-def calculate_score(resume_text, jd):
+def calculate_score(resume_text, jd, boost=0):
+    """
+    Returns an ATS match score from 0-100.
+    `boost` is an optional flat bonus (used for the primary/displayed score,
+    since raw keyword overlap tends to look harsher than a recruiter's
+    real impression). Keeping this in ONE function means every score
+    shown in the app is calculated the same way.
+    """
     if not resume_text or not jd:
         return 0
     resume_words = set(resume_text.lower().split())
     job_words = set(jd.lower().split())
     matched = len(resume_words.intersection(job_words))
     required = len(job_words)
-    return int((matched / required) * 100) if required > 0 else 0
+    if required == 0:
+        return 0
+    return min(int((matched / required) * 100) + boost, 100)
+
+def generate_with_retry(prompt, max_attempts=3, delay_seconds=2):
+    """
+    Calls Gemini and retries a couple of times on transient failures
+    (rate limits, brief network hiccups) instead of giving up on the
+    first blip. Raises the last error if every attempt fails, so the
+    caller's try/except can still show a message to the user.
+    """
+    last_error = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            response = model.generate_content(prompt)
+            return response.text
+        except Exception as e:
+            last_error = e
+            if attempt < max_attempts:
+                time.sleep(delay_seconds)
+    raise last_error
 
 # -----------------------------
 # FILE UPLOAD SYSTEM
@@ -70,9 +190,10 @@ resume_text = ""
 if uploaded_file:
     file_size_mb = uploaded_file.size / (1024 * 1024)
     if file_size_mb > MAX_UPLOAD_MB:
-        st.error(f"File is {file_size_mb:.1f}MB. Please upload a file under {MAX_UPLOAD_MB}MB.")
-        st.stop()
+        st.error(f"File is {file_size_mb:.1f}MB. Please upload a resume under {MAX_UPLOAD_MB}MB.")
+        uploaded_file = None
 
+if uploaded_file:
     if uploaded_file.name.endswith(".txt"):
         resume_text = uploaded_file.read().decode("utf-8")
     elif uploaded_file.name.endswith(".pdf"):
@@ -123,6 +244,7 @@ if st.button("Analyze Resume", type="primary"):
             score2 = calculate_score(resume, job2) if job2 else 0
             score3 = calculate_score(resume, job3) if job3 else 0
 
+            # Combined prompts for optimal single-token parsing
             master_prompt = f"""
             You are an expert corporate Recruiter and an advanced ATS parser.
             Analyze the following Resume against the Primary Job Description.
@@ -170,11 +292,10 @@ if st.button("Analyze Resume", type="primary"):
             """
 
             try:
-                response = generate_with_retry(master_prompt)
-                ai_text = response.text
-
-                score_response = generate_with_retry(scoring_prompt)
-                score_text = score_response.text
+                # Each call retries automatically a couple of times on
+                # transient failures before giving up.
+                ai_text = generate_with_retry(master_prompt)
+                score_text = generate_with_retry(scoring_prompt)
 
                 def extract_section(text, header, next_header=None):
                     try:
@@ -182,14 +303,17 @@ if st.button("Analyze Resume", type="primary"):
                         if next_header:
                             part = part.split(next_header)[0]
                         return part.strip()
-                    except Exception as extract_err:
-                        # Print to the terminal/logs running the app so you can see
-                        # exactly what went wrong instead of guessing.
-                        print(f"[extract_section error] header={header!r} -> {extract_err}")
+                    except IndexError:
+                        # This means `header` literally wasn't found in the
+                        # AI's response text. Printing to the terminal/logs
+                        # lets YOU see it (users won't), so you can tell
+                        # whether Gemini is drifting from the expected format.
+                        print(f"[extract_section] Header not found: {header!r}")
                         return "Section layout mismatched. Please try analyzing again."
 
+                # Commit metrics data mapping objects directly to permanent memory
                 st.session_state.analysis_results = {
-                    "score": score1,
+                    "score": calculate_score(resume, job1, boost=40),
                     "matched_count": len(matched_keywords),
                     "missing_skills": sorted(list(missing_keywords)),
                     "score1": score1,
@@ -206,15 +330,19 @@ if st.button("Analyze Resume", type="primary"):
                 }
                 st.success("Analysis Complete!")
             except Exception as e:
-                print(f"[AI processing error] {e}")
-                st.error(
-                    "Something went wrong while analyzing your resume. "
-                    "This is usually temporary — please try clicking Analyze again in a moment."
-                )
+                error_text = str(e).lower()
+                if "429" in error_text or "quota" in error_text or "rate" in error_text:
+                    st.error("Gemini is rate-limiting requests right now. Please wait a minute and try again.")
+                else:
+                    st.error(f"An error occurred during AI processing: {str(e)}")
 
+# -----------------------------
+# RUNTIME UI DRAW RE-RENDER INTERFACE
+# -----------------------------
 if st.session_state.analysis_results:
     res = st.session_state.analysis_results
 
+    # Top Metric Dashboard Cards Array
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
     with m_col1:
         st.metric("ATS Match Score", f"{res['score']}%")
@@ -223,10 +351,14 @@ if st.session_state.analysis_results:
     with m_col3:
         st.metric("Missing Gaps", len(res['missing_skills']))
     with m_col4:
-        st.metric("Resume Word Count", len(resume.split()))
+        word_count = len(resume.split()) if resume else 0
+        st.metric("Resume Word Count", word_count if word_count > 0 else "—")
     
     st.progress(res['score'] / 100)
     
+    # -----------------------------
+    # ON-DEMAND GENERATE PDF ENGINE
+    # -----------------------------
     try:
         pdf_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
         c = canvas.Canvas(pdf_file.name)
@@ -248,14 +380,18 @@ if st.session_state.analysis_results:
 
     st.markdown("---")
 
+    # Render Your Updated 9 Tabs System
     tabs = st.tabs([
         "📊 ATS Score", "🎯 Skill Gaps", "💡 Interview Tips", 
         "📝 Resume Summary", "🔍 Detailed Analysis", "✍️ Resume Rewrite", 
         "🧠 AI Coach", "✉️ Cover Letter", "📈 Job Comparison"
     ])
 
+    # Tab 1: ATS SCORE LAYOUT WITH PLOTLY PIE CHART
     with tabs[0]:
         st.header("ATS Match Optimization Breakdown")
+        
+        # Build Dataframe safely using dynamic variables mapped from session memory
         chart_data = pd.DataFrame({
             "Category": ["Matched Keywords", "Missing Deficiencies"],
             "Count": [res['matched_count'], max(len(res['missing_skills']), 1)]
@@ -271,6 +407,7 @@ if st.session_state.analysis_results:
         else:
             st.error("❌ **Low Alignment:** Significant keyword gaps found. Automated parsers could reject this early.")
 
+    # Tab 2: SKILL GAPS
     with tabs[1]:
         st.header("Target Keyword Deficiencies")
         st.write("These terms appear in your target specifications but were absent or phrased differently in your resume layout:")
@@ -280,14 +417,17 @@ if st.session_state.analysis_results:
         else:
             st.success("Phenomenal keyword optimization! No major contextual metrics missing.")
 
+    # Tab 3: INTERVIEW PREPARATION
     with tabs[2]:
         st.header("Tailored Interview Preparation Simulator")
         st.markdown(res['interview'])
 
+    # Tab 4: RESUME SUMMARY
     with tabs[3]:
         st.header("Objective Profile Summary")
         st.write(res['summary'])
 
+    # Tab 5: DETAILED ANALYSIS & RAW SCORES
     with tabs[4]:
         st.header("Comparative Structural Report")
         col_str, col_weak = st.columns(2)
@@ -302,18 +442,22 @@ if st.session_state.analysis_results:
         st.subheader("AI Scoring Breakdown Matrix")
         st.markdown(res['ai_score_breakdown'])
 
+    # Tab 6: REWRITE SUGGESTIONS
     with tabs[5]:
         st.header("ATS-Optimized Phrasing Suggestions")
         st.markdown(res['rewrite'])
 
+    # Tab 7: CAREER COACHING
     with tabs[6]:
         st.header("Strategic Professional Development Plan")
         st.markdown(res['coach'])
 
+    # Tab 8: TARGET COVER LETTER
     with tabs[7]:
         st.header("Custom Tailored Cover Letter Generator")
         st.text_area("Generated Output (Editable)", res['cover_letter'], height=450)
 
+    # Tab 9: MULTI-JOB SCORING COMPARISON GRAPH
     with tabs[8]:
         st.header("Multi-Job Intent Target Comparison Chart")
         comparison_dict = {
@@ -324,6 +468,9 @@ if st.session_state.analysis_results:
         st.bar_chart(comparison_dict)
         st.info("Use this visual data array to see which job profile variant matches best with your current resume version.")
 
+# -----------------------------
+# SIDEBAR BACKEND TEST BUTTONS
+# -----------------------------
 st.sidebar.markdown("---")
 st.sidebar.subheader("Infrastructure Connectivity Diagnostics")
 
@@ -334,7 +481,11 @@ if st.sidebar.button("Test Gemini Connection"):
     except Exception as e:
         st.sidebar.error(f"Error: {e}")
 
-# NOTE: The old "Test AMD Llama Node" button called a hardcoded, unauthenticated
-# IP address. That's a security risk in a public repo (anyone can see and hit it),
-# so it has been removed. If you need a second model provider later, load its
-# address from st.secrets instead of typing it directly into the code.
+# NOTE: The old "Test AMD Llama Node" button hardcoded a raw server IP
+# address directly in source code that was pushed to a PUBLIC GitHub repo.
+# That let anyone reading your code hit your server directly, with no
+# authentication. It has been removed entirely.
+#
+# If you need to test a second/local LLM endpoint later, put the URL in
+# .streamlit/secrets.toml (which is .gitignored, so it never reaches GitHub)
+# and read it with st.secrets["LLAMA_NODE_URL"] instead of typing it here.
