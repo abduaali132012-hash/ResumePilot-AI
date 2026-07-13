@@ -72,7 +72,7 @@ if not st.session_state.user:
 def generate_with_retry(prompt, max_attempts=3):
     for attempt in range(max_attempts):
         try:
-            # Using updated google.genai syntax
+            # This 'client' refers to the object we just initialized above
             response = client.models.generate_content(
                 model="gemini-2.0-flash",
                 contents=prompt,
