@@ -8,7 +8,6 @@ import time
 from datetime import datetime, timezone, timedelta
 from reportlab.pdfgen import canvas
 from supabase import create_client
-import stripe
 # Updated import for modern Google AI SDK
 from google import genai 
 
@@ -23,7 +22,6 @@ st.markdown("# 🚀 ResumePilot AI\n### Smart Resume Optimization Platform\n---"
 # CLIENT INITIALIZATION
 # -----------------------------
 supabase = create_client(st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_ANON_KEY"])
-stripe.api_key = st.secrets["STRIPE_SECRET_KEY"]
 TRIAL_DAYS = 7
 
 # INITIALIZE CLIENT CORRECTLY
@@ -82,6 +80,3 @@ def generate_with_retry(prompt, max_attempts=3):
             if attempt == max_attempts - 1: raise e
             time.sleep(2)
     return ""
-
-# ... [KEEP YOUR EXISTING FILE UPLOAD, PROCESSING PIPELINE, AND UI LOGIC HERE] ...
-# (Ensure your UI code references `client` instead of `model` if you changed variable names)
