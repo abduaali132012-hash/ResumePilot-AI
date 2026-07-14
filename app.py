@@ -7,8 +7,6 @@ import tempfile
 import time
 from datetime import datetime, timezone, timedelta
 from reportlab.pdfgen import canvas
-from supabase import create_client
-# Updated import for modern Google AI SDK
 from google import genai 
 
 # -----------------------------
@@ -21,48 +19,8 @@ st.markdown("# 🚀 ResumePilot AI\n### Smart Resume Optimization Platform\n---"
 # -----------------------------
 # CLIENT INITIALIZATION
 # -----------------------------
-supabase = create_client(st.secrets["SUPABASE_URL"], st.secrets["SUPABASE_ANON_KEY"])
-TRIAL_DAYS = 7
-
-# INITIALIZE CLIENT CORRECTLY
+# Initializing Gemini Client
 client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-
-# -----------------------------
-# AUTHENTICATION LOGIC
-# -----------------------------
-if "user" not in st.session_state:
-    st.session_state.user = None
-
-def do_logout():
-    supabase.auth.sign_out()
-    st.session_state.user = None
-    st.rerun()
-
-# Apply session tokens if available
-if st.session_state.get("access_token"):
-    try:
-        supabase.auth.set_session(st.session_state.access_token, st.session_state.refresh_token)
-    except:
-        do_logout()
-
-if not st.session_state.user:
-    st.subheader("Welcome — sign in or create an account")
-    tab_login, tab_signup = st.tabs(["Log In", "Sign Up"])
-    
-    with tab_login:
-        with st.form("login_form"):
-            email = st.text_input("Email")
-            pw = st.text_input("Password", type="password")
-            if st.form_submit_button("Log In"):
-                try:
-                    res = supabase.auth.sign_in_with_password({"email": email, "password": pw})
-                    st.session_state.user = res.user
-                    st.session_state.access_token = res.session.access_token
-                    st.session_state.refresh_token = res.session.refresh_token
-                    st.rerun()
-                except Exception as e:
-                    st.error(f"Login failed: {e}")
-    st.stop()
 
 # -----------------------------
 # AI GENERATION HELPER
@@ -70,7 +28,6 @@ if not st.session_state.user:
 def generate_with_retry(prompt, max_attempts=3):
     for attempt in range(max_attempts):
         try:
-            # This 'client' refers to the object we just initialized above
             response = client.models.generate_content(
                 model="gemini-2.0-flash",
                 contents=prompt,
@@ -80,3 +37,10 @@ def generate_with_retry(prompt, max_attempts=3):
             if attempt == max_attempts - 1: raise e
             time.sleep(2)
     return ""
+
+# -----------------------------
+# MAIN APPLICATION LOGIC
+# -----------------------------
+# You can now place your file upload, processing, and UI logic directly here.
+# Since authentication is removed, this code will run immediately upon page load.
+st.info("Authentication is disabled. You are now free to showcase your features below.")
