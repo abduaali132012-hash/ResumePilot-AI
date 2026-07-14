@@ -5,5 +5,3 @@ google-genai>=1.0.0
 pandas>=2.2.3
 plotly>=5.24.1
 reportlab>=4.2.5
-supabase>=2.9.0
-stripe>=11.1.0
