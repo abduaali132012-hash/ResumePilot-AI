@@ -1,7 +1,7 @@
 import streamlit as st
 import pdfplumber
 from docx import Document
-import google.generativeai as genai
+from google import genai
 import pandas as pd
 import plotly.express as px
 import tempfile
@@ -28,10 +28,8 @@ st.markdown("""
 # GEMINI CONFIG
 # -----------------------------
 try:
-    genai.configure(
-        api_key=st.secrets["GEMINI_API_KEY"]
-    )
-    model = genai.GenerativeModel("gemini-2.5-flash")
+    gemini_client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+    GEMINI_MODEL = "gemini-2.5-flash"
     gemini_enabled = True
 except Exception as e:
     gemini_enabled = False
@@ -68,7 +66,9 @@ def generate_with_retry(prompt, max_attempts=3, delay_seconds=2):
     last_error = None
     for attempt in range(1, max_attempts + 1):
         try:
-            response = model.generate_content(prompt)
+            response = gemini_client.models.generate_content(
+                model=GEMINI_MODEL, contents=prompt
+            )
             return response.text
         except Exception as e:
             last_error = e
@@ -373,7 +373,9 @@ st.sidebar.subheader("Infrastructure Connectivity Diagnostics")
 
 if st.sidebar.button("Test Gemini Connection"):
     try:
-        response = model.generate_content("Say hello")
+        response = gemini_client.models.generate_content(
+            model=GEMINI_MODEL, contents="Say hello"
+        )
         st.sidebar.success(f"Gemini Active: {response.text}")
     except Exception as e:
         st.sidebar.error(f"Error: {e}")
