@@ -132,6 +132,22 @@ with col_jd:
     job3 = st.text_area("Comparison Job Description 3 (Optional)", height=120)
 
 # -----------------------------
+# LINKEDIN PROFILE INPUT (manual paste — we never scrape LinkedIn, which
+# prohibits it in their Terms of Service)
+# -----------------------------
+with st.expander("🔗 LinkedIn Profile Analyzer (optional)"):
+    st.caption(
+        "Copy your Headline, About section, and a couple of Experience "
+        "descriptions from your own LinkedIn profile page and paste them "
+        "below. We don't fetch LinkedIn profiles automatically."
+    )
+    linkedin_text = st.text_area(
+        "Paste your LinkedIn profile text here",
+        height=200,
+        placeholder="Headline: ...\n\nAbout: ...\n\nExperience: ...",
+    )
+
+# -----------------------------
 # PROCESSING PIPELINE
 # -----------------------------
 if "analysis_results" not in st.session_state:
@@ -140,14 +156,19 @@ if "version_history" not in st.session_state:
     st.session_state.version_history = []
 if "job_recommendations" not in st.session_state:
     st.session_state.job_recommendations = None
+if "linkedin_analysis" not in st.session_state:
+    st.session_state.linkedin_analysis = None
 
-col_analyze, col_recommend = st.columns(2)
+col_analyze, col_recommend, col_linkedin = st.columns(3)
 
 with col_analyze:
     run_analysis = st.button("Analyze Resume", type="primary")
 
 with col_recommend:
     run_recommendations = st.button("🧭 Find Matching Job Roles")
+
+with col_linkedin:
+    run_linkedin = st.button("🔗 Analyze LinkedIn Profile")
 
 if run_recommendations:
     if not resume:
@@ -186,6 +207,55 @@ if run_recommendations:
                     )
                 else:
                     st.error(f"Could not generate recommendations: {e}")
+
+if run_linkedin:
+    if not linkedin_text:
+        st.warning("Please paste your LinkedIn profile text in the expander above first.")
+    elif not gemini_enabled:
+        st.error("Cannot analyze profile. Gemini API is not configured.")
+    else:
+        with st.spinner("🔗 Reviewing your LinkedIn profile..."):
+            consistency_note = (
+                f"\n\nAlso compare it against this resume for consistency "
+                f"(flag any conflicting job titles, dates, or claims):\n[RESUME]\n{resume}"
+                if resume else ""
+            )
+            linkedin_prompt = f"""
+            You are a LinkedIn profile optimization expert. Review this
+            profile content and provide feedback in exactly this format:
+
+            ### Headline Assessment
+            Is it keyword-rich and specific, or generic? Suggest a stronger version.
+
+            ### About Section Assessment
+            Does it read well and include searchable keywords? 2-3 concrete improvement suggestions.
+
+            ### Experience Section Assessment
+            Are the bullet points achievement-focused or just duty lists? Suggest 1-2 rewrites.
+
+            ### Recruiter Searchability Score
+            Score 1-10 with a one-sentence reason.
+
+            ### Consistency Check
+            Note any conflicts with the resume if one was provided, otherwise say "No resume provided for comparison."
+
+            [LINKEDIN PROFILE TEXT]
+            {linkedin_text}
+            {consistency_note}
+            """
+            try:
+                st.session_state.linkedin_analysis = generate_with_retry(linkedin_prompt)
+                st.success("LinkedIn analysis ready — see the section below.")
+            except Exception as e:
+                error_text = str(e).lower()
+                if "429" in error_text:
+                    st.error(
+                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
+                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
+                        "project for higher limits."
+                    )
+                else:
+                    st.error(f"Could not analyze LinkedIn profile: {e}")
 
 if run_analysis:
     if not resume or not job1:
@@ -312,6 +382,14 @@ if st.session_state.job_recommendations:
     st.header("🧭 Recommended Job Roles")
     st.caption("Based on your resume alone — not tied to any specific job description above.")
     st.markdown(st.session_state.job_recommendations)
+
+# -----------------------------
+# LINKEDIN ANALYSIS (independent of full ATS analysis)
+# -----------------------------
+if st.session_state.linkedin_analysis:
+    st.markdown("---")
+    st.header("🔗 LinkedIn Profile Analysis")
+    st.markdown(st.session_state.linkedin_analysis)
 
 # -----------------------------
 # RUNTIME UI DRAW RE-RENDER INTERFACE
