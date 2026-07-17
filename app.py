@@ -61,9 +61,11 @@ def calculate_score(resume_text, jd, boost=0):
 def generate_with_retry(prompt, max_attempts=3, delay_seconds=2):
     """
     Calls Gemini and retries a couple of times on transient failures
-    (rate limits, brief network hiccups) instead of giving up on the
-    first blip. Raises the last error if every attempt fails, so the
-    caller's try/except can still show a message to the user.
+    (brief network hiccups, momentary rate limits) instead of giving up on
+    the first blip. Does NOT retry on daily quota exhaustion (HTTP 429 with
+    a per-day quota message) — a short delay can't fix a limit that only
+    resets once a day, so retrying there would just burn through whatever
+    quota is left even faster.
     """
     last_error = None
     for attempt in range(1, max_attempts + 1):
@@ -74,6 +76,12 @@ def generate_with_retry(prompt, max_attempts=3, delay_seconds=2):
             return response.text
         except Exception as e:
             last_error = e
+            error_text = str(e).lower()
+            is_daily_quota_exhausted = "429" in error_text and (
+                "perday" in error_text.replace(" ", "").lower() or "quota exceeded" in error_text
+            )
+            if is_daily_quota_exhausted:
+                break  # no point retrying — won't recover until tomorrow
             if attempt < max_attempts:
                 time.sleep(delay_seconds)
     raise last_error
@@ -169,7 +177,15 @@ if run_recommendations:
                 st.session_state.job_recommendations = recommendation_text
                 st.success("Recommendations ready — see the '🧭 Job Recommendations' tab below.")
             except Exception as e:
-                st.error(f"Could not generate recommendations: {e}")
+                error_text = str(e).lower()
+                if "429" in error_text:
+                    st.error(
+                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
+                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
+                        "project for higher limits."
+                    )
+                else:
+                    st.error(f"Could not generate recommendations: {e}")
 
 if run_analysis:
     if not resume or not job1:
@@ -277,7 +293,13 @@ if run_analysis:
                 st.success("Analysis Complete!")
             except Exception as e:
                 error_text = str(e).lower()
-                if "429" in error_text or "quota" in error_text or "rate" in error_text:
+                if "429" in error_text and "quota exceeded" in error_text:
+                    st.error(
+                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
+                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
+                        "project for higher limits."
+                    )
+                elif "429" in error_text or "rate" in error_text:
                     st.error("Gemini is rate-limiting requests right now. Please wait a minute and try again.")
                 else:
                     st.error(f"An error occurred during AI processing: {str(e)}")
