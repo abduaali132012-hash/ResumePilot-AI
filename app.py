@@ -6,6 +6,8 @@ import pandas as pd
 import plotly.express as px
 import tempfile
 import time
+import json
+from datetime import datetime
 from reportlab.pdfgen import canvas
 
 # -----------------------------
@@ -105,14 +107,19 @@ if uploaded_file:
 # -----------------------------
 # TWO-COLUMN DATA INPUTS
 # -----------------------------
+# If a version was just loaded from the History tab, it overrides whatever
+# was uploaded/typed, so the person sees their older draft restored.
+resume_default = st.session_state.pop("_reload_resume", None) or resume_text
+job1_default = st.session_state.pop("_reload_job1", "")
+
 col_res, col_jd = st.columns(2)
 
 with col_res:
-    resume = st.text_area("Paste / Verify Your Resume Here", value=resume_text, height=400)
+    resume = st.text_area("Paste / Verify Your Resume Here", value=resume_default, height=400)
 
 with col_jd:
     st.markdown("### Target Job Descriptions")
-    job1 = st.text_area("Primary Job Description (Used for Main Analysis)", height=150)
+    job1 = st.text_area("Primary Job Description (Used for Main Analysis)", value=job1_default, height=150)
     job2 = st.text_area("Comparison Job Description 2 (Optional)", height=120)
     job3 = st.text_area("Comparison Job Description 3 (Optional)", height=120)
 
@@ -121,6 +128,8 @@ with col_jd:
 # -----------------------------
 if "analysis_results" not in st.session_state:
     st.session_state.analysis_results = None
+if "version_history" not in st.session_state:
+    st.session_state.version_history = []
 
 if st.button("Analyze Resume", type="primary"):
     if not resume or not job1:
@@ -252,7 +261,21 @@ if st.session_state.analysis_results:
         st.metric("Resume Word Count", word_count if word_count > 0 else "—")
     
     st.progress(res['score'] / 100)
-    
+
+    # -----------------------------
+    # SAVE THIS VERSION TO HISTORY
+    # -----------------------------
+    if st.button("💾 Save This Version to History"):
+        st.session_state.version_history.append({
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "score": res["score"],
+            "matched_count": res["matched_count"],
+            "missing_count": len(res["missing_skills"]),
+            "resume_snapshot": resume,
+            "job_snapshot": job1,
+        })
+        st.success(f"Saved! You now have {len(st.session_state.version_history)} version(s) in this session.")
+
     # -----------------------------
     # ON-DEMAND GENERATE PDF ENGINE
     # -----------------------------
@@ -277,11 +300,11 @@ if st.session_state.analysis_results:
 
     st.markdown("---")
 
-    # Render Your Updated 9 Tabs System
+    # Render Your Updated 10 Tabs System
     tabs = st.tabs([
         "📊 ATS Score", "🎯 Skill Gaps", "💡 Interview Tips", 
         "📝 Resume Summary", "🔍 Detailed Analysis", "✍️ Resume Rewrite", 
-        "🧠 AI Coach", "✉️ Cover Letter", "📈 Job Comparison"
+        "🧠 AI Coach", "✉️ Cover Letter", "📈 Job Comparison", "🕒 Version History"
     ])
 
     # Tab 1: ATS SCORE LAYOUT WITH PLOTLY PIE CHART
@@ -364,6 +387,72 @@ if st.session_state.analysis_results:
         }
         st.bar_chart(comparison_dict)
         st.info("Use this visual data array to see which job profile variant matches best with your current resume version.")
+
+    # Tab 10: VERSION HISTORY
+    with tabs[9]:
+        st.header("Resume Version History")
+        st.caption(
+            "Saved versions live only in this browser session. Use Export/Import "
+            "below to keep your history across visits — no account needed."
+        )
+
+        history = st.session_state.version_history
+
+        if not history:
+            st.info("No versions saved yet. Click '💾 Save This Version to History' above after an analysis.")
+        else:
+            # Score trend over saved versions
+            trend_df = pd.DataFrame({
+                "Version": [f"v{i+1} ({h['timestamp']})" for i, h in enumerate(history)],
+                "Score": [h["score"] for h in history],
+            })
+            fig_trend = px.line(trend_df, x="Version", y="Score", markers=True, title="ATS Score Across Saved Versions")
+            st.plotly_chart(fig_trend, use_container_width=True)
+
+            # Table of all saved versions
+            table_df = pd.DataFrame([
+                {
+                    "Version": f"v{i+1}",
+                    "Saved At": h["timestamp"],
+                    "Score": f"{h['score']}%",
+                    "Matched": h["matched_count"],
+                    "Missing": h["missing_count"],
+                }
+                for i, h in enumerate(history)
+            ])
+            st.dataframe(table_df, use_container_width=True)
+
+            # Reload an older version back into the working text areas
+            reload_choice = st.selectbox(
+                "Load an earlier version back into the editor above",
+                options=list(range(len(history))),
+                format_func=lambda i: f"v{i+1} — {history[i]['timestamp']} — {history[i]['score']}%",
+            )
+            if st.button("↩️ Load Selected Version"):
+                st.session_state["_reload_resume"] = history[reload_choice]["resume_snapshot"]
+                st.session_state["_reload_job1"] = history[reload_choice]["job_snapshot"]
+                st.info("Loaded. Scroll up, the resume and job description fields are now populated — click Analyze Resume to re-run.")
+
+            st.markdown("---")
+
+            # Export / Import for cross-session persistence without accounts
+            col_export, col_import = st.columns(2)
+            with col_export:
+                st.download_button(
+                    "⬇️ Export History as JSON",
+                    data=json.dumps(history, indent=2),
+                    file_name="resumepilot_version_history.json",
+                    mime="application/json",
+                )
+            with col_import:
+                imported_file = st.file_uploader("⬆️ Import History JSON", type=["json"], key="history_import")
+                if imported_file and st.button("Merge Imported History"):
+                    try:
+                        imported_data = json.loads(imported_file.read())
+                        st.session_state.version_history.extend(imported_data)
+                        st.success(f"Imported {len(imported_data)} version(s). Refresh the tab to see them.")
+                    except Exception as e:
+                        st.error(f"Could not read that file: {e}")
 
 # -----------------------------
 # SIDEBAR BACKEND TEST BUTTONS
