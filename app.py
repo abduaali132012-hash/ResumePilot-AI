@@ -130,8 +130,48 @@ if "analysis_results" not in st.session_state:
     st.session_state.analysis_results = None
 if "version_history" not in st.session_state:
     st.session_state.version_history = []
+if "job_recommendations" not in st.session_state:
+    st.session_state.job_recommendations = None
 
-if st.button("Analyze Resume", type="primary"):
+col_analyze, col_recommend = st.columns(2)
+
+with col_analyze:
+    run_analysis = st.button("Analyze Resume", type="primary")
+
+with col_recommend:
+    run_recommendations = st.button("🧭 Find Matching Job Roles")
+
+if run_recommendations:
+    if not resume:
+        st.warning("Please provide a resume first.")
+    elif not gemini_enabled:
+        st.error("Cannot generate recommendations. Gemini API is not configured.")
+    else:
+        with st.spinner("🧭 Matching your background against likely-fit roles..."):
+            recommendation_prompt = f"""
+            You are a career advisor. Based ONLY on the skills, experience, and
+            background shown in this resume, recommend job roles this person is
+            genuinely well-suited for — including roles they may not have
+            considered.
+
+            [RESUME]
+            {resume}
+
+            Return exactly 5 recommended job titles. For each one, use this
+            exact format:
+
+            ### [Job Title]
+            **Why it fits:** 1-2 sentences tying it to specific evidence in the resume.
+            **Search keywords:** 3 comma-separated terms to use on job boards for this role.
+            """
+            try:
+                recommendation_text = generate_with_retry(recommendation_prompt)
+                st.session_state.job_recommendations = recommendation_text
+                st.success("Recommendations ready — see the '🧭 Job Recommendations' tab below.")
+            except Exception as e:
+                st.error(f"Could not generate recommendations: {e}")
+
+if run_analysis:
     if not resume or not job1:
         st.warning("Please provide at least a resume and the Primary Job Description.")
     elif not gemini_enabled:
@@ -241,6 +281,15 @@ if st.button("Analyze Resume", type="primary"):
                     st.error("Gemini is rate-limiting requests right now. Please wait a minute and try again.")
                 else:
                     st.error(f"An error occurred during AI processing: {str(e)}")
+
+# -----------------------------
+# JOB RECOMMENDATIONS (independent of full ATS analysis)
+# -----------------------------
+if st.session_state.job_recommendations:
+    st.markdown("---")
+    st.header("🧭 Recommended Job Roles")
+    st.caption("Based on your resume alone — not tied to any specific job description above.")
+    st.markdown(st.session_state.job_recommendations)
 
 # -----------------------------
 # RUNTIME UI DRAW RE-RENDER INTERFACE
