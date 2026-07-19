@@ -7,6 +7,7 @@ import plotly.express as px
 import tempfile
 import time
 import json
+import hashlib
 from datetime import datetime
 from reportlab.pdfgen import canvas
 
@@ -158,17 +159,43 @@ if "job_recommendations" not in st.session_state:
     st.session_state.job_recommendations = None
 if "linkedin_analysis" not in st.session_state:
     st.session_state.linkedin_analysis = None
+if "last_analyzed_hash" not in st.session_state:
+    st.session_state.last_analyzed_hash = None
+
+auto_analyze = st.checkbox(
+    "⚡ Auto-analyze as soon as both fields are filled",
+    value=True,
+    help=(
+        "Runs automatically the moment your resume and primary job "
+        "description both have content, and only re-runs if you actually "
+        "change the text — not on unrelated clicks. Turn this off if you're "
+        "close to today's Gemini API request limit (free tier: 20/day)."
+    ),
+)
 
 col_analyze, col_recommend, col_linkedin = st.columns(3)
 
 with col_analyze:
-    run_analysis = st.button("Analyze Resume", type="primary")
+    run_analysis_clicked = st.button("Analyze Resume", type="primary")
 
 with col_recommend:
     run_recommendations = st.button("🧭 Find Matching Job Roles")
 
 with col_linkedin:
     run_linkedin = st.button("🔗 Analyze LinkedIn Profile")
+
+# Auto-trigger only when the resume/job1 content has actually changed since
+# the last successful run — prevents burning API quota on every unrelated
+# rerun (switching tabs, opening the sidebar, etc.), since Streamlit reruns
+# the whole script on any interaction.
+current_input_hash = hashlib.sha256(f"{resume}||{job1}".encode()).hexdigest() if resume and job1 else None
+auto_triggered = (
+    auto_analyze
+    and current_input_hash is not None
+    and current_input_hash != st.session_state.last_analyzed_hash
+)
+
+run_analysis = run_analysis_clicked or auto_triggered
 
 if run_recommendations:
     if not resume:
@@ -360,8 +387,16 @@ if run_analysis:
                     "coach": extract_section(ai_text, "### CAREER COACH GUIDANCE", "### TAILORED COVER LETTER"),
                     "cover_letter": ai_text.split("### TAILORED COVER LETTER")[-1].strip()
                 }
-                st.success("Analysis Complete!")
+                st.session_state.last_analyzed_hash = current_input_hash
+                if auto_triggered and not run_analysis_clicked:
+                    st.success("⚡ Auto-analysis complete!")
+                else:
+                    st.success("Analysis Complete!")
             except Exception as e:
+                # Mark this input as attempted even though it failed, so
+                # auto-analyze doesn't keep retrying the same input on every
+                # unrelated rerun. A manual button click can still retry it.
+                st.session_state.last_analyzed_hash = current_input_hash
                 error_text = str(e).lower()
                 if "429" in error_text and "quota exceeded" in error_text:
                     st.error(
