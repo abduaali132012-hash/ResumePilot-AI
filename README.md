@@ -1,86 +1,107 @@
-# ResumePilot AI — Hackathon Project Brief
+<p align="center">
+  <img src="assets/hero-image.png" alt="ResumePilot AI Hero Image" width="100%">
+</p>
 
-## One-line pitch
-ResumePilot AI is a resume-optimization tool that uses Google's Gemini API to score
-how well a resume matches a job description, pinpoint missing keywords, and
-generate a rewritten resume, interview prep, and a tailored cover letter — all
-in one open-access Streamlit web app, no account required.
+# ResumePilot AI 🚀
 
-## The problem
-Job seekers rarely know why an application gets rejected before a human ever
-reads it — automated Applicant Tracking Systems (ATS) filter resumes on
-keyword and structural matching that candidates can't see or test against
-themselves.
+> **An all-in-one, AI-powered career platform and resume-optimisation suite built with Google Gemini API and Streamlit.**
 
-## The solution
-Upload a resume (PDF, DOCX, or TXT) and paste a target job description.
-Analysis now runs automatically the moment both fields are filled in — no
-button click needed, with quota-safe change detection so it only re-runs
-when the content actually changes. ResumePilot AI runs it through Gemini
-(`gemini-2.5-flash`) alongside a keyword-overlap scoring engine, then
-returns a full breakdown across ten views:
+[![Live Demo](https://img.shields.io/badge/Streamlit-Live%20App-ff4b4b?style=for-the-badge&logo=streamlit&logoColor=white)](https://resumepilot-ai-vngmvb9m6rdgszr7bthtbk.streamlit.app/)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/abduaali132012-hash/ResumePilot-AI)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Gemini AI](https://img.shields.io/badge/Google%20Gemini-2.5%20Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
 
-1. **ATS Score** — match percentage with a visual keyword-density chart
-2. **Skill Gaps** — the specific keywords missing from the resume
-3. **Interview Tips** — role-specific interview questions with sample answers
-4. **Resume Summary** — a 3-sentence AI read on the candidate's fit
-5. **Detailed Analysis** — strengths, weaknesses, and a 1–10 scoring breakdown
-   across Technical Skills, Experience, Leadership, Communication, and ATS
-   Compatibility
-6. **Resume Rewrite** — an AI-rewritten summary and bullet points optimized
-   with the missing keywords
-7. **AI Coach** — career development recommendations to close longer-term
-   skill gaps
-8. **Cover Letter** — a ready-to-edit, tailored 3–4 paragraph cover letter
-9. **Job Comparison** — a bar chart comparing fit across up to 3 job postings
-   pasted at once
-10. **Version History** — save each analysis, track your ATS score trend
-    across saved versions, reload an older version, and export/import your
-    history as JSON
+---
 
-Two more tools work independently of the main analysis, using just the resume:
+## 🌟 Overview
+ResumePilot AI is a comprehensive career acceleration platform. Job seekers rarely know why an application gets rejected before a human reads it because automated Applicant Tracking Systems (ATS) filter resumes on invisible keyword and structural matches. 
 
-- **Job Recommendation Engine** — suggests 5 job titles genuinely suited to
-  the candidate's background, each with reasoning and job-board search
-  keywords
-- **LinkedIn Profile Analyzer** — reviews pasted LinkedIn profile text for
-  recruiter searchability and checks it for consistency against the resume
+ResumePilot AI instantly analyzes resumes against target job descriptions, pinpoints missing keywords, generates professional rewrites, and scales into a full suite of career growth tools—all in one open-access web app, with zero account required.
 
-A downloadable PDF executive summary is also generated on demand.
+---
 
-## Tech stack
-- **Streamlit** — web UI framework
-- **Google Gemini API** (`gemini-2.5-flash`), via the `google-genai` SDK — resume/job semantic analysis
-  and content generation
-- **pdfplumber** / **python-docx** — resume text extraction from PDF/DOCX
-- **Pandas** / **Plotly Express** — scoring calculations and charts
-- **ReportLab** — PDF report generation
+## 🛠️ Complete Feature Suite
 
-## What I built/fixed during the hackathon window
-- Removed a security vulnerability (a hardcoded, unauthenticated server
-  endpoint exposed in the public repo)
-- Fixed inconsistent ATS scoring logic (two different formulas were
-  producing different scores for the same input)
-- Added retry handling for transient AI API failures, with logic that
-  distinguishes brief transient errors from daily quota exhaustion (retrying
-  the latter is pointless and just wastes remaining quota)
-- Added an upload size limit to prevent oversized file abuse
-- Migrated off the deprecated `google.generativeai` package to `google.genai`
-- Built resume version history, a job recommendation engine, and a LinkedIn
-  profile analyzer
-- Added auto-analyze with change detection, so analysis runs automatically
-  without wasting API calls on unrelated interactions
-- Prototyped and tested a full subscription/paywall layer (Supabase auth +
-  Stripe billing + 7-day free trial) as a monetization path, then
-  deliberately descoped it to keep the public submission simple, open-access,
-  and dependency-free for judges to run
+### Core ATS Optimization & Analysis
+1. **ATS Score & Keyword Density** — Match percentage with visual keyword charts and overlap scoring.
+2. **Skill Gaps** — Specific keywords missing from your resume relative to the job description.
+3. **Interview Tips** — Role-specific interview questions with tailored sample answers.
+4. **Resume Summary** — A 3-sentence AI evaluation of candidate fit.
+5. **Detailed Scoring Breakdown** — Granular 1–10 scoring across Technical Skills, Experience, Leadership, Communication, and ATS Compatibility.
+6. **AI Resume Rewrite** — Instantly generates an optimized professional summary and bullet points injected with missing keywords.
+7. **AI Career Coach** — Personalized career development recommendations to close longer-term skill gaps.
+8. **Tailored Cover Letter** — Ready-to-edit, custom 3–4 paragraph professional cover letter.
+9. **Job Comparison** — Bar chart comparing fit across up to 3 job postings pasted simultaneously.
+10. **Version History** — Save analyses, track ATS score trends across saved versions, reload past versions, and export/import history as JSON.
 
-## Try it live
-- **App:** https://resumepilot-ai-vngmvb9m6rdgszr7bthtbk.streamlit.app/
-- **Repo:** https://github.com/abduaali132012-hash/ResumePilot-AI
+### Advanced Career Growth Tools (Beyond ATS)
+* **Job Recommendation Engine** — Suggests 5 job titles suited to the candidate's background with reasoning and search keywords.
+* **LinkedIn Profile Analyzer** — Reviews pasted LinkedIn profile text for recruiter searchability and verifies consistency against the resume.
+* **Application Tracker & Salary Insights** — Manage your active pipeline and benchmark role compensations.
+* **Downloadable Executive Summary** — Generate a professional PDF report on demand.
 
-## What's next
-- Real job-board API integration (currently AI-suggested titles, not live listings)
-- Team / recruiter view for agencies managing multiple candidates
-- Bulk resume processing
-- Arabic-language support
+---
+
+## 📸 Screenshots
+
+| Dashboard & Overview | ATS & Keyword Analysis |
+| :---: | :---: |
+| ![Dashboard](assets/dashboard.png) | ![ATS Analysis](assets/ats-analysis.png) |
+
+| AI Resume Rewrite | LinkedIn Profile Analyzer |
+| :---: | :---: |
+| ![Resume Rewrite](assets/resume-rewrite.png) | ![LinkedIn Analyzer](assets/linkedin-analyzer.png) |
+
+| Job Matching & Comparison | Application Tracker |
+| :---: | :---: |
+| ![Job Matching](assets/job-matching.png) | ![Application Tracker](assets/application-tracker.png) |
+
+---
+
+## 💻 Tech Stack & Architecture
+* **Frontend / UI:** [Streamlit](https://streamlit.io/) (Interactive web framework)
+* **AI Engine:** Google Gemini API (`gemini-2.5-flash`) via the official `google-genai` SDK for semantic analysis and content generation.
+* **Document Processing:** `pdfplumber` / `python-docx` for reliable text extraction from PDF, DOCX, and TXT files.
+* **Data & Visualization:** Pandas & Plotly Express for metrics, scoring calculations, and dynamic charts.
+* **Report Generation:** ReportLab for on-demand PDF executive summaries.
+
+---
+
+## ⚙️ Key Engineering Highlights
+* **Auto-Analysis with Change Detection:** Automatically runs analysis the moment both resume and job description fields are populated without requiring extra button clicks, saving API overhead.
+* **Quota-Safe Error Handling:** Built robust retry logic distinguishing transient API errors from daily quota exhaustion to preserve resources.
+* **Security & Cleanup:** Removed hardcoded server endpoint exposures and added file size limits to prevent oversized uploads.
+* **Streamlined Architecture:** Prototyped a complete Supabase/Stripe paywall layer before intentionally descoping it to keep the submission open-access and dependency-free for judges.
+
+---
+
+## 🚀 Try It Live & Resources
+* **Live Web App:** [Access ResumePilot AI](https://resumepilot-ai-vngmvb9m6rdgszr7bthtbk.streamlit.app/)[cite: 1]
+* **Pitch Deck (PDF):** [View Investor Pitch Deck (PDF)](assets/resumepilot-pitch-deck.pdf)
+* **Demo Video:** [Watch Video Walkthrough](https://example.com/demo-video) *(Link your recorded .mp4 demo here)*
+
+---
+
+## 🗺️ Product Roadmap
+
+### Completed (v1.0)
+- [x] Resume Upload & PDF/DOCX Parsing
+- [x] ATS Match Score & Keyword Gap Analysis
+- [x] AI Resume Rewrite & Cover Letter Generation
+- [x] LinkedIn Profile Analyzer
+- [x] Job Recommendation Engine & Comparison Tool
+- [x] Version History & JSON Export/Import
+- [x] PDF Executive Summary Export
+
+### Coming Soon (v2.0)
+- [ ] Real-time Job Board API Integrations
+- [ ] AI Interview Coach Simulator (Interactive Voice/Text Q&A)
+- [ ] Recruiter Portal & Team Analytics Dashboard
+- [ ] Multilingual Support (Arabic & Regional Languages)
+
+---
+
+## 👨‍💻 Author
+**Abdu Ali Adem**
+* GitHub: [@abduaali132012-hash](https://github.com/abduaali132012-hash)
+* Portfolio / Project Repository: [ResumePilot-AI](https://github.com/abduaali132012-hash/ResumePilot-AI)[cite: 1]
