@@ -159,6 +159,12 @@ if "job_recommendations" not in st.session_state:
     st.session_state.job_recommendations = None
 if "linkedin_analysis" not in st.session_state:
     st.session_state.linkedin_analysis = None
+if "career_gap_analysis" not in st.session_state:
+    st.session_state.career_gap_analysis = None
+if "salary_insights" not in st.session_state:
+    st.session_state.salary_insights = None
+if "applications" not in st.session_state:
+    st.session_state.applications = []
 if "last_analyzed_hash" not in st.session_state:
     st.session_state.last_analyzed_hash = None
 
@@ -183,6 +189,14 @@ with col_recommend:
 
 with col_linkedin:
     run_linkedin = st.button("🔗 Analyze LinkedIn Profile")
+
+col_career, col_salary = st.columns(2)
+
+with col_career:
+    run_career_gap = st.button("🎓 Career Gap Analyzer")
+
+with col_salary:
+    run_salary = st.button("💰 Salary Insights")
 
 # Auto-trigger only when the resume/job1 content has actually changed since
 # the last successful run — prevents burning API quota on every unrelated
@@ -283,6 +297,96 @@ if run_linkedin:
                     )
                 else:
                     st.error(f"Could not analyze LinkedIn profile: {e}")
+
+if run_career_gap:
+    if not resume:
+        st.warning("Please provide a resume first.")
+    elif not gemini_enabled:
+        st.error("Cannot analyze career gaps. Gemini API is not configured.")
+    else:
+        with st.spinner("🎓 Identifying skill gaps and matching learning resources..."):
+            target_role_note = (
+                f"\n\n[TARGET JOB DESCRIPTION]\n{job1}" if job1 else ""
+            )
+            career_gap_prompt = f"""
+            You are a career development advisor. Based on this resume{" and the target job description below" if job1 else ""},
+            identify the top skill or qualification gaps holding this candidate
+            back from more competitive roles. For each gap, recommend a SPECIFIC
+            real course, certification, or resource to close it — name real
+            providers (e.g. Coursera, edX, LinkedIn Learning, official
+            certification bodies like AWS/PMI/Google) rather than generic advice.
+
+            [RESUME]
+            {resume}
+            {target_role_note}
+
+            Return exactly 3-5 gaps, each in this format:
+
+            ### Gap: [Skill or Qualification]
+            **Why it matters:** 1-2 sentences on the impact of closing this gap.
+            **Recommended resource:** A specific, real course/certification and provider.
+            """
+            try:
+                st.session_state.career_gap_analysis = generate_with_retry(career_gap_prompt)
+                st.success("Career gap analysis ready — see the section below.")
+            except Exception as e:
+                error_text = str(e).lower()
+                if "429" in error_text:
+                    st.error(
+                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
+                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
+                        "project for higher limits."
+                    )
+                else:
+                    st.error(f"Could not analyze career gaps: {e}")
+
+if run_salary:
+    if not resume:
+        st.warning("Please provide a resume first.")
+    elif not gemini_enabled:
+        st.error("Cannot generate salary insights. Gemini API is not configured.")
+    else:
+        with st.spinner("💰 Estimating salary ranges..."):
+            role_context = f"\n\n[TARGET JOB DESCRIPTION]\n{job1}" if job1 else ""
+            salary_prompt = f"""
+            You are a compensation research analyst. Based on this resume's
+            experience level and skills{" and the target role below" if job1 else ""},
+            estimate a realistic salary range for roles this candidate is
+            suited for.
+
+            IMPORTANT: Clearly state this is an AI-generated estimate based on
+            general market knowledge, NOT live or guaranteed data, and may be
+            inaccurate or outdated. Recommend the candidate verify with current
+            sources like Glassdoor, levels.fyi, or Payscale before relying on it.
+
+            [RESUME]
+            {resume}
+            {role_context}
+
+            Return in this format:
+
+            ### Estimated Salary Range
+            [range with currency — state your assumed region/market if not specified]
+
+            ### Reasoning
+            2-3 sentences on what drove this estimate (experience level, skills, role type).
+
+            ### Verify With
+            Name 2-3 real sites/tools to cross-check this estimate.
+            """
+            try:
+                st.session_state.salary_insights = generate_with_retry(salary_prompt)
+                st.success("Salary insights ready — see the section below.")
+            except Exception as e:
+                error_text = str(e).lower()
+                if "429" in error_text:
+                    st.error(
+                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
+                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
+                        "project for higher limits."
+                    )
+                else:
+                    st.error(f"Could not generate salary insights: {e}")
 
 if run_analysis:
     if not resume or not job1:
@@ -425,6 +529,104 @@ if st.session_state.linkedin_analysis:
     st.markdown("---")
     st.header("🔗 LinkedIn Profile Analysis")
     st.markdown(st.session_state.linkedin_analysis)
+
+# -----------------------------
+# CAREER GAP ANALYSIS (independent of full ATS analysis)
+# -----------------------------
+if st.session_state.career_gap_analysis:
+    st.markdown("---")
+    st.header("🎓 Career Gap Analysis")
+    st.caption("Skill/qualification gaps with specific course and certification recommendations.")
+    st.markdown(st.session_state.career_gap_analysis)
+
+# -----------------------------
+# SALARY INSIGHTS (independent of full ATS analysis)
+# -----------------------------
+if st.session_state.salary_insights:
+    st.markdown("---")
+    st.header("💰 Salary Insights")
+    st.warning(
+        "⚠️ AI-generated estimate, not live market data. Always verify with "
+        "Glassdoor, levels.fyi, Payscale, or similar before relying on this."
+    )
+    st.markdown(st.session_state.salary_insights)
+
+# -----------------------------
+# APPLICATION TRACKER (no AI — pure dashboard, always available)
+# -----------------------------
+st.markdown("---")
+with st.expander("📋 Application Tracker", expanded=False):
+    st.caption(
+        "Track your job applications in one place. Session-based — use "
+        "Export/Import to keep your list across visits, no account needed."
+    )
+
+    with st.form("add_application_form", clear_on_submit=True):
+        col_company, col_role, col_status, col_date = st.columns(4)
+        with col_company:
+            new_company = st.text_input("Company")
+        with col_role:
+            new_role = st.text_input("Role")
+        with col_status:
+            new_status = st.selectbox(
+                "Status", ["Applied", "Interviewing", "Offer", "Rejected", "Withdrawn"]
+            )
+        with col_date:
+            new_date = st.date_input("Date Applied")
+        add_submitted = st.form_submit_button("➕ Add Application")
+
+    if add_submitted:
+        if new_company and new_role:
+            st.session_state.applications.append({
+                "Company": new_company,
+                "Role": new_role,
+                "Status": new_status,
+                "Date Applied": str(new_date),
+            })
+            st.success(f"Added {new_role} at {new_company}.")
+        else:
+            st.warning("Please fill in at least Company and Role.")
+
+    if st.session_state.applications:
+        apps_df = pd.DataFrame(st.session_state.applications)
+        edited_df = st.data_editor(
+            apps_df,
+            column_config={
+                "Status": st.column_config.SelectboxColumn(
+                    "Status",
+                    options=["Applied", "Interviewing", "Offer", "Rejected", "Withdrawn"],
+                )
+            },
+            num_rows="dynamic",
+            use_container_width=True,
+            key="applications_editor",
+        )
+        st.session_state.applications = edited_df.to_dict("records")
+
+        status_counts = apps_df["Status"].value_counts()
+        st.bar_chart(status_counts)
+
+        col_export_apps, col_import_apps = st.columns(2)
+        with col_export_apps:
+            st.download_button(
+                "⬇️ Export Applications as JSON",
+                data=json.dumps(st.session_state.applications, indent=2),
+                file_name="resumepilot_applications.json",
+                mime="application/json",
+            )
+        with col_import_apps:
+            imported_apps_file = st.file_uploader(
+                "⬆️ Import Applications JSON", type=["json"], key="applications_import"
+            )
+            if imported_apps_file and st.button("Merge Imported Applications"):
+                try:
+                    imported_apps = json.loads(imported_apps_file.read())
+                    st.session_state.applications.extend(imported_apps)
+                    st.success(f"Imported {len(imported_apps)} application(s). Expand again to see them.")
+                except Exception as e:
+                    st.error(f"Could not read that file: {e}")
+    else:
+        st.info("No applications tracked yet. Add one above.")
 
 # -----------------------------
 # RUNTIME UI DRAW RE-RENDER INTERFACE
