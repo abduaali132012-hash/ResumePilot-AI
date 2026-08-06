@@ -1,5 +1,3 @@
-```python
-# pages/4_🌍_Multi_Language_Resume.py
 import io
 import streamlit as st
 from google import genai
@@ -151,4 +149,3 @@ if st.session_state.get("ml_result"):
 
 st.divider()
 st.info("💡 Tip: run the **Analyze** page first to get your parsed resume text, then paste it here to create localized versions for international applications.")
-```
