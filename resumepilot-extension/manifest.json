@@ -1,0 +1,22 @@
+```json
+{
+  "manifest_version": 3,
+  "name": "ResumePilot AI — Send Job to ATS Match",
+  "version": "1.0.0",
+  "description": "Extract the job posting you're viewing and open it in ResumePilot AI for instant ATS match scoring.",
+  "permissions": ["activeTab", "contextMenus"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "ResumePilot AI"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}
+```
