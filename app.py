@@ -28,6 +28,34 @@ st.markdown("""
 """)
 
 # -----------------------------
+# COMPELLING INTRO — THE "WHY" (Problem framing for judges/users)
+# -----------------------------
+st.markdown("""
+## 📉 75% of Qualified Applicants Are Rejected Before a Human Reads Their Resume
+
+**Applicant Tracking Systems (ATS)** silently filter resumes on keyword matches and
+formatting — and most job seekers never know *why* their application disappeared
+into a void.
+
+- 🏢 **99% of Fortune 500** companies use ATS software
+- 📄 **~75% of qualified resumes** are rejected before reaching a recruiter
+- 🎯 The average corporate job posting gets **250+ applications** — standing out is harder than ever
+
+🚀 **ResumePilot AI opens the black box** — paste any job description and see
+*exactly* what keywords you're missing, how your resume scores, and what to fix.
+""")
+
+col_step1, col_step2, col_step3 = st.columns(3)
+with col_step1:
+    st.info("**1️⃣ Upload** your resume\n(PDF, DOCX, or TXT)")
+with col_step2:
+    st.info("**2️⃣ Paste** the job description\nyou're targeting")
+with col_step3:
+    st.info("**3️⃣ Optimize** — get ATS score,\nkeyword gaps, rewrite & more")
+
+st.markdown("---")
+
+# -----------------------------
 # GEMINI CONFIG
 # -----------------------------
 try:
@@ -37,6 +65,17 @@ try:
 except Exception as e:
     gemini_enabled = False
     st.error("Gemini API is not configured correctly.")
+
+# -----------------------------
+# CHROME EXTENSION SUPPORT
+# When the user clicks the Chrome extension on a job posting, it opens
+# ResumePilot with ?jd=<encoded-job-description>.  We capture it here and
+# pin it into the session so the JD text area below picks it up.
+# -----------------------------
+jd_param = st.query_params.get("jd")
+if jd_param and "jd_pinned" not in st.session_state:
+    st.session_state["jd_pinned"] = True
+    st.session_state["jd_from_extension"] = jd_param
 
 # -----------------------------
 # HELPER CORE FUNCTIONS
@@ -87,6 +126,23 @@ def generate_with_retry(prompt, max_attempts=3, delay_seconds=2):
                 time.sleep(delay_seconds)
     raise last_error
 
+
+def extract_section(text, header, next_header=None):
+    """
+    Parse a header-delimited section from an LLM markdown response.
+    Returns the text between `header` and `next_header` (or end of string).
+    If the header is not found, prints a warning and returns a fallback message.
+    """
+    try:
+        part = text.split(header)[1]
+        if next_header:
+            part = part.split(next_header)[0]
+        return part.strip()
+    except IndexError:
+        print(f"[extract_section] Header not found: {header!r}")
+        return "Section layout mismatched. Please try analyzing again."
+
+
 # -----------------------------
 # FILE UPLOAD SYSTEM
 # -----------------------------
@@ -119,7 +175,7 @@ if uploaded_file:
 # If a version was just loaded from the History tab, it overrides whatever
 # was uploaded/typed, so the person sees their older draft restored.
 resume_default = st.session_state.pop("_reload_resume", None) or resume_text
-job1_default = st.session_state.pop("_reload_job1", "")
+job1_default = st.session_state.pop("_reload_job1", "") or st.session_state.pop("jd_from_extension", "")
 
 col_res, col_jd = st.columns(2)
 
@@ -438,6 +494,17 @@ if run_analysis:
             ### CAREER COACH GUIDANCE
             Give 2-3 actionable career recommendations to permanently overcome the skill gaps discovered.
 
+            ### KEYWORD GAP ANALYSIS
+            List the keywords missing from the resume (compared to the job description).
+            Group them into these exact categories:
+            - **🛠️ Technical & Hard Skills:** programming languages, tools, frameworks, methodologies
+            - **🧠 Soft Skills:** leadership, communication, teamwork, problem-solving
+            - **📜 Certifications & Education:** degrees, certifications, courses, training
+            - **🏢 Domain Knowledge:** industry-specific terminology, regulations, domain expertise
+            - **📋 Other Missing Terms:** remaining keywords that don't fit above
+
+            For each category, list the specific missing terms found in the job description but absent from the resume.
+
             ### TAILORED COVER LETTER
             Write a professional, compelling, 3-4 paragraph cover letter customized for this applicant applying to this specific role. Include placeholder tags like [Your Name] where appropriate.
             """
@@ -460,20 +527,6 @@ if run_analysis:
                 ai_text = generate_with_retry(master_prompt)
                 score_text = generate_with_retry(scoring_prompt)
 
-                def extract_section(text, header, next_header=None):
-                    try:
-                        part = text.split(header)[1]
-                        if next_header:
-                            part = part.split(next_header)[0]
-                        return part.strip()
-                    except IndexError:
-                        # This means `header` literally wasn't found in the
-                        # AI's response text. Printing to the terminal/logs
-                        # lets YOU see it (users won't), so you can tell
-                        # whether Gemini is drifting from the expected format.
-                        print(f"[extract_section] Header not found: {header!r}")
-                        return "Section layout mismatched. Please try analyzing again."
-
                 # Commit metrics data mapping objects directly to permanent memory
                 st.session_state.analysis_results = {
                     "score": calculate_score(resume, job1, boost=40),
@@ -488,7 +541,8 @@ if run_analysis:
                     "weaknesses": extract_section(ai_text, "### CRITICAL WEAKNESSES", "### INTERVIEW PREPARATION"),
                     "interview": extract_section(ai_text, "### INTERVIEW PREPARATION", "### RESUME REWRITE SUGGESTIONS"),
                     "rewrite": extract_section(ai_text, "### RESUME REWRITE SUGGESTIONS", "### CAREER COACH GUIDANCE"),
-                    "coach": extract_section(ai_text, "### CAREER COACH GUIDANCE", "### TAILORED COVER LETTER"),
+                    "coach": extract_section(ai_text, "### CAREER COACH GUIDANCE", "### KEYWORD GAP ANALYSIS"),
+                    "keyword_analysis": extract_section(ai_text, "### KEYWORD GAP ANALYSIS", "### TAILORED COVER LETTER"),
                     "cover_letter": ai_text.split("### TAILORED COVER LETTER")[-1].strip()
                 }
                 st.session_state.last_analyzed_hash = current_input_hash
@@ -713,13 +767,18 @@ if st.session_state.analysis_results:
         else:
             st.error("❌ **Low Alignment:** Significant keyword gaps found. Automated parsers could reject this early.")
 
-    # Tab 2: SKILL GAPS
+    # Tab 2: SKILL GAPS (categorized when Gemini analysis is available)
     with tabs[1]:
         st.header("Target Keyword Deficiencies")
         st.write("These terms appear in your target specifications but were absent or phrased differently in your resume layout:")
         if res['missing_skills']:
-            filtered_skills = [s for s in res['missing_skills'] if len(s) > 2 and s.isalpha()]
-            st.write(", ".join([f"`{skill}`" for skill in filtered_skills[:30]]))
+            keyword_analysis = res.get('keyword_analysis', '')
+            if keyword_analysis and len(keyword_analysis) > 50 and "**" in keyword_analysis:
+                st.markdown(keyword_analysis)
+            else:
+                # Fallback to the simple comma-separated list (pre-analysis or non-standard response)
+                filtered_skills = [s for s in res['missing_skills'] if len(s) > 2 and s.isalpha()]
+                st.write(", ".join([f"`{skill}`" for skill in filtered_skills[:30]]))
         else:
             st.success("Phenomenal keyword optimization! No major contextual metrics missing.")
 
@@ -841,8 +900,31 @@ if st.session_state.analysis_results:
                         st.error(f"Could not read that file: {e}")
 
 # -----------------------------
-# SIDEBAR BACKEND TEST BUTTONS
+# SIDEBAR — CHROME EXTENSION & ROADMAP
 # -----------------------------
+st.sidebar.markdown("## 🧩 Chrome Extension")
+st.sidebar.markdown(
+    "Send any job posting (LinkedIn, Indeed, Glassdoor) to ResumePilot "
+    "with one click."
+)
+st.sidebar.markdown(
+    "[📦 Download extension files]"
+    "(https://github.com/abduaali132012-hash/ResumePilot-AI/tree/main/resumepilot-extension)"
+)
+st.sidebar.caption(
+    "Chrome → `chrome://extensions` → Developer mode → Load unpacked"
+)
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("## 🗺️ Roadmap")
+st.sidebar.markdown(
+    "- 📱 **Real job-board API integration** (live listings)\n"
+    "- 👥 **Recruiter dashboard** (batch ranking)\n"
+    "- 🌍 **Multi-language support** (Arabic, French, etc.)\n"
+    "- 🤖 **AI Interview Coach** (voice Q&A)\n"
+    "- 🔄 **Bulk resume processing**"
+)
+
 st.sidebar.markdown("---")
 st.sidebar.subheader("Infrastructure Connectivity Diagnostics")
 
