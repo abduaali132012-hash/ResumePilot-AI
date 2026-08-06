@@ -1,0 +1,40 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ResumePilot AI</title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; width: 340px; margin: 0; padding: 16px; background: #0f172a; color: #e2e8f0; }
+    h1 { font-size: 15px; margin: 0 0 4px; }
+    .muted { color: #94a3b8; font-size: 12px; }
+    .card { background: #1e293b; border-radius: 10px; padding: 10px; margin: 10px 0; }
+    .card h2 { font-size: 13px; margin: 0 0 6px; color: #f8fafc; }
+    .stat { display: flex; justify-content: space-between; font-size: 12px; margin-top: 4px; }
+    label { display: block; margin-top: 8px; }
+    input { width: 100%; box-sizing: border-box; padding: 8px; border-radius: 8px; border: 1px solid #475569; background: #0b1220; color: #e2e8f0; font-size: 12px; margin-top: 6px; }
+    button { width: 100%; padding: 10px; border: 0; border-radius: 8px; cursor: pointer; font-size: 13px; margin-top: 8px; }
+    .primary { background: #6366f1; color: #fff; }
+    .ghost { background: #334155; color: #e2e8f0; }
+    button:active { transform: scale(0.97); }
+    .error { color: #fca5a5; font-size: 12px; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h1>🚀 ResumePilot AI</h1>
+  <div class="muted">Send this job to ResumePilot for ATS scoring.</div>
+  <div class="card">
+    <h2 id="jobTitle">No job detected</h2>
+    <div id="jobCompany" class="muted"></div>
+    <div class="stat"><span>Description length</span><span id="charCount">0 chars</span></div>
+  </div>
+  <label class="muted" for="appUrl">ResumePilot app URL</label>
+  <input id="appUrl" value="https://resumepilot-ai-vngmvb9m6rdgszr7bthtbk.streamlit.app" />
+  <button id="openApp" class="primary">🔗 Open in ResumePilot</button>
+  <button id="copyJd" class="ghost">📋 Copy description</button>
+  <div id="error" class="error"></div>
+  <script src="popup.js"></script>
+</body>
+</html>
+```
