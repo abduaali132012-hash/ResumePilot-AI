@@ -31,7 +31,7 @@ st.markdown("""
 # GEMINI CONFIG
 # -----------------------------
 try:
-    gemini_client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+    gemini_client = genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
     GEMINI_MODEL = "gemini-2.5-flash"
     gemini_enabled = True
 except Exception as e:
