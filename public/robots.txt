@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://z9v3yhia2jb79yst5dbwox9s.nativelyai.app/sitemap.xml

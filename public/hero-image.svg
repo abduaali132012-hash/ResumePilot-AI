@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0f4ff"/>
+      <stop offset="50%" stop-color="#faf6ff"/>
+      <stop offset="100%" stop-color="#f0fdf4"/>
+    </linearGradient>
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5854e6"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5854e6"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <filter id="shadow1" x="-10%" y="-10%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#5854e6" flood-opacity="0.08"/>
+    </filter>
+    <filter id="shadow2" x="-10%" y="-10%" width="130%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#000" flood-opacity="0.06"/>
+    </filter>
+    <radialGradient id="particle1">
+      <stop offset="0%" stop-color="#5854e6" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#5854e6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="particle2">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="particle3">
+      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bgGrad)"/>
+  <circle cx="150" cy="150" r="300" fill="url(#particle1)"/>
+  <circle cx="1100" cy="500" r="280" fill="url(#particle2)"/>
+  <circle cx="600" cy="650" r="250" fill="url(#particle3)"/>
+  <circle cx="1200" cy="120" r="200" fill="url(#particle1)"/>
+  <g opacity="0.6">
+    <circle cx="140" cy="110" r="4" fill="#5854e6" opacity="0.3"/>
+    <circle cx="1150" cy="180" r="3" fill="#10b981" opacity="0.3"/>
+    <circle cx="980" cy="650" r="5" fill="#8b5cf6" opacity="0.25"/>
+    <circle cx="300" cy="600" r="3" fill="#5854e6" opacity="0.2"/>
+  </g>
+  <rect x="30" y="20" width="1220" height="56" rx="14" fill="white" filter="url(#shadow2)"/>
+  <rect x="50" y="36" width="28" height="24" rx="6" fill="url(#brandGrad)"/>
+  <text x="88" y="54" fill="#1a1a2e" font-family="DM Sans, sans-serif" font-size="16" font-weight="800">ResumePilot</text>
+  <text x="200" y="54" fill="#5854e6" font-family="DM Sans, sans-serif" font-size="10" font-weight="700" letter-spacing="1">AI</text>
+  <text x="310" y="52" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="13" font-weight="500">ATS Scoring</text>
+  <text x="420" y="52" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="13" font-weight="500">Keyword Analysis</text>
+  <text x="555" y="52" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="13" font-weight="500">Resume Rewrite</text>
+  <text x="680" y="52" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="13" font-weight="500">Cover Letter</text>
+  <text x="800" y="52" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="13" font-weight="500">Interview Prep</text>
+  <circle cx="1110" cy="48" r="16" fill="#f3e8ff"/>
+  <text x="1110" y="53" fill="#7c3aed" font-family="DM Sans, sans-serif" font-size="11" font-weight="700" text-anchor="middle">SA</text>
+  <rect x="1140" y="37" width="90" height="24" rx="8" fill="url(#brandGrad)"/>
+  <text x="1185" y="53" fill="white" font-family="DM Sans, sans-serif" font-size="11" font-weight="700" text-anchor="middle">+ Upload</text>
+  <rect x="30" y="92" width="380" height="300" rx="16" fill="white" filter="url(#shadow1)"/>
+  <circle cx="220" cy="175" r="65" fill="none" stroke="#f3f4f6" stroke-width="10"/>
+  <circle cx="220" cy="175" r="65" fill="none" stroke="url(#scoreGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="340 440" transform="rotate(-90 220 175)"/>
+  <text x="220" y="178" fill="#1a1a2e" font-family="DM Sans, sans-serif" font-size="38" font-weight="800" text-anchor="middle">86</text>
+  <text x="220" y="198" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="12" text-anchor="middle">ATS Match Score</text>
+  <text x="65" y="260" fill="#374151" font-family="DM Sans, sans-serif" font-size="12" font-weight="600">Keywords</text>
+  <text x="200" y="260" fill="#374151" font-family="DM Sans, sans-serif" font-size="12" font-weight="600" text-anchor="end">92%</text>
+  <rect x="65" y="267" width="300" height="5" rx="3" fill="#f3f4f6"/>
+  <rect x="65" y="267" width="276" height="5" rx="3" fill="url(#accentGrad)"/>
+  <text x="65" y="288" fill="#374151" font-family="DM Sans, sans-serif" font-size="12" font-weight="600">Experience</text>
+  <text x="200" y="288" fill="#374151" font-family="DM Sans, sans-serif" font-size="12" font-weight="600" text-anchor="end">74%</text>
+  <rect x="200" y="295" width="165" height="5" rx="3" fill="#f3f4f6"/>
+  <rect x="200" y="295" width="165" height="5" rx="3" fill="#f59e0b"/>
+  <text x="65" y="316" fill="#374151" font-family="DM Sans, sans-serif" font-size="12" font-weight="600">Format</text>
+  <text x="200" y="316" fill="#374151" font-family="DM Sans, sans-serif" font-size="12" font-weight="600" text-anchor="end">88%</text>
+  <rect x="200" y="323" width="165" height="5" rx="3" fill="#f3f4f6"/>
+  <rect x="200" y="323" width="165" height="5" rx="3" fill="url(#brandGrad)"/>
+  <rect x="430" y="92" width="470" height="300" rx="16" fill="white" filter="url(#shadow1)"/>
+  <rect x="450" y="110" width="10" height="18" rx="3" fill="url(#brandGrad)"/>
+  <text x="468" y="125" fill="#1a1a2e" font-family="DM Sans, sans-serif" font-size="15" font-weight="800">Keyword Density Analysis</text>
+  <g>
+    <rect x="460" y="160" width="50" height="120" rx="5" fill="#5854e6" opacity="0.15"/>
+    <rect x="460" y="160" width="50" height="120" rx="5" fill="url(#brandGrad)" opacity="0.9"/>
+    <text x="485" y="298" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="10" font-weight="600" text-anchor="middle">Python</text>
+    <text x="485" y="153" fill="#5854e6" font-family="DM Sans, sans-serif" font-size="11" font-weight="800" text-anchor="middle">12</text>
+    <rect x="530" y="180" width="50" height="100" rx="5" fill="#10b981" opacity="0.15"/>
+    <rect x="530" y="180" width="50" height="100" rx="5" fill="url(#accentGrad)"/>
+    <text x="555" y="298" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="10" font-weight="600" text-anchor="middle">React</text>
+    <text x="555" y="173" fill="#10b981" font-family="DM Sans, sans-serif" font-size="11" font-weight="800" text-anchor="middle">10</text>
+    <rect x="600" y="170" width="50" height="110" rx="5" fill="#8b5cf6" opacity="0.15"/>
+    <rect x="600" y="170" width="50" height="110" rx="5" fill="#8b5cf6"/>
+    <text x="625" y="298" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="10" font-weight="600" text-anchor="middle">TypeScript</text>
+    <text x="625" y="163" fill="#8b5cf6" font-family="DM Sans, sans-serif" font-size="11" font-weight="800" text-anchor="middle">11</text>
+    <rect x="670" y="200" width="50" height="80" rx="5" fill="#f59e0b" opacity="0.15"/>
+    <rect x="670" y="200" width="50" height="80" rx="5" fill="#f59e0b"/>
+    <text x="695" y="298" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="10" font-weight="600" text-anchor="middle">AWS</text>
+    <text x="695" y="193" fill="#f59e0b" font-family="DM Sans, sans-serif" font-size="11" font-weight="800" text-anchor="middle">8</text>
+    <rect x="740" y="210" width="50" height="70" rx="5" fill="#ef4444" opacity="0.15"/>
+    <rect x="740" y="210" width="50" height="70" rx="5" fill="#ef4444" opacity="0.85"/>
+    <text x="765" y="298" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="10" font-weight="600" text-anchor="middle">Docker</text>
+    <text x="765" y="203" fill="#ef4444" font-family="DM Sans, sans-serif" font-size="11" font-weight="800" text-anchor="middle">7</text>
+    <rect x="810" y="220" width="50" height="60" rx="5" fill="#06b6d4" opacity="0.15"/>
+    <rect x="810" y="220" width="50" height="60" rx="5" fill="#06b6d4" opacity="0.85"/>
+    <text x="835" y="298" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="10" font-weight="600" text-anchor="middle">PostgreSQL</text>
+    <text x="835" y="213" fill="#06b6d4" font-family="DM Sans, sans-serif" font-size="11" font-weight="800" text-anchor="middle">6</text>
+  </g>
+  <rect x="920" y="92" width="330" height="300" rx="16" fill="white" filter="url(#shadow1)"/>
+  <rect x="940" y="110" width="10" height="18" rx="3" fill="#f59e0b"/>
+  <text x="958" y="125" fill="#1a1a2e" font-family="DM Sans, sans-serif" font-size="15" font-weight="800">Action Items</text>
+  <rect x="940" y="145" width="290" height="38" rx="8" fill="#fef2f2"/>
+  <rect x="952" y="155" width="8" height="8" rx="2" fill="#ef4444"/>
+  <text x="968" y="169" fill="#991b1b" font-family="DM Sans, sans-serif" font-size="12" font-weight="600">Kubernetes missing — add to experience</text>
+  <rect x="940" y="191" width="290" height="38" rx="8" fill="#fef2f2"/>
+  <rect x="952" y="201" width="8" height="8" rx="2" fill="#ef4444"/>
+  <text x="968" y="215" fill="#991b1b" font-family="DM Sans, sans-serif" font-size="12" font-weight="600">Terraform missing — highlight IaC skills</text>
+  <rect x="940" y="237" width="290" height="38" rx="8" fill="#fef2f2"/>
+  <rect x="952" y="247" width="8" height="8" rx="2" fill="#ef4444"/>
+  <text x="968" y="261" fill="#991b1b" font-family="DM Sans, sans-serif" font-size="12" font-weight="600">CI/CD Pipelines — add deployment auto</text>
+  <rect x="940" y="290" width="135" height="34" rx="10" fill="url(#brandGrad)"/>
+  <text x="1007" y="312" fill="white" font-family="DM Sans, sans-serif" font-size="12" font-weight="700" text-anchor="middle">Rewrite Resume →</text>
+  <rect x="1085" y="290" width="145" height="34" rx="10" fill="#f3f4f6"/>
+  <text x="1157" y="312" fill="#374151" font-family="DM Sans, sans-serif" font-size="12" font-weight="700" text-anchor="middle">View Full Report</text>
+  <rect x="30" y="410" width="380" height="280" rx="16" fill="white" filter="url(#shadow1)"/>
+  <rect x="50" y="428" width="10" height="18" rx="3" fill="url(#brandGrad)"/>
+  <text x="68" y="443" fill="#1a1a2e" font-family="DM Sans, sans-serif" font-size="15" font-weight="800">Interview Prep Questions</text>
+  <rect x="50" y="462" width="340" height="36" rx="8" fill="#f8f5ff"/>
+  <circle cx="68" cy="480" r="8" fill="#5854e6" opacity="0.15"/>
+  <text x="68" y="484" fill="#5854e6" font-family="DM Sans, sans-serif" font-size="9" font-weight="800" text-anchor="middle">1</text>
+  <text x="86" y="485" fill="#374151" font-family="DM Sans, sans-serif" font-size="12" font-weight="500">Describe scaling a React application…</text>
+  <rect x="50" y="504" width="340" height="36" rx="8" fill="#f8f5ff"/>
+  <circle cx="68" cy="522" r="8" fill="#5854e6" opacity="0.15"/>
+  <text x="68" y="526" fill="#5854e6" font-family="DM Sans, sans-serif" font-size="9" font-weight="800" text-anchor="middle">2</text>
+  <text x="86" y="527" fill="#374151" font-family="DM Sans, sans-serif" font-size="12" font-weight="500">How to optimise slow-performing queries…</text>
+  <rect x="50" y="546" width="340" height="36" rx="8" fill="#f8f5ff"/>
+  <circle cx="68" cy="564" r="8" fill="#5854e6" opacity="0.15"/>
+  <text x="68" y="568" fill="#5854e6" font-family="DM Sans, sans-serif" font-size="9" font-weight="800" text-anchor="middle">3</text>
+  <text x="86" y="569" fill="#374151" font-family="DM Sans, sans-serif" font-size="12" font-weight="500">Walk through a project using microservices…</text>
+  <rect x="50" y="588" width="340" height="36" rx="8" fill="#f8f5ff"/>
+  <circle cx="68" cy="606" r="8" fill="#5854e6" opacity="0.15"/>
+  <text x="68" y="610" fill="#5854e6" font-family="DM Sans, sans-serif" font-size="9" font-weight="800" text-anchor="middle">4</text>
+  <text x="86" y="611" fill="#374151" font-family="DM Sans, sans-serif" font-size="12" font-weight="500">CI/CD pipeline experience with Docker/k8s…</text>
+  <rect x="430" y="410" width="380" height="280" rx="16" fill="white" filter="url(#shadow1)"/>
+  <rect x="450" y="428" width="10" height="18" rx="3" fill="url(#accentGrad)"/>
+  <text x="468" y="443" fill="#1a1a2e" font-family="DM Sans, sans-serif" font-size="15" font-weight="800">Cover Letter Preview</text>
+  <rect x="450" y="460" width="340" height="55" rx="8" fill="#f0fdf4"/>
+  <text x="466" y="480" fill="#065f46" font-family="DM Sans, sans-serif" font-size="12" font-weight="700">Subject: Application for Senior Frontend Engineer</text>
+  <text x="466" y="498" fill="#065f46" font-family="DM Sans, sans-serif" font-size="11">Dear Hiring Manager,</text>
+  <rect x="450" y="523" width="340" height="75" rx="8" fill="#f9fafb"/>
+  <text x="466" y="541" fill="#4b5563" font-family="DM Sans, sans-serif" font-size="11">With over 6 years of experience building scalable</text>
+  <text x="466" y="557" fill="#4b5563" font-family="DM Sans, sans-serif" font-size="11">React applications and leading cross-functional teams,</text>
+  <text x="466" y="573" fill="#4b5563" font-family="DM Sans, sans-serif" font-size="11">I am excited to apply for the Senior Frontend Eng…</text>
+  <rect x="450" y="606" width="120" height="30" rx="8" fill="url(#accentGrad)"/>
+  <text x="510" y="626" fill="white" font-family="DM Sans, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Generate New</text>
+  <rect x="580" y="606" width="100" height="30" rx="8" fill="#f3f4f6"/>
+  <text x="630" y="626" fill="#374151" font-family="DM Sans, sans-serif" font-size="11" font-weight="600" text-anchor="middle">Copy</text>
+  <rect x="830" y="410" width="420" height="280" rx="16" fill="white" filter="url(#shadow1)"/>
+  <rect x="850" y="428" width="10" height="18" rx="3" fill="#8b5cf6"/>
+  <text x="868" y="443" fill="#1a1a2e" font-family="DM Sans, sans-serif" font-size="15" font-weight="800">Your Analysis History</text>
+  <rect x="850" y="462" width="185" height="75" rx="10" fill="#f5f3ff"/>
+  <text x="942" y="487" fill="#1a1a2e" font-family="DM Sans, sans-serif" font-size="22" font-weight="800" text-anchor="middle">24</text>
+  <text x="942" y="507" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="10" font-weight="600" text-anchor="middle">Analyses Completed</text>
+  <rect x="1045" y="462" width="185" height="75" rx="10" fill="#ecfdf5"/>
+  <text x="1137" y="487" fill="#1a1a2e" font-family="DM Sans, sans-serif" font-size="22" font-weight="800" text-anchor="middle">12</text>
+  <text x="1137" y="507" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="10" font-weight="600" text-anchor="middle">Cover Letters</text>
+  <rect x="850" y="547" width="185" height="75" rx="10" fill="#fff7ed"/>
+  <text x="942" y="572" fill="#1a1a2e" font-family="DM Sans, sans-serif" font-size="22" font-weight="800" text-anchor="middle">86%</text>
+  <text x="942" y="592" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="10" font-weight="600" text-anchor="middle">Avg. Score</text>
+  <rect x="1045" y="547" width="185" height="75" rx="10" fill="#fef2f2"/>
+  <text x="1137" y="572" fill="#1a1a2e" font-family="DM Sans, sans-serif" font-size="22" font-weight="800" text-anchor="middle">3</text>
+  <text x="1137" y="592" fill="#6b7280" font-family="DM Sans, sans-serif" font-size="10" font-weight="600" text-anchor="middle">Interviews Booked</text>
+  <rect x="850" y="640" width="380" height="34" rx="10" fill="url(#brandGrad)"/>
+  <text x="1040" y="662" fill="white" font-family="DM Sans, sans-serif" font-size="13" font-weight="700" text-anchor="middle">+ New Analysis</text>
+  <rect x="30" y="700" width="1220" height="1" rx="0.5" fill="#e5e7eb"/>
+  <text x="640" y="714" fill="#9ca3af" font-family="DM Sans, sans-serif" font-size="11" text-anchor="middle">Powered by Gemini 2.0 — Real-time ATS analysis with keyword matching, rewrite, and interview prep</text>
+</svg>

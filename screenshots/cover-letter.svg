@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+  <rect width="800" height="450" fill="#0d1117"/>
+  <rect x="40" y="30" width="720" height="60" rx="10" fill="#161b22"/>
+  <rect x="60" y="48" width="160" height="24" rx="6" fill="#f0883e"/>
+  <text x="65" y="65" fill="#fff" font-family="sans-serif" font-size="12" font-weight="bold">Cover Letter Generator</text>
+  <rect x="40" y="110" width="720" height="310" rx="12" fill="#161b22"/>
+  <rect x="60" y="130" width="150" height="24" rx="6" fill="#30363d"/>
+  <text x="70" y="147" fill="#8b949e" font-family="sans-serif" font-size="11">GENERATED COVER LETTER</text>
+  <rect x="60" y="165" width="680" height="1" fill="#30363d"/>
+  <text x="60" y="200" fill="#e6edf3" font-family="sans-serif" font-size="14" font-weight="bold">Dear Hiring Manager,</text>
+  <text x="60" y="225" fill="#e6edf3" font-family="sans-serif" font-size="12">I am writing to express my strong interest in the Senior</text>
+  <text x="60" y="243" fill="#e6edf3" font-family="sans-serif" font-size="12">Software Engineer position at [Company]. With over 5</text>
+  <text x="60" y="261" fill="#e6edf3" font-family="sans-serif" font-size="12">years of experience building and deploying full-stack</text>
+  <text x="60" y="279" fill="#e6edf3" font-family="sans-serif" font-size="12">web applications using <tspan fill="#f0883e">Python and React</tspan>, I am confident</text>
+  <text x="60" y="297" fill="#e6edf3" font-family="sans-serif" font-size="12">in my ability to contribute to your engineering team.</text>
+  <text x="60" y="325" fill="#e6edf3" font-family="sans-serif" font-size="12">I particularly admire [Company]'s commitment to</text>
+  <text x="60" y="343" fill="#e6edf3" font-family="sans-serif" font-size="12">engineering excellence and its focus on [relevant</text>
+  <text x="60" y="361" fill="#e6edf3" font-family="sans-serif" font-size="12">mission mentioned in job description].</text>
+  <text x="60" y="389" fill="#e6edf3" font-family="sans-serif" font-size="12">I look forward to the opportunity to discuss how my</text>
+  <text x="60" y="407" fill="#e6edf3" font-family="sans-serif" font-size="12">skills align with your team's needs.</text>
+  <rect x="60" y="430" width="100" height="28" rx="6" fill="#f0883e"/>
+  <text x="110" y="449" fill="#fff" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle">Download PDF</text>
+  <rect x="175" y="430" width="120" height="28" rx="6" fill="#30363d"/>
+  <text x="235" y="449" fill="#e6edf3" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle">Copy to Clipboard</text>
+  <text x="750" y="22" fill="#8b949e" font-family="sans-serif" font-size="11" text-anchor="end">📷 Replace screenshot</text>
+</svg>
