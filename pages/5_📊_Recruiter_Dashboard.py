@@ -1,4 +1,3 @@
-```python
 # pages/5_📊_Recruiter_Dashboard.py
 import json
 import re
@@ -172,9 +171,3 @@ with tab_analytics:
 
         st.subheader("Candidate pipeline")
         st.dataframe(df[["file", "job_title", "score", "summary"]], use_container_width=True, hide_index=True)
-```
-
-## What it does
-
-- **Rank Candidates tab** — upload multiple resumes, paste a job description, and Gemini scores each candidate 0–100 with a summary, strengths and red flags. Results appear in a sortable table, a Plotly bar chart, and per-candidate expanders.
-- **Analytics tab** — saved rankings are aggregated into a persistent dashboard (`data/analyses.json`): candidate count, average/top score, score-distribution histogram, average score by role, and a pipeline table.

@@ -1,4 +1,3 @@
-```python
 # pages/6_🎤_AI_Interview_Coach.py
 import json
 import re
@@ -148,4 +147,3 @@ else:
             for k in ["iq_questions", "iq_index", "iq_answers", "iq_feedback"]:
                 st.session_state.pop(k, None)
             st.rerun()
-```
