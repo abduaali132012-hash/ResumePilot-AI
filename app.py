@@ -61,10 +61,30 @@ st.markdown("---")
 try:
     gemini_client = genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
     GEMINI_MODEL = "gemini-2.5-flash"
+    # Quick validation call (won't count toward daily quota meaningfully)
+    gemini_client.models.generate_content(model=GEMINI_MODEL, contents="ok")
     gemini_enabled = True
+except KeyError:
+    gemini_enabled = False
+    st.error(
+        "❌ **Gemini API key not found.**\n\n"
+        "Paste your key in `.streamlit/secrets.toml` like this:\n"
+        '```\nGOOGLE_API_KEY = "AIza..."\n```\n\n'
+        "Get a free key at https://aistudio.google.com/apikey"
+    )
 except Exception as e:
     gemini_enabled = False
-    st.error("Gemini API is not configured correctly.")
+    error_msg = str(e)
+    if "API_KEY_INVALID" in error_msg or "unauthorized" in error_msg.lower():
+        st.error(
+            f"❌ **Your Gemini API key was rejected.**\n\n"
+            f"• It may have been revoked after GitHub's secret scanning detected it.\n"
+            f"• Generate a **new** key at https://aistudio.google.com/apikey\n"
+            f"• Update it in `.streamlit/secrets.toml` and restart the app.\n\n"
+            f"_(Error: {error_msg[:200]})_"
+        )
+    else:
+        st.error(f"❌ Gemini API error: {error_msg[:300]}")
 
 # -----------------------------
 # CHROME EXTENSION SUPPORT
@@ -929,13 +949,19 @@ st.sidebar.markdown("---")
 st.sidebar.subheader("Infrastructure Connectivity Diagnostics")
 
 if st.sidebar.button("Test Gemini Connection"):
-    try:
-        response = gemini_client.models.generate_content(
-            model=GEMINI_MODEL, contents="Say hello"
+    if not gemini_enabled:
+        st.sidebar.error(
+            "❌ Gemini client is not available (see errors above). "
+            "Fix the API key first."
         )
-        st.sidebar.success(f"Gemini Active: {response.text}")
-    except Exception as e:
-        st.sidebar.error(f"Error: {e}")
+    else:
+        try:
+            response = gemini_client.models.generate_content(
+                model=GEMINI_MODEL, contents="Say hello"
+            )
+            st.sidebar.success(f"Gemini Active: {response.text}")
+        except Exception as e:
+            st.sidebar.error(f"Error: {e}")
 
 # NOTE: The old "Test AMD Llama Node" button hardcoded a raw server IP
 # address directly in source code that was pushed to a PUBLIC GitHub repo.
