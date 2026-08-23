@@ -59,17 +59,16 @@ st.markdown("---")
 # GEMINI CONFIG
 # -----------------------------
 try:
-    gemini_client = genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
+    gemini_client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
     GEMINI_MODEL = "gemini-2.5-flash"
-    # Quick validation call (won't count toward daily quota meaningfully)
-    gemini_client.models.generate_content(model=GEMINI_MODEL, contents="ok")
     gemini_enabled = True
 except KeyError:
     gemini_enabled = False
     st.error(
         "❌ **Gemini API key not found.**\n\n"
-        "Paste your key in `.streamlit/secrets.toml` like this:\n"
-        '```\nGOOGLE_API_KEY = "AIza..."\n```\n\n'
+        "Add it in Streamlit Cloud → your app → Settings → Secrets "
+        "(never in a file that gets committed to GitHub):\n"
+        '```\nGEMINI_API_KEY = "AIza..."\n```\n\n'
         "Get a free key at https://aistudio.google.com/apikey"
     )
 except Exception as e:
@@ -78,9 +77,9 @@ except Exception as e:
     if "API_KEY_INVALID" in error_msg or "unauthorized" in error_msg.lower():
         st.error(
             f"❌ **Your Gemini API key was rejected.**\n\n"
-            f"• It may have been revoked after GitHub's secret scanning detected it.\n"
+            f"• It may have been revoked (e.g. after GitHub's secret scanning detected it).\n"
             f"• Generate a **new** key at https://aistudio.google.com/apikey\n"
-            f"• Update it in `.streamlit/secrets.toml` and restart the app.\n\n"
+            f"• Update it in Streamlit Cloud → Settings → Secrets (never in a committed file), then reboot the app.\n\n"
             f"_(Error: {error_msg[:200]})_"
         )
     else:
