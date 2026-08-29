@@ -1,0 +1,29 @@
+{
+  "requirements": [
+    {
+      "requirement": "Kubernetes",
+      "status": "supported",
+      "evidence": "Built and operated containerized infrastructure with Kubernetes"
+    },
+    {
+      "requirement": "Terraform",
+      "status": "supported",
+      "evidence": "Worked on Terraform modules for AWS infrastructure provisioning"
+    },
+    {
+      "requirement": "AWS",
+      "status": "supported",
+      "evidence": "Managed Terraform state for production services on AWS"
+    },
+    {
+      "requirement": "Docker",
+      "status": "supported",
+      "evidence": "Reduced downtime by containerizing workloads with Docker"
+    },
+    {
+      "requirement": "Python",
+      "status": "not_verified",
+      "evidence": "No explicit Python experience was listed"
+    }
+  ]
+}

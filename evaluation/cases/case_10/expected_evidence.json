@@ -1,0 +1,29 @@
+{
+  "requirements": [
+    {
+      "requirement": "Python",
+      "status": "supported",
+      "evidence": "Built predictive models using Python"
+    },
+    {
+      "requirement": "Statistics",
+      "status": "supported",
+      "evidence": "Applied statistical analysis to evaluate model quality"
+    },
+    {
+      "requirement": "Machine Learning",
+      "status": "supported",
+      "evidence": "Trained and evaluated classification models"
+    },
+    {
+      "requirement": "SQL",
+      "status": "supported",
+      "evidence": "Wrote SQL queries to analyze large datasets"
+    },
+    {
+      "requirement": "Spark",
+      "status": "not_verified",
+      "evidence": "No Spark or distributed processing work was mentioned"
+    }
+  ]
+}

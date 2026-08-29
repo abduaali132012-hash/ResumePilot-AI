@@ -1,0 +1,8 @@
+Data Scientist
+
+Built predictive models for customer retention and demand forecasting using Python and SQL. Applied statistical analysis to evaluate model quality and communicated findings to product and executive stakeholders. Worked with experiment design to assess business impact and improve recommendation quality.
+
+Experience:
+- Trained and evaluated classification models for churn prediction.
+- Wrote SQL queries to analyze large datasets and customer segments.
+- Partnered with product teams to explain experiment results and business trade-offs.

@@ -1,0 +1,8 @@
+Product Analyst
+
+Partnered with engineering, design, and marketing teams to prioritize roadmap improvements. Ran A/B tests to evaluate feature performance and used SQL to measure adoption trends across segments. Presented findings to leadership and translated customer feedback into product recommendations.
+
+Work highlights:
+- Analyzed funnel performance with SQL and dashboards.
+- Designed experiments for onboarding and conversion improvements.
+- Synthesized user research and stakeholder feedback into prioritization decisions.

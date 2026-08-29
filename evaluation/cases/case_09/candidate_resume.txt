@@ -1,0 +1,8 @@
+MLOps Engineer
+
+Built deployment pipelines for ML services using Python, Docker, and Kubernetes. Automated model retraining jobs with Airflow and monitored drift in production training workflows. Worked with feature stores and CI/CD automation for model release readiness.
+
+Highlights:
+- Containerized training and inference workloads with Docker.
+- Managed Kubernetes-based model serving environments.
+- Scheduled retraining jobs with Airflow.

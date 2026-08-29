@@ -8,6 +8,7 @@ import tempfile
 import time
 import json
 import hashlib
+import re
 from datetime import datetime
 from reportlab.pdfgen import canvas
 
@@ -160,6 +161,240 @@ def extract_section(text, header, next_header=None):
     except IndexError:
         print(f"[extract_section] Header not found: {header!r}")
         return "Section layout mismatched. Please try analyzing again."
+
+
+def _normalize_requirement_text(value):
+    """Normalize requirement text so exact evidence checks are consistent."""
+    if value is None:
+        return ""
+    value = str(value).lower()
+    value = re.sub(r"[^a-z0-9+\s/.-]", " ", value)
+    value = re.sub(r"\s+", " ", value).strip()
+    return value
+
+
+def evaluate_requirement_evidence(resume_text, requirement):
+    """
+    Conservative evidence-based requirement checker.
+
+    Goal: prevent false positives where the model claims a skill is supported
+    even though the resume never actually mentions it.
+
+    Classification rules:
+    - supported: direct phrase or exact token evidence exists in the resume
+    - partial: some weaker indication or partial match exists
+    - unsupported: no meaningful evidence found
+    """
+    requirement_text = _normalize_requirement_text(requirement)
+    resume_text = _normalize_requirement_text(resume_text)
+    if not requirement_text:
+        return {"requirement": requirement, "status": "unsupported", "evidence": "none", "reason": "empty requirement"}
+    if not resume_text:
+        return {"requirement": requirement, "status": "unsupported", "evidence": "none", "reason": "empty resume"}
+
+    normalized_resume = " " + resume_text + " "
+    normalized_requirement = requirement_text
+
+    # Exact phrase check is the strongest signal.
+    if normalized_requirement in normalized_resume:
+        return {"requirement": requirement, "status": "supported", "evidence": "explicit", "reason": "exact evidence found"}
+
+    tokens = [token for token in re.split(r"[\s/+-]+", normalized_requirement) if token]
+    if not tokens:
+        return {"requirement": requirement, "status": "unsupported", "evidence": "none", "reason": "no tokenized evidence"}
+
+    # Multi-token requirements require all meaningful tokens to be present.
+    if len(tokens) > 1:
+        token_hits = 0
+        for token in tokens:
+            if token in normalized_resume:
+                token_hits += 1
+        if token_hits == len(tokens):
+            return {"requirement": requirement, "status": "supported", "evidence": "explicit", "reason": "all requirement tokens found"}
+        if token_hits > 0:
+            return {"requirement": requirement, "status": "partial", "evidence": "indirect", "reason": "partial keyword evidence"}
+        return {"requirement": requirement, "status": "unsupported", "evidence": "none", "reason": "no requirement terms found"}
+
+    # Single-token requirement: require a real match to avoid false positives.
+    token = tokens[0]
+    if token in normalized_resume:
+        return {"requirement": requirement, "status": "supported", "evidence": "explicit", "reason": "token evidence found"}
+
+    # Conservative fallback for attached forms like "node.js" -> "nodejs" or "aws" -> "amazon web services"
+    alias_map = {
+        "nodejs": ["node.js", "node js"],
+        "aws": ["amazon web services", "amazon-web-services"],
+        "postgresql": ["postgres", "postgre sql"],
+        "kubernetes": ["k8s"],
+        "fastapi": ["fast api"],
+        "machinelearning": ["machine learning"],
+    }
+    aliases = alias_map.get(token, [])
+    if any(alias in normalized_resume for alias in aliases):
+        return {"requirement": requirement, "status": "supported", "evidence": "explicit", "reason": "alias evidence found"}
+
+    return {"requirement": requirement, "status": "unsupported", "evidence": "none", "reason": "no direct evidence"}
+
+
+def evaluate_requirement_set(resume_text, requirements):
+    """Evaluate a list of requirement strings and return a requirement-by-requirement result set."""
+    if not requirements:
+        return []
+    return [evaluate_requirement_evidence(resume_text, requirement) for requirement in requirements]
+
+
+def extract_resume_evidence(resume_text):
+    """
+    First evidence-extraction agent.
+
+    Extracts concise, structured factual signals from a resume, including:
+    - skills
+    - experience context
+    - project accomplishments
+    - education
+    - certifications
+
+    Each evidence item has a direct source and a confidence label.
+    """
+    if not resume_text:
+        return []
+
+    text = str(resume_text)
+    evidence = []
+
+    patterns = [
+        ("Python", ["python"], "Projects", "high"),
+        ("FastAPI", ["fastapi", "fast api"], "Projects", "high"),
+        ("PostgreSQL", ["postgresql", "postgres"], "Projects", "high"),
+        ("AWS", ["aws", "amazon web services"], "Experience", "medium"),
+        ("Docker", ["docker"], "Experience", "high"),
+        ("Kubernetes", ["kubernetes", "k8s"], "Experience", "medium"),
+        ("Bachelor's degree", ["bachelor's degree", "bachelors degree", "bachelor degree"], "Education", "high"),
+        ("Master's degree", ["master's degree", "masters degree", "master degree"], "Education", "high"),
+        ("AWS Certified", ["aws certified", "aws certification"], "Certification", "high"),
+    ]
+
+    lower_text = text.lower()
+    for skill, aliases, source, confidence in patterns:
+        for alias in aliases:
+            if alias in lower_text:
+                evidence.append({
+                    "skill": skill,
+                    "evidence": f"Resume contains direct mention of {skill}.",
+                    "source": source,
+                    "confidence": confidence,
+                })
+                break
+
+    # Add a generic fallback for skills not in the alias map but clearly named in the resume.
+    if not evidence:
+        for sentence in re.split(r"\n+|(?<=[.!?])\s+", text):
+            cleaned = sentence.strip()
+            if cleaned:
+                evidence.append({
+                    "skill": cleaned.split()[0],
+                    "evidence": cleaned,
+                    "source": "Projects",
+                    "confidence": "low",
+                })
+
+    return evidence
+
+
+def verify_requirement_evidence(resume_text, requirement):
+    """
+    Verification stage for a requirement.
+
+    Produces a defensible classification based on evidence in the resume:
+    - supported: explicit evidence found
+    - partially_supported: related but not explicit evidence found
+    - not_verified: no evidence found
+    """
+    check = evaluate_requirement_evidence(resume_text, requirement)
+    evidence_items = extract_resume_evidence(resume_text)
+    requirement_norm = _normalize_requirement_text(requirement)
+    resume_norm = _normalize_requirement_text(resume_text)
+    cloud_context = any(term in resume_norm for term in ["cloud", "deployed in the cloud", "cloud infrastructure", "cloud platforms"])
+
+    direct_match = any(
+        _normalize_requirement_text(item["skill"]) == requirement_norm or requirement_norm in _normalize_requirement_text(item["skill"])
+        for item in evidence_items
+    )
+
+    if check["status"] == "supported" or direct_match:
+        matched = next(
+            (item for item in evidence_items if _normalize_requirement_text(item["skill"]) == requirement_norm or requirement_norm in _normalize_requirement_text(item["skill"])),
+            None,
+        )
+        if matched:
+            return {
+                "requirement": requirement,
+                "status": "supported",
+                "evidence_found": True,
+                "evidence": matched["evidence"],
+                "source": matched["source"],
+                "confidence": matched["confidence"],
+                "reason": "Explicit evidence found in the resume."
+            }
+
+    related_context = any(
+        requirement_norm in _normalize_requirement_text(item["skill"]) or _normalize_requirement_text(item["skill"]) in requirement_norm
+        for item in evidence_items
+    ) or (
+        requirement_norm in ["aws", "amazon web services"] and cloud_context
+    )
+
+    if related_context:
+        return {
+            "requirement": requirement,
+            "status": "partially_supported",
+            "evidence_found": True,
+            "evidence": "Cloud experience mentioned, but the specific requirement is not explicitly identified.",
+            "source": "Experience",
+            "confidence": "medium",
+            "reason": "Related context exists, but the requirement is not explicitly proven."
+        }
+
+    return {
+        "requirement": requirement,
+        "status": "not_verified",
+        "evidence_found": False,
+        "evidence": "No explicit or indirect evidence found.",
+        "source": "None",
+        "confidence": "low",
+        "reason": "No direct evidence detected in the resume."
+    }
+
+
+def build_evidence_summary(resume_text, requirements, candidate_name="Example Candidate", position_name="Backend Engineer"):
+    """Build a structured evidence summary for the dashboard."""
+    requirement_results = []
+    for requirement in requirements:
+        result = verify_requirement_evidence(resume_text, requirement)
+        requirement_results.append({
+            "requirement": result["requirement"],
+            "status": result["status"],
+            "evidence": result["evidence"],
+            "confidence": result["confidence"].title() if result["confidence"] else "High",
+            "source": result["source"],
+            "reason": result["reason"],
+        })
+
+    score_map = {
+        "supported": 1,
+        "partially_supported": 0.5,
+        "not_verified": 0,
+    }
+    overall_coverage = 0 if not requirement_results else round(
+        (sum(score_map.get(item["status"], 0) for item in requirement_results) / len(requirement_results)) * 100
+    )
+
+    return {
+        "candidate": candidate_name,
+        "position": position_name,
+        "overall_coverage": overall_coverage,
+        "requirements": requirement_results,
+    }
 
 
 # -----------------------------
@@ -706,6 +941,54 @@ with st.expander("📋 Application Tracker", expanded=False):
 # -----------------------------
 if st.session_state.analysis_results:
     res = st.session_state.analysis_results
+
+    candidate_requirements = ["Python", "FastAPI", "AWS", "Kubernetes"]
+    evidence_summary = build_evidence_summary(
+        resume or "",
+        candidate_requirements,
+        candidate_name="Example Candidate",
+        position_name=("Backend Engineer" if not job1 else "Role Review"),
+    )
+
+    st.markdown("---")
+    st.header("📊 Candidate Evidence Evaluation")
+    c_col1, c_col2 = st.columns(2)
+    with c_col1:
+        st.write(f"Candidate: {evidence_summary['candidate']}")
+    with c_col2:
+        st.write(f"Position: {evidence_summary['position']}")
+
+    st.subheader("Overall Evidence Coverage")
+    st.progress(min(max(evidence_summary["overall_coverage"], 0), 100) / 100)
+    st.write(f"{evidence_summary['overall_coverage']}%")
+
+    st.markdown("### Requirements")
+    for item in evidence_summary["requirements"]:
+        if item["status"] == "supported":
+            icon = "✓"
+            color = "green"
+        elif item["status"] == "partially_supported":
+            icon = "⚠"
+            color = "orange"
+        else:
+            icon = "?"
+            color = "gray"
+
+        st.markdown(f"<div style='padding: 0.6rem 0.8rem; border-left: 4px solid {color}; margin-bottom: 0.5rem;'>"
+                    f"<strong>{icon} {item['requirement']}</strong><br>"
+                    f"Evidence: {item['evidence']}<br>"
+                    f"Confidence: {item['confidence']}"
+                    f"</div>", unsafe_allow_html=True)
+
+    review_col1, review_col2, review_col3 = st.columns(3)
+    with review_col1:
+        st.button("Confirm")
+    with review_col2:
+        st.button("Reject")
+    with review_col3:
+        st.button("Needs Review")
+
+    st.markdown("---")
 
     # Top Metric Dashboard Cards Array
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)

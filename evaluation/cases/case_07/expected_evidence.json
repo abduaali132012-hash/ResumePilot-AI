@@ -1,0 +1,29 @@
+{
+  "requirements": [
+    {
+      "requirement": "Java",
+      "status": "supported",
+      "evidence": "Built automated regression suites in Java"
+    },
+    {
+      "requirement": "Selenium",
+      "status": "partially_supported",
+      "evidence": "No explicit Selenium usage was mentioned, though browser automation exists"
+    },
+    {
+      "requirement": "Cypress",
+      "status": "supported",
+      "evidence": "Automated end-to-end browser flows with Cypress"
+    },
+    {
+      "requirement": "CI/CD",
+      "status": "supported",
+      "evidence": "Integrated test workflows into CI/CD pipelines"
+    },
+    {
+      "requirement": "API Testing",
+      "status": "supported",
+      "evidence": "Validated REST APIs across multiple release cycles"
+    }
+  ]
+}

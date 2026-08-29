@@ -1,0 +1,29 @@
+{
+  "requirements": [
+    {
+      "requirement": "Python",
+      "status": "supported",
+      "evidence": "Built deployment pipelines for ML services using Python"
+    },
+    {
+      "requirement": "Docker",
+      "status": "supported",
+      "evidence": "Containerized training and inference workloads with Docker"
+    },
+    {
+      "requirement": "Kubernetes",
+      "status": "supported",
+      "evidence": "Managed Kubernetes-based model serving environments"
+    },
+    {
+      "requirement": "Airflow",
+      "status": "supported",
+      "evidence": "Scheduled retraining jobs with Airflow"
+    },
+    {
+      "requirement": "Monitoring",
+      "status": "partially_supported",
+      "evidence": "Monitored drift in production workflows but not a full platform monitoring stack"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+Mobile Engineer
+
+Developed native iOS and Android features using Swift and Kotlin. Built product analytics and push notification flows with Firebase. Optimized startup time and rendering performance for mobile applications and supported release readiness checks.
+
+Projects:
+- Implemented UI and API integration for Android apps in Kotlin.
+- Built iOS features in Swift for user onboarding and account management.
+- Integrated Firebase analytics, remote config, and notifications.

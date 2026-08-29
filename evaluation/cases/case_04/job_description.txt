@@ -1,0 +1,1 @@
+We are hiring a frontend engineer with React, TypeScript, Next.js, and accessibility experience. Experience with design systems and performance optimization is a plus.

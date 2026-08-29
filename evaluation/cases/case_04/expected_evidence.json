@@ -1,0 +1,29 @@
+{
+  "requirements": [
+    {
+      "requirement": "React",
+      "status": "supported",
+      "evidence": "Built customer-facing web interfaces with React"
+    },
+    {
+      "requirement": "TypeScript",
+      "status": "supported",
+      "evidence": "Built interfaces with React and TypeScript"
+    },
+    {
+      "requirement": "Next.js",
+      "status": "supported",
+      "evidence": "Led migration of a legacy dashboard to Next.js"
+    },
+    {
+      "requirement": "Accessibility",
+      "status": "supported",
+      "evidence": "Improved keyboard navigation and screen-reader support"
+    },
+    {
+      "requirement": "GraphQL",
+      "status": "not_verified",
+      "evidence": "No GraphQL work was mentioned"
+    }
+  ]
+}

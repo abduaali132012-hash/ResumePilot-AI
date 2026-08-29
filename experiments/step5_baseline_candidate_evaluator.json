@@ -1,0 +1,59 @@
+{
+  "experiment_name": "step5_baseline_candidate_evaluator",
+  "objective": "Measure evidence-grounded requirement accuracy before changing ResumePilot.",
+  "primary_metric": "evidence_grounded_requirement_accuracy",
+  "definition": "correct_requirement_classifications / total_requirement_checks",
+  "evidence_labels": [
+    "Explicit",
+    "Indirect",
+    "None",
+    "Conflicting"
+  ],
+  "controlled_candidates": [
+    {
+      "candidate_id": "candidate_01_python_backend",
+      "job_focus": "Python backend engineer",
+      "requirements": [
+        {"requirement": "Python", "resume_evidence": "Explicit", "baseline_result": "Supported", "gold_label": "Supported"},
+        {"requirement": "FastAPI", "resume_evidence": "Explicit", "baseline_result": "Supported", "gold_label": "Supported"},
+        {"requirement": "Kubernetes", "resume_evidence": "None", "baseline_result": "?", "gold_label": "Unsupported"},
+        {"requirement": "AWS", "resume_evidence": "Indirect", "baseline_result": "?", "gold_label": "Partially supported"},
+        {"requirement": "Leadership", "resume_evidence": "Indirect", "baseline_result": "?", "gold_label": "Partially supported"}
+      ]
+    },
+    {
+      "candidate_id": "candidate_02_devops_platform",
+      "job_focus": "DevOps / platform engineer",
+      "requirements": [
+        {"requirement": "Kubernetes", "resume_evidence": "Explicit", "baseline_result": "Supported", "gold_label": "Supported"},
+        {"requirement": "Terraform", "resume_evidence": "Explicit", "baseline_result": "Supported", "gold_label": "Supported"},
+        {"requirement": "Docker", "resume_evidence": "Explicit", "baseline_result": "Supported", "gold_label": "Supported"},
+        {"requirement": "AWS", "resume_evidence": "Explicit", "baseline_result": "Supported", "gold_label": "Supported"},
+        {"requirement": "Python", "resume_evidence": "Indirect", "baseline_result": "?", "gold_label": "Partially supported"}
+      ]
+    },
+    {
+      "candidate_id": "candidate_03_data_ml",
+      "job_focus": "Data / ML engineer",
+      "requirements": [
+        {"requirement": "Python", "resume_evidence": "Explicit", "baseline_result": "Supported", "gold_label": "Supported"},
+        {"requirement": "Machine Learning", "resume_evidence": "Explicit", "baseline_result": "Supported", "gold_label": "Supported"},
+        {"requirement": "Kubernetes", "resume_evidence": "None", "baseline_result": "?", "gold_label": "Unsupported"},
+        {"requirement": "SQL", "resume_evidence": "Explicit", "baseline_result": "Supported", "gold_label": "Supported"},
+        {"requirement": "Spark", "resume_evidence": "Indirect", "baseline_result": "?", "gold_label": "Partially supported"}
+      ]
+    }
+  ],
+  "evaluation_protocol": [
+    "Select a small controlled set of candidate profiles and job descriptions.",
+    "Manually label each requirement with gold-truth evidence.",
+    "Run the existing ResumePilot analysis on each candidate-job pair.",
+    "Compare requirement-level AI output to the gold label.",
+    "Compute accuracy, false positives, and false negatives."
+  ],
+  "success_criteria": [
+    "High agreement on explicit requirements",
+    "Conservative handling of missing evidence",
+    "Clear separation between supported and unsupported requirements"
+  ]
+}

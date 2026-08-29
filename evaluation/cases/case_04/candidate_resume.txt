@@ -1,0 +1,8 @@
+Frontend Engineer
+
+Built customer-facing web interfaces with React and TypeScript. Led migration of a legacy dashboard to Next.js and improved accessibility across key user flows. Worked closely with design teams to maintain a consistent component library.
+
+Selected work:
+- Developed reusable UI components with React and TypeScript.
+- Improved keyboard navigation and screen-reader support for complex forms.
+- Optimized page load speed by reducing render blocking and bundle size.

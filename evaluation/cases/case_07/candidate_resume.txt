@@ -1,0 +1,8 @@
+QA Automation Engineer
+
+Built automated regression suites in Java and Cypress for web applications. Integrated test workflows into CI/CD pipelines and validated REST APIs across multiple release cycles. Worked closely with developers to identify flaky tests and reduce manual QA effort.
+
+Key contributions:
+- Automated end-to-end browser flows with Cypress.
+- Created Java-based test utilities for API validation.
+- Improved release reliability by integrating checks into GitHub Actions.

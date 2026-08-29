@@ -1,0 +1,8 @@
+Security Engineer
+
+Designed IAM and access controls for multi-account cloud environments. Investigated security incidents, coordinated remediation, and improved logging coverage for production systems. Worked with container workloads and hardened Kubernetes clusters in regulated environments.
+
+Highlights:
+- Audited AWS IAM policies and reduced privilege sprawl.
+- Managed incident response playbooks and forensic review for production outages.
+- Strengthened Kubernetes network policies and admission controls.

@@ -1,0 +1,8 @@
+DevOps Engineer
+
+Built and operated containerized infrastructure with Kubernetes and Docker. Worked on Terraform modules for AWS infrastructure provisioning. Designed deployment pipelines for multiple environments and improved reliability across services.
+
+Projects:
+- Created EKS-backed pipelines for application rollout.
+- Managed Terraform state for production services on AWS.
+- Reduced downtime by containerizing workloads with Docker.

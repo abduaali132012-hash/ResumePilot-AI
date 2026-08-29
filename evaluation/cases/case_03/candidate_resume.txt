@@ -1,0 +1,8 @@
+Data Engineer
+
+Developed Python-based ETL pipelines and SQL transformations to support analytics workloads. Built machine learning feature pipelines and trained models for recommendation systems. Worked with distributed data processing tools in a cloud environment.
+
+Experience:
+- Processed large datasets with Spark for feature generation.
+- Wrote SQL queries for reporting and data validation.
+- Built Python scripts to manage ETL orchestration.

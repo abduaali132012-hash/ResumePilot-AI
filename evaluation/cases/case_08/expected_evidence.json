@@ -1,0 +1,29 @@
+{
+  "requirements": [
+    {
+      "requirement": "Swift",
+      "status": "supported",
+      "evidence": "Built iOS features in Swift"
+    },
+    {
+      "requirement": "Kotlin",
+      "status": "supported",
+      "evidence": "Implemented UI and API integration for Android apps in Kotlin"
+    },
+    {
+      "requirement": "Firebase",
+      "status": "supported",
+      "evidence": "Integrated Firebase analytics, remote config, and notifications"
+    },
+    {
+      "requirement": "App Performance",
+      "status": "supported",
+      "evidence": "Optimized startup time and rendering performance"
+    },
+    {
+      "requirement": "React Native",
+      "status": "not_verified",
+      "evidence": "No React Native experience appears in the resume"
+    }
+  ]
+}

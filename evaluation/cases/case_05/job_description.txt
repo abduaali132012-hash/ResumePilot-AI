@@ -1,0 +1,1 @@
+We need a security engineer with expertise in IAM, cloud security, incident response, and Kubernetes. Strong experience with zero-trust architecture is required.

@@ -1,0 +1,29 @@
+{
+  "requirements": [
+    {
+      "requirement": "Python",
+      "status": "supported",
+      "evidence": "Developed Python-based ETL pipelines and Python scripts for ETL orchestration"
+    },
+    {
+      "requirement": "SQL",
+      "status": "supported",
+      "evidence": "Wrote SQL queries for reporting and data validation"
+    },
+    {
+      "requirement": "Spark",
+      "status": "supported",
+      "evidence": "Processed large datasets with Spark for feature generation"
+    },
+    {
+      "requirement": "Machine Learning",
+      "status": "supported",
+      "evidence": "Built machine learning feature pipelines and trained models for recommendation systems"
+    },
+    {
+      "requirement": "Kubernetes",
+      "status": "not_verified",
+      "evidence": "No Kubernetes experience was mentioned"
+    }
+  ]
+}

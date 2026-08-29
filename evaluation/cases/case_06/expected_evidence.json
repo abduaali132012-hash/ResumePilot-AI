@@ -1,0 +1,29 @@
+{
+  "requirements": [
+    {
+      "requirement": "SQL",
+      "status": "supported",
+      "evidence": "Used SQL to measure adoption trends and analyze funnel performance"
+    },
+    {
+      "requirement": "A/B Testing",
+      "status": "supported",
+      "evidence": "Ran A/B tests to evaluate feature performance"
+    },
+    {
+      "requirement": "Stakeholder Management",
+      "status": "supported",
+      "evidence": "Partnered with engineering, design, and marketing teams"
+    },
+    {
+      "requirement": "Customer Research",
+      "status": "partially_supported",
+      "evidence": "Synthesized user research and feedback but not direct research ownership"
+    },
+    {
+      "requirement": "Python",
+      "status": "not_verified",
+      "evidence": "No Python work is described"
+    }
+  ]
+}

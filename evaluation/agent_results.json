@@ -1,0 +1,398 @@
+{
+  "system": "evidence_agent",
+  "cases": [
+    {
+      "case_id": "case_01",
+      "requirements": [
+        {
+          "requirement": "Python",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "FastAPI",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "PostgreSQL",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Docker",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Kubernetes",
+          "expected": "not_verified",
+          "predicted": "not_verified",
+          "correct": true
+        },
+        {
+          "requirement": "AWS",
+          "expected": "partially_supported",
+          "predicted": "partially_supported",
+          "correct": true
+        }
+      ],
+      "accuracy": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    {
+      "case_id": "case_02",
+      "requirements": [
+        {
+          "requirement": "Kubernetes",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Terraform",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "AWS",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Docker",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Python",
+          "expected": "not_verified",
+          "predicted": "not_verified",
+          "correct": true
+        }
+      ],
+      "accuracy": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    {
+      "case_id": "case_03",
+      "requirements": [
+        {
+          "requirement": "Python",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "SQL",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Spark",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Machine Learning",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Kubernetes",
+          "expected": "not_verified",
+          "predicted": "not_verified",
+          "correct": true
+        }
+      ],
+      "accuracy": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    {
+      "case_id": "case_04",
+      "requirements": [
+        {
+          "requirement": "React",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "TypeScript",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Next.js",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Accessibility",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "GraphQL",
+          "expected": "not_verified",
+          "predicted": "not_verified",
+          "correct": true
+        }
+      ],
+      "accuracy": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    {
+      "case_id": "case_05",
+      "requirements": [
+        {
+          "requirement": "IAM",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Cloud Security",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Incident Response",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Kubernetes",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Zero Trust",
+          "expected": "partially_supported",
+          "predicted": "supported",
+          "correct": false
+        }
+      ],
+      "accuracy": 0.8,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    {
+      "case_id": "case_06",
+      "requirements": [
+        {
+          "requirement": "SQL",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "A/B Testing",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Stakeholder Management",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Customer Research",
+          "expected": "partially_supported",
+          "predicted": "supported",
+          "correct": false
+        },
+        {
+          "requirement": "Python",
+          "expected": "not_verified",
+          "predicted": "not_verified",
+          "correct": true
+        }
+      ],
+      "accuracy": 0.8,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    {
+      "case_id": "case_07",
+      "requirements": [
+        {
+          "requirement": "Java",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Selenium",
+          "expected": "partially_supported",
+          "predicted": "supported",
+          "correct": false
+        },
+        {
+          "requirement": "Cypress",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "CI/CD",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "API Testing",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        }
+      ],
+      "accuracy": 0.8,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    {
+      "case_id": "case_08",
+      "requirements": [
+        {
+          "requirement": "Swift",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Kotlin",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Firebase",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "App Performance",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "React Native",
+          "expected": "not_verified",
+          "predicted": "partially_supported",
+          "correct": false
+        }
+      ],
+      "accuracy": 0.8,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    {
+      "case_id": "case_09",
+      "requirements": [
+        {
+          "requirement": "Python",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Docker",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Kubernetes",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Airflow",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Monitoring",
+          "expected": "partially_supported",
+          "predicted": "supported",
+          "correct": false
+        }
+      ],
+      "accuracy": 0.8,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    {
+      "case_id": "case_10",
+      "requirements": [
+        {
+          "requirement": "Python",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Statistics",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Machine Learning",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "SQL",
+          "expected": "supported",
+          "predicted": "supported",
+          "correct": true
+        },
+        {
+          "requirement": "Spark",
+          "expected": "not_verified",
+          "predicted": "partially_supported",
+          "correct": false
+        }
+      ],
+      "accuracy": 0.8,
+      "false_positives": 0,
+      "false_negatives": 0
+    }
+  ],
+  "summary": {
+    "total_cases": 10,
+    "total_requirements": 51,
+    "accuracy": 0.882,
+    "false_positives": 2,
+    "false_negatives": 0
+  }
+}

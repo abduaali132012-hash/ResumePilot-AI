@@ -1,0 +1,34 @@
+{
+  "requirements": [
+    {
+      "requirement": "Python",
+      "status": "supported",
+      "evidence": "Built APIs with Python and FastAPI"
+    },
+    {
+      "requirement": "FastAPI",
+      "status": "supported",
+      "evidence": "Built FastAPI services for reporting and customer dashboards"
+    },
+    {
+      "requirement": "PostgreSQL",
+      "status": "supported",
+      "evidence": "Managed PostgreSQL databases and schemas"
+    },
+    {
+      "requirement": "Docker",
+      "status": "supported",
+      "evidence": "Deployed containerized services using Docker"
+    },
+    {
+      "requirement": "Kubernetes",
+      "status": "not_verified",
+      "evidence": "No explicit or indirect evidence for Kubernetes found"
+    },
+    {
+      "requirement": "AWS",
+      "status": "partially_supported",
+      "evidence": "Worked with cloud infrastructure and deployment workflows"
+    }
+  ]
+}

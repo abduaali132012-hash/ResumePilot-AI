@@ -1,0 +1,1 @@
+We need a QA automation engineer with Java, Selenium, Cypress, and CI/CD pipeline experience. Strong API testing knowledge is required.

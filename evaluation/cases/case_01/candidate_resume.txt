@@ -1,0 +1,11 @@
+Senior Software Engineer
+
+Built APIs with Python and FastAPI for internal business tools. Managed PostgreSQL databases and containerized services with Docker. Worked with cloud infrastructure and deployment workflows in a production environment.
+
+Key accomplishments:
+- Developed Python automation scripts for ETL and backend integrations.
+- Built FastAPI services for reporting and customer dashboards.
+- Managed PostgreSQL schemas and query optimization.
+- Deployed containerized services using Docker.
+
+Education: B.S. in Computer Science.

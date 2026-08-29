@@ -1,0 +1,29 @@
+{
+  "requirements": [
+    {
+      "requirement": "IAM",
+      "status": "supported",
+      "evidence": "Designed IAM and access controls for multi-account cloud environments"
+    },
+    {
+      "requirement": "Cloud Security",
+      "status": "supported",
+      "evidence": "Audited AWS IAM policies and hardened cloud systems"
+    },
+    {
+      "requirement": "Incident Response",
+      "status": "supported",
+      "evidence": "Managed incident response playbooks and forensic review"
+    },
+    {
+      "requirement": "Kubernetes",
+      "status": "supported",
+      "evidence": "Hardened Kubernetes clusters and network policies"
+    },
+    {
+      "requirement": "Zero Trust",
+      "status": "partially_supported",
+      "evidence": "Security posture work exists but no explicit zero-trust framework reference"
+    }
+  ]
+}

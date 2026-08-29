@@ -1,0 +1,1 @@
+We need an MLOps engineer with Python, Docker, Kubernetes, and Airflow experience. Strong model deployment and monitoring skills are required.
