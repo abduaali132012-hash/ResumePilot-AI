@@ -16,6 +16,8 @@ from app import (
     extract_resume_evidence,
     verify_requirement_evidence,
     build_evidence_summary,
+    get_runtime_api_key,
+    select_free_port,
 )
 
 
@@ -92,6 +94,17 @@ def test_build_evidence_summary_sets_dashboard_metrics():
 # ---------------------------------------------------------------------------
 # calculate_score tests
 # ---------------------------------------------------------------------------
+
+def test_get_runtime_api_key_supports_environment_fallback(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "env-test-key")
+    assert get_runtime_api_key() == "env-test-key"
+
+
+def test_select_free_port_returns_valid_port():
+    port = select_free_port(8765)
+    assert isinstance(port, int)
+    assert 1 <= port <= 65535
+
 
 def test_score_empty_resume():
     assert calculate_score("", "Python developer") == 0

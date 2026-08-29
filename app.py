@@ -1,3 +1,5 @@
+import os
+import socket
 import streamlit as st
 import pdfplumber
 from docx import Document
@@ -56,24 +58,66 @@ with col_step3:
 
 st.markdown("---")
 
+def get_runtime_api_key():
+    """Return the Gemini API key from environment variables or Streamlit secrets."""
+    env_keys = [
+        "GEMINI_API_KEY",
+        "GOOGLE_API_KEY",
+        "GOOGLE_GENERATIVE_AI_API_KEY",
+    ]
+    for key in env_keys:
+        value = os.getenv(key)
+        if value and str(value).strip():
+            return str(value).strip()
+
+    try:
+        if hasattr(st, "secrets"):
+            for key in env_keys:
+                value = st.secrets.get(key)
+                if value and str(value).strip():
+                    return str(value).strip()
+    except Exception:
+        pass
+
+    return None
+
+
+def select_free_port(preferred_port=8501):
+    """Return a free localhost port, falling back to the next available port."""
+    preferred_port = int(preferred_port)
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        try:
+            sock.bind(("127.0.0.1", preferred_port))
+            return preferred_port
+        except OSError:
+            pass
+
+        for port in range(preferred_port + 1, 65535):
+            try:
+                sock.bind(("127.0.0.1", port))
+                return port
+            except OSError:
+                continue
+
+    raise RuntimeError("No free local port available on this machine.")
+
+
 # -----------------------------
 # GEMINI CONFIG
 # -----------------------------
+api_key = get_runtime_api_key()
 try:
-    gemini_client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+    gemini_client = genai.Client(api_key=api_key) if api_key else None
     GEMINI_MODEL = "gemini-2.5-flash"
-    gemini_enabled = True
-except KeyError:
-    gemini_enabled = False
-    st.error(
-        "❌ **Gemini API key not found.**\n\n"
-        "Add it in Streamlit Cloud → your app → Settings → Secrets "
-        "(never in a file that gets committed to GitHub):\n"
-        '```\nGEMINI_API_KEY = "AIza..."\n```\n\n'
-        "Get a free key at https://aistudio.google.com/apikey"
-    )
+    gemini_enabled = bool(gemini_client)
+    if not gemini_enabled:
+        st.warning(
+            "⚠️ Gemini API key not found in environment variables or Streamlit secrets. "
+            "The app will still load, but AI-powered features remain disabled until you add a valid key."
+        )
 except Exception as e:
     gemini_enabled = False
+    gemini_client = None
     error_msg = str(e)
     if "API_KEY_INVALID" in error_msg or "unauthorized" in error_msg.lower():
         st.error(
