@@ -25,3 +25,8 @@ dist-ssr
 
 # Streamlit secrets (local API keys)
 .streamlit/secrets.toml
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+.pytest_cache/
