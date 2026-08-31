@@ -1,5 +1,6 @@
 import os
 import socket
+from dotenv import load_dotenv
 import streamlit as st
 import pdfplumber
 from docx import Document
@@ -14,6 +15,18 @@ import re
 from datetime import datetime
 from reportlab.pdfgen import canvas
 
+# Import AI module for resume analysis
+from ai import (
+    extract_key_skills,
+    calculate_ats_score,
+    find_skill_gaps,
+    calculate_match_percentage,
+    analyze_resume_structure,
+    get_ai_insights_summary,
+)
+
+load_dotenv()
+
 # -----------------------------
 # PAGE CONFIG (MUST BE THE FIRST STREAMLIT COMMAND)
 # -----------------------------
@@ -23,6 +36,58 @@ st.set_page_config(
     layout="wide"
 )
 
+st.markdown("""
+<style>
+    .analysis-panel {
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.78));
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: 16px;
+        padding: 1.1rem 1.2rem;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18);
+        margin-bottom: 1rem;
+    }
+    .section-header {
+        font-size: 1.15rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        color: #e2e8f0;
+        margin-bottom: 0.4rem;
+    }
+    .subsection-header {
+        font-size: 0.92rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #7dd3fc;
+        margin-bottom: 0.5rem;
+    }
+    .kpi-card {
+        background: rgba(15, 23, 42, 0.7);
+        border-radius: 14px;
+        border: 1px solid rgba(96, 165, 250, 0.3);
+        padding: 0.9rem 1rem;
+        height: 100%;
+    }
+    .requirement-card {
+        padding: 0.8rem 0.95rem;
+        border-left: 5px solid var(--status-color, #94a3b8);
+        background: rgba(15, 23, 42, 0.55);
+        border-radius: 12px;
+        margin-bottom: 0.7rem;
+    }
+    div[data-testid="stMetric"] {
+        background: rgba(15, 23, 42, 0.72);
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        border-radius: 14px;
+        padding: 0.7rem 0.9rem;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+    }
+    .stProgress > div > div {
+        background: linear-gradient(90deg, #38bdf8, #34d399);
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Banner rendered immediately AFTER page config
 st.markdown("""
 # 🚀 ResumePilot AI
@@ -31,15 +96,29 @@ st.markdown("""
 """)
 
 # -----------------------------
+# HERO / BRANDING / CTA
+# -----------------------------
+hero_col, action_col = st.columns([2, 1])
+with hero_col:
+    st.markdown("""
+    ## 📉 75% of Qualified Applicants Are Rejected Before a Human Reads Their Resume
+
+    **Applicant Tracking Systems (ATS)** silently filter resumes on keyword matches and
+    formatting — and most job seekers never know *why* their application disappeared
+    into a void.
+    """)
+    st.caption("Built to make ATS scoring, job-fit analysis, and resume optimization transparent and actionable.")
+with action_col:
+    st.markdown("### Quick start")
+    st.info("**1️⃣ Upload** your resume\n**2️⃣ Paste** the job description\n**3️⃣ Get ATS-fit feedback, gaps, and rewrite ideas")
+    st.button("Start analysis", key="hero_cta", help="Scroll down and begin your resume review.")
+
+st.markdown("---")
+
+# -----------------------------
 # COMPELLING INTRO — THE "WHY" (Problem framing for judges/users)
 # -----------------------------
 st.markdown("""
-## 📉 75% of Qualified Applicants Are Rejected Before a Human Reads Their Resume
-
-**Applicant Tracking Systems (ATS)** silently filter resumes on keyword matches and
-formatting — and most job seekers never know *why* their application disappeared
-into a void.
-
 - 🏢 **99% of Fortune 500** companies use ATS software
 - 📄 **~75% of qualified resumes** are rejected before reaching a recruiter
 - 🎯 The average corporate job posting gets **250+ applications** — standing out is harder than ever
@@ -100,6 +179,42 @@ def select_free_port(preferred_port=8501):
                 continue
 
     raise RuntimeError("No free local port available on this machine.")
+
+
+def get_user_facing_error(exc):
+    """Convert library errors into clearer user-facing messages."""
+    if exc is None:
+        return "An unexpected error occurred."
+    message = str(exc).lower()
+    if "429" in message or "quota" in message:
+        return (
+            "You've hit the Gemini API quota limit for today. "
+            "The app will still work with manual inputs, but AI generation is temporarily paused until the quota resets."
+        )
+    if "api key" in message or "unauthorized" in message or "forbidden" in message:
+        return "The configured Gemini API key is invalid or unavailable. Please verify your key and restart the app."
+    if "timeout" in message:
+        return "The AI request timed out. Please try again with a shorter prompt or a more stable connection."
+    return "The AI service could not complete the request. Please try again in a moment."
+
+
+def validate_resume_inputs(resume_text, job_description):
+    """Return user-friendly validation warnings for weak or missing input."""
+    warnings = []
+    resume_value = (resume_text or "").strip()
+    jd_value = (job_description or "").strip()
+
+    if not resume_value:
+        warnings.append("Please provide a resume before running analysis.")
+    elif len(resume_value) < 80:
+        warnings.append("The resume looks very short. Add more experience details for a more useful ATS analysis.")
+
+    if not jd_value:
+        warnings.append("Please paste a target job description before running analysis.")
+    elif len(jd_value) < 60:
+        warnings.append("The job description looks short. Add more of the role requirements to improve matching quality.")
+
+    return warnings
 
 
 # -----------------------------
@@ -507,6 +622,10 @@ with st.expander("🔗 LinkedIn Profile Analyzer (optional)"):
 # -----------------------------
 if "analysis_results" not in st.session_state:
     st.session_state.analysis_results = None
+
+validation_warnings = validate_resume_inputs(resume, job1)
+if validation_warnings:
+    st.warning("\n".join(f"• {warning}" for warning in validation_warnings))
 if "version_history" not in st.session_state:
     st.session_state.version_history = []
 if "job_recommendations" not in st.session_state:
@@ -593,15 +712,7 @@ if run_recommendations:
                 st.session_state.job_recommendations = recommendation_text
                 st.success("Recommendations ready — see the '🧭 Job Recommendations' tab below.")
             except Exception as e:
-                error_text = str(e).lower()
-                if "429" in error_text:
-                    st.error(
-                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
-                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
-                        "project for higher limits."
-                    )
-                else:
-                    st.error(f"Could not generate recommendations: {e}")
+                st.error(get_user_facing_error(e))
 
 if run_linkedin:
     if not linkedin_text:
@@ -642,15 +753,7 @@ if run_linkedin:
                 st.session_state.linkedin_analysis = generate_with_retry(linkedin_prompt)
                 st.success("LinkedIn analysis ready — see the section below.")
             except Exception as e:
-                error_text = str(e).lower()
-                if "429" in error_text:
-                    st.error(
-                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
-                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
-                        "project for higher limits."
-                    )
-                else:
-                    st.error(f"Could not analyze LinkedIn profile: {e}")
+                st.error(get_user_facing_error(e))
 
 if run_career_gap:
     if not resume:
@@ -684,15 +787,7 @@ if run_career_gap:
                 st.session_state.career_gap_analysis = generate_with_retry(career_gap_prompt)
                 st.success("Career gap analysis ready — see the section below.")
             except Exception as e:
-                error_text = str(e).lower()
-                if "429" in error_text:
-                    st.error(
-                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
-                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
-                        "project for higher limits."
-                    )
-                else:
-                    st.error(f"Could not analyze career gaps: {e}")
+                st.error(get_user_facing_error(e))
 
 if run_salary:
     if not resume:
@@ -732,15 +827,7 @@ if run_salary:
                 st.session_state.salary_insights = generate_with_retry(salary_prompt)
                 st.success("Salary insights ready — see the section below.")
             except Exception as e:
-                error_text = str(e).lower()
-                if "429" in error_text:
-                    st.error(
-                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
-                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
-                        "project for higher limits."
-                    )
-                else:
-                    st.error(f"Could not generate salary insights: {e}")
+                st.error(get_user_facing_error(e))
 
 if run_analysis:
     if not resume or not job1:
@@ -760,6 +847,13 @@ if run_analysis:
             score1 = calculate_score(resume, job1)
             score2 = calculate_score(resume, job2) if job2 else 0
             score3 = calculate_score(resume, job3) if job3 else 0
+
+            # AI Module Analysis - Enhanced Resume Analysis
+            ai_ats_score = calculate_ats_score(resume, job1)
+            ai_skill_gaps = find_skill_gaps(resume, job1)
+            ai_match_percentage = calculate_match_percentage(resume, job1)
+            ai_resume_structure = analyze_resume_structure(resume)
+            ai_insights = get_ai_insights_summary(resume, job1)
 
             # Combined prompts for optimal single-token parsing
             master_prompt = f"""
@@ -841,7 +935,15 @@ if run_analysis:
                     "rewrite": extract_section(ai_text, "### RESUME REWRITE SUGGESTIONS", "### CAREER COACH GUIDANCE"),
                     "coach": extract_section(ai_text, "### CAREER COACH GUIDANCE", "### KEYWORD GAP ANALYSIS"),
                     "keyword_analysis": extract_section(ai_text, "### KEYWORD GAP ANALYSIS", "### TAILORED COVER LETTER"),
-                    "cover_letter": ai_text.split("### TAILORED COVER LETTER")[-1].strip()
+                    "cover_letter": ai_text.split("### TAILORED COVER LETTER")[-1].strip(),
+                    # AI Module Results
+                    "ai_ats_score": ai_ats_score["score"],
+                    "ai_matched_skills": ai_ats_score["matched_skills"],
+                    "ai_missing_skills": ai_ats_score["missing_skills"],
+                    "ai_skill_gaps": ai_skill_gaps,
+                    "ai_match_percentage": ai_match_percentage,
+                    "ai_resume_structure": ai_resume_structure,
+                    "ai_insights_summary": ai_insights,
                 }
                 st.session_state.last_analyzed_hash = current_input_hash
                 if auto_triggered and not run_analysis_clicked:
@@ -995,34 +1097,41 @@ if st.session_state.analysis_results:
     )
 
     st.markdown("---")
-    st.header("📊 Candidate Evidence Evaluation")
+    st.markdown('<div class="section-header">📊 Candidate Evidence Evaluation</div>', unsafe_allow_html=True)
     c_col1, c_col2 = st.columns(2)
     with c_col1:
-        st.write(f"Candidate: {evidence_summary['candidate']}")
+        st.markdown(f"<div class='analysis-panel'><div class='subsection-header'>Candidate</div><div>{evidence_summary['candidate']}</div></div>", unsafe_allow_html=True)
     with c_col2:
-        st.write(f"Position: {evidence_summary['position']}")
+        st.markdown(f"<div class='analysis-panel'><div class='subsection-header'>Position</div><div>{evidence_summary['position']}</div></div>", unsafe_allow_html=True)
 
-    st.subheader("Overall Evidence Coverage")
+    st.markdown('<div class="analysis-panel">', unsafe_allow_html=True)
+    st.markdown('<div class="subsection-header">Overall Evidence Coverage</div>', unsafe_allow_html=True)
     st.progress(min(max(evidence_summary["overall_coverage"], 0), 100) / 100)
     st.write(f"{evidence_summary['overall_coverage']}%")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("### Requirements")
+    st.markdown('<div class="analysis-panel">', unsafe_allow_html=True)
+    st.markdown('<div class="subsection-header">Requirements</div>', unsafe_allow_html=True)
     for item in evidence_summary["requirements"]:
         if item["status"] == "supported":
             icon = "✓"
-            color = "green"
+            color = "#22c55e"
         elif item["status"] == "partially_supported":
             icon = "⚠"
-            color = "orange"
+            color = "#f59e0b"
         else:
             icon = "?"
-            color = "gray"
+            color = "#94a3b8"
 
-        st.markdown(f"<div style='padding: 0.6rem 0.8rem; border-left: 4px solid {color}; margin-bottom: 0.5rem;'>"
-                    f"<strong>{icon} {item['requirement']}</strong><br>"
-                    f"Evidence: {item['evidence']}<br>"
-                    f"Confidence: {item['confidence']}"
-                    f"</div>", unsafe_allow_html=True)
+        st.markdown(
+            f"<div class='requirement-card' style='--status-color: {color};'>"
+            f"<strong>{icon} {item['requirement']}</strong><br>"
+            f"Evidence: {item['evidence']}<br>"
+            f"Confidence: {item['confidence']}"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+    st.markdown('</div>', unsafe_allow_html=True)
 
     review_col1, review_col2, review_col3 = st.columns(3)
     with review_col1:
@@ -1037,14 +1146,14 @@ if st.session_state.analysis_results:
     # Top Metric Dashboard Cards Array
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
     with m_col1:
-        st.metric("ATS Match Score", f"{res['score']}%")
+        st.markdown('<div class="kpi-card"><div class="subsection-header">ATS Match</div><div style="font-size: 2rem; font-weight: 700;">{}</div></div>'.format(f"{res['score']}%"), unsafe_allow_html=True)
     with m_col2:
-        st.metric("Matched Keywords", res['matched_count'])
+        st.markdown('<div class="kpi-card"><div class="subsection-header">Matched Keywords</div><div style="font-size: 2rem; font-weight: 700;">{}</div></div>'.format(res['matched_count']), unsafe_allow_html=True)
     with m_col3:
-        st.metric("Missing Gaps", len(res['missing_skills']))
+        st.markdown('<div class="kpi-card"><div class="subsection-header">Missing Gaps</div><div style="font-size: 2rem; font-weight: 700;">{}</div></div>'.format(len(res['missing_skills'])), unsafe_allow_html=True)
     with m_col4:
         word_count = len(resume.split()) if resume else 0
-        st.metric("Resume Word Count", word_count if word_count > 0 else "—")
+        st.markdown('<div class="kpi-card"><div class="subsection-header">Resume Words</div><div style="font-size: 2rem; font-weight: 700;">{}</div></div>'.format(word_count if word_count > 0 else "—"), unsafe_allow_html=True)
     
     st.progress(res['score'] / 100)
 
