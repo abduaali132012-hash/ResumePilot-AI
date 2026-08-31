@@ -1,0 +1,14 @@
+Mobile Developer (iOS)
+
+We are hiring a Mobile Developer to build our consumer iOS app.
+
+Requirements:
+- 3+ years of experience with Swift and SwiftUI.
+- Strong experience with UIKit and iOS frameworks.
+- Experience with Core Data / local persistence.
+- Experience with networking (URLSession, REST).
+- Experience with dependency management (SPM or CocoaPods).
+- Proficiency writing unit tests with XCTest.
+- Experience with CI/CD for mobile (Fastlane or similar).
+- Nice to have: experience with App Store submission.
+- Nice to have: experience with GraphQL.

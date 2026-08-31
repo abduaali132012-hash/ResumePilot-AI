@@ -1,0 +1,25 @@
+Sarah Chen
+Backend Engineer
+
+SUMMARY
+Backend engineer with 2 years of experience building REST APIs with Python and
+FastAPI. Passionate about clean, testable code.
+
+EXPERIENCE
+Platform Engineer — FinTech Startup (2023 - Present)
+- Built and maintained microservices in Python using FastAPI.
+- Designed PostgreSQL schemas and wrote optimized queries for reporting.
+- Containerized services with Docker and deployed them to a Kubernetes cluster.
+- Wrote unit tests with pytest covering core business logic.
+
+Junior Developer — Web Agency (2021 - 2023)
+- Developed internal tools in Python and Django.
+- Worked with a cloud provider for hosting static assets (mostly object storage).
+
+SKILLS
+Python, FastAPI, PostgreSQL, Docker, Kubernetes, pytest, Git.
+Basic knowledge of AWS services.
+Familiar with agile development and team collaboration.
+
+EDUCATION
+B.Sc. Computer Science, University of Toronto (2021)

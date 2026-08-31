@@ -1,0 +1,25 @@
+David Okafor
+Machine Learning Engineer
+
+SUMMARY
+ML engineer with 2 years of experience building and training deep learning
+models for computer vision applications. Focused on training pipelines.
+
+EXPERIENCE
+ML Engineer — AI Startup (2023 - Present)
+- Built data pipelines in Python (pandas, numpy) to prepare training datasets.
+- Trained and fine-tuned CNN models with PyTorch on GPU instances.
+- Containerized training jobs with Docker for reproducibility.
+- Ran offline experiments and documented results.
+
+Data Engineer — Logistics Company (2021 - 2023)
+- Wrote ETL scripts in Python and SQL to move data between systems.
+- Designed simple REST endpoints in FastAPI for internal tools.
+
+SKILLS
+Python, PyTorch, TensorFlow, Docker, Git, pandas, numpy.
+Experience with deep learning frameworks.
+Some exposure to Apache Spark during data engineering work.
+
+EDUCATION
+M.Sc. Computer Science, TU Munich (2021)

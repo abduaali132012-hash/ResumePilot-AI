@@ -1,86 +1,167 @@
-# ResumePilot AI — Hackathon Project Brief
+# Evidence-Based Candidate Evaluation Agent
+
+> **Frontier Engineering Challenge 2026 (Micro1) — Agentic Workflows Hackathon**
+> Submission. This branch adds an **agentic candidate-evaluation pipeline** to
+> ResumePilot AI and measures, with a reproducible evaluation harness, whether it
+> beats the pre-existing single-pass baseline.
 
 ## One-line pitch
-ResumePilot AI is a resume-optimization tool that uses Google's Gemini API to score
-how well a resume matches a job description, pinpoint missing keywords, and
-generate a rewritten resume, interview prep, and a tailored cover letter — all
-in one open-access Streamlit web app, no account required.
 
-## The problem
-Job seekers rarely know why an application gets rejected before a human ever
-reads it — automated Applicant Tracking Systems (ATS) filter resumes on
-keyword and structural matching that candidates can't see or test against
-themselves.
+A multi-agent pipeline (Requirement Extraction → Evidence Extraction → Matching →
+Verification) that evaluates a candidate against a job description by grounding
+every verdict in a **quoted line of the resume** — instead of emitting one
+unverifiable holistic score.
 
-## The solution
-Upload a resume (PDF, DOCX, or TXT) and paste a target job description.
-Analysis now runs automatically the moment both fields are filled in — no
-button click needed, with quota-safe change detection so it only re-runs
-when the content actually changes. ResumePilot AI runs it through Gemini
-(`gemini-2.5-flash`) alongside a keyword-overlap scoring engine, then
-returns a full breakdown across ten views:
+## Who has the problem (the intended user)
 
-1. **ATS Score** — match percentage with a visual keyword-density chart
-2. **Skill Gaps** — the specific keywords missing from the resume
-3. **Interview Tips** — role-specific interview questions with sample answers
-4. **Resume Summary** — a 3-sentence AI read on the candidate's fit
-5. **Detailed Analysis** — strengths, weaknesses, and a 1–10 scoring breakdown
-   across Technical Skills, Experience, Leadership, Communication, and ATS
-   Compatibility
-6. **Resume Rewrite** — an AI-rewritten summary and bullet points optimized
-   with the missing keywords
-7. **AI Coach** — career development recommendations to close longer-term
-   skill gaps
-8. **Cover Letter** — a ready-to-edit, tailored 3–4 paragraph cover letter
-9. **Job Comparison** — a bar chart comparing fit across up to 3 job postings
-   pasted at once
-10. **Version History** — save each analysis, track your ATS score trend
-    across saved versions, reload an older version, and export/import your
-    history as JSON
+**Recruiters and hiring engineers** screening candidates against written job
+descriptions. They are drowning in resumes and want a fast, *trustworthy* first
+pass — one they can audit. A score is only useful if the person making the
+hiring decision can see *why* it was given.
 
-Two more tools work independently of the main analysis, using just the resume:
+## What is the bottleneck (the problem)
 
-- **Job Recommendation Engine** — suggests 5 job titles genuinely suited to
-  the candidate's background, each with reasoning and job-board search
-  keywords
-- **LinkedIn Profile Analyzer** — reviews pasted LinkedIn profile text for
-  recruiter searchability and checks it for consistency against the resume
+The pre-existing ResumePilot workflow (and most ATS tools) produce a
+**single-pass holistic judgement**: resume + JD → "Candidate score: 82%". The
+failure mode is **silent over-confidence**:
 
-A downloadable PDF executive summary is also generated on demand.
+- a skill listed in a skills section with **no usage context** is scored as
+  *supported*;
+- "cloud experience" is treated as **AWS**;
+- an absent technology is **hallucinated into SUPPORTED**;
+- the headline number hides all of it — there are no quotes, no per-requirement
+  audit trail, nothing a human can verify.
 
-## Tech stack
-- **Streamlit** — web UI framework
-- **Google Gemini API** (`gemini-2.5-flash`), via the `google-genai` SDK — resume/job semantic analysis
-  and content generation
-- **pdfplumber** / **python-docx** — resume text extraction from PDF/DOCX
-- **Pandas** / **Plotly Express** — scoring calculations and charts
-- **ReportLab** — PDF report generation
+A single opaque score cannot be audited, and an audited-but-wrong score is worse
+than no score.
 
-## What I built/fixed during the hackathon window
-- Removed a security vulnerability (a hardcoded, unauthenticated server
-  endpoint exposed in the public repo)
-- Fixed inconsistent ATS scoring logic (two different formulas were
-  producing different scores for the same input)
-- Added retry handling for transient AI API failures, with logic that
-  distinguishes brief transient errors from daily quota exhaustion (retrying
-  the latter is pointless and just wastes remaining quota)
-- Added an upload size limit to prevent oversized file abuse
-- Migrated off the deprecated `google.generativeai` package to `google.genai`
-- Built resume version history, a job recommendation engine, and a LinkedIn
-  profile analyzer
-- Added auto-analyze with change detection, so analysis runs automatically
-  without wasting API calls on unrelated interactions
-- Prototyped and tested a full subscription/paywall layer (Supabase auth +
-  Stripe billing + 7-day free trial) as a monetization path, then
-  deliberately descoped it to keep the public submission simple, open-access,
-  and dependency-free for judges to run
+## How the agent solves it (the value)
+
+Instead of one holistic read, the pipeline decomposes the task into specialised
+agents, each with a narrow job:
+
+1. **RequirementExtractor** — turns the JD into a concrete, typed list of
+   requirements (splitting compound items like "Python and FastAPI").
+2. **EvidenceExtractor** — reads the resume and produces structured
+   `{skill, exact quote, source section, confidence}` claims. It never scores —
+   it only extracts and quotes.
+3. **Matcher** — deterministically shortlists candidate quotes per requirement
+   (generous, so nothing relevant is dropped).
+4. **Verifier** — a deliberately **strict** agent that returns, for every
+   requirement, `SUPPORTED | PARTIALLY_SUPPORTED | NOT_VERIFIED | NOT_FOUND`
+   **plus the exact supporting quotes**, with anti-inflation rules baked into the
+   prompt.
+
+Every verdict is traceable to a resume sentence a human can check, and a
+recruiter review dashboard (`pages/7_📋_Candidate_Evaluation.py`) lets a human
+Confirm / Reject / Needs-review each verdict — human-in-the-loop, not autopilot.
+
+## Measured improvement
+
+We compare the agent against the single-pass baseline on a **controlled suite of
+10 hand-labelled cases** (see `evaluation/`), where the ground truth is the
+resume's *actual* support, not what a model claims. The cases are deliberately
+loaded with the traps the baseline gets wrong.
+
+- **Reproducibility is guaranteed and verified:** the deterministic harness
+  produces byte-identical results across runs and `PYTHONHASHSEED` values
+  (three fresh runs verified).
+- **Real Gemini numbers** require `GOOGLE_API_KEY`; the one-command run and the
+  current measured table live in the changelog below.
+
+## Improvement Changelog
+
+> Integrity rule: **we never invent numbers.** Every figure comes from an actual
+> `python evaluation/run_evaluation.py` run.
+
+### Baseline
+The pre-existing single-pass workflow (resume + JD → one holistic judgement),
+captured in `docs/baseline-record.md` before any challenge changes. Deterministic
+baseline on the 10-case suite: **45.0%** evidence accuracy.
+
+### Experiment 1 — Structured Evidence Extraction
+Added the EvidenceExtractor so matching is driven by quoted, structured claims
+instead of re-reading the whole resume. **Result: pending real run** (needs a
+Gemini key). **Decision: Kept** — extraction is the foundation of the pipeline.
+
+### Experiment 2 — Evidence Verification with strict prompts
+Added the strict Verifier + deterministic Matcher to stop verdict inflation
+(skills-list ≠ SUPPORTED, "cloud" ≠ AWS, "working knowledge of GraphQL" ≠
+GraphQL). **Result: pending real run**. **Decision: Kept** — strictness is the
+core defence against false positives.
+
+### Experiment 3 — Human review loop
+Wrapped agent output in a recruiter review dashboard with Confirm / Reject /
+Needs-review and JSON export. **Result:** workflow usability (no accuracy metric
+applies). **Decision: Kept.**
+
+### Current measured state (10-case suite, deterministic smoke test)
+From `python evaluation/run_evaluation.py --heuristic` — both systems run the
+same deterministic evaluator here, so Δ = 0 is expected by construction. This
+proves wiring + reproducibility, not the real comparison:
+
+| Case | Baseline | Agent | Δ |
+|------|---------:|------:|:--:|
+| case_01_backend_engineer | 20.0% | 20.0% | +0.0pp |
+| case_02_data_analyst | 60.0% | 60.0% | +0.0pp |
+| case_03_frontend_engineer | 60.0% | 60.0% | +0.0pp |
+| case_04_ml_engineer | 50.0% | 50.0% | +0.0pp |
+| case_05_devops_engineer | 75.0% | 75.0% | +0.0pp |
+| case_06_fullstack_engineer | 20.0% | 20.0% | +0.0pp |
+| case_07_product_manager | 25.0% | 25.0% | +0.0pp |
+| case_08_mobile_developer | 25.0% | 25.0% | +0.0pp |
+| case_09_data_engineer | 40.0% | 40.0% | +0.0pp |
+| case_10_qa_automation_engineer | 75.0% | 75.0% | +0.0pp |
+| **Aggregate (10 cases)** | **45.0%** | **45.0%** | **+0.0pp** |
+
+### Real agent comparison (headline measurement)
+Run both systems on the same 10 cases with Gemini:
+
+```bash
+GOOGLE_API_KEY="AIza..." python evaluation/run_evaluation.py
+```
+
+This writes `evaluation/baseline_results.json`, `evaluation/agent_results.json`,
+`evaluation/comparison.md`. **Aggregate: pending real run.** Full details,
+including the hot take on the failure mode this project exists to fix, are in
+[`docs/improvement-changelog.md`](docs/improvement-changelog.md).
+
+## Reproduction
+
+See [`REPRODUCTION.md`](REPRODUCTION.md) for a clean-environment guide: exact
+commands for the app, the baseline, the agent, and the evaluation harness;
+required data; expected output; tool versions; approximate runtime and cost.
+
+## The agent at work (live)
+
+From the repo root:
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+Open the **📋 Candidate Evaluation** page, paste a resume + job description, and
+run it. If `GOOGLE_API_KEY` is absent, the app degrades to a deterministic
+evaluator instead of crashing — so it always works, and the same code path that
+serves the UI is what the evaluation harness measures.
+
+## Repo map (Micro1 deliverables)
+
+| Path | Purpose |
+|------|---------|
+| `ai/` | Agent package: models, resilient Gemini client, prompts, agents (RequirementExtractor, EvidenceExtractor, Matcher, Verifier), `pipeline.py` |
+| `pages/7_📋_Candidate_Evaluation.py` | Recruiter review dashboard for the agent |
+| `evaluation/` | Controlled baseline-vs-agent harness + **10 labelled cases** |
+| `agent-traces/` | Agent trajectory log (instructions → tool calls → responses → feedback) |
+| `docs/` | `baseline-record.md`, `improvement-changelog.md`, `micro1-git-workflow.md` |
+| `REPRODUCTION.md` | Clean-environment reproduction guide |
+| `notebooks/` | GPU-prep notebooks (ROCm / PyTorch / Hugging Face) |
+
+The pre-existing ResumePilot resume-optimization app (`app.py`, `pages/4–6`)
+remains intact and runnable — it is the challenge baseline.
 
 ## Try it live
+
 - **App:** https://resumepilot-ai-vngmvb9m6rdgszr7bthtbk.streamlit.app/
 - **Repo:** https://github.com/abduaali132012-hash/ResumePilot-AI
-
-## What's next
-- Real job-board API integration (currently AI-suggested titles, not live listings)
-- Team / recruiter view for agencies managing multiple candidates
-- Bulk resume processing
-- Arabic-language support

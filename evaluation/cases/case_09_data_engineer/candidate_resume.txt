@@ -1,0 +1,26 @@
+Sofia Marchetti
+Data Engineer
+
+SUMMARY
+Data engineer with 2 years of experience building data pipelines for analytics
+teams.
+
+EXPERIENCE
+Data Engineer — E-commerce Company (2023 - Present)
+- Built ETL pipelines in Python (pandas, SQLAlchemy).
+- Wrote complex SQL queries and optimized slow reporting queries.
+- Scheduled and monitored jobs with Airflow.
+- Loaded data into BigQuery for the analytics team.
+
+Data Analyst — Retail Company (2021 - 2023)
+- Built dashboards in Tableau and Excel.
+- Wrote SQL queries for ad-hoc analysis.
+- Used pandas for data cleaning and transformation.
+
+SKILLS
+Python, SQL, Airflow, BigQuery, pandas, dbt, Git.
+Some experience with Apache Spark.
+Familiar with dimensional modeling concepts.
+
+EDUCATION
+B.Sc. Computer Engineering, Politecnico di Milano (2021)

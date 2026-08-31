@@ -1,0 +1,25 @@
+Rajesh Nair
+QA Automation Engineer
+
+SUMMARY
+QA automation engineer with 2 years of experience building end-to-end test
+suites for web applications.
+
+EXPERIENCE
+QA Engineer — FinTech Company (2023 - Present)
+- Built end-to-end test suites with Playwright (TypeScript).
+- Integrated tests into CI pipelines (GitHub Actions).
+- Wrote API tests with Postman and pytest.
+- Debugged and de-flaked flaky browser tests.
+
+Junior QA — Agency (2021 - 2023)
+- Wrote manual test cases and ran regression testing.
+- Performed basic Selenium scripting in Python.
+
+SKILLS
+Playwright, TypeScript, pytest, Postman, GitHub Actions, Git.
+Some experience with Selenium.
+Familiar with JMeter for load testing.
+
+EDUCATION
+B.Sc. Information Science, IISc Bangalore (2021)

@@ -1,0 +1,15 @@
+{
+  "_comment": "Human-labelled ground truth for case_02_data_analyst.",
+  "case": "case_02_data_analyst",
+  "expected": [
+    {"requirement": "data analysis experience", "status": "SUPPORTED", "evidence": "Data professional focused on SQL and reporting"},
+    {"requirement": "SQL", "status": "SUPPORTED", "evidence": "Write complex SQL queries against a large clickstream data warehouse."},
+    {"requirement": "Python for data analysis", "status": "PARTIALLY_SUPPORTED", "evidence": "Some experience with Python and pandas."},
+    {"requirement": "Tableau or Power BI", "status": "SUPPORTED", "evidence": "Build weekly dashboards in Tableau"},
+    {"requirement": "statistics", "status": "SUPPORTED", "evidence": "statistics, hypothesis testing"},
+    {"requirement": "Excel", "status": "SUPPORTED", "evidence": "Perform ad-hoc analysis and reporting in Excel."},
+    {"requirement": "machine learning", "status": "NOT_FOUND", "evidence": ""},
+    {"requirement": "A/B testing", "status": "SUPPORTED", "evidence": "Run A/B test analyses"},
+    {"requirement": "attention to detail", "status": "NOT_VERIFIED", "evidence": ""}
+  ]
+}

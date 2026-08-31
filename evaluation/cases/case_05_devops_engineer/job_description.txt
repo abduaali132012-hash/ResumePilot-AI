@@ -1,0 +1,13 @@
+DevOps Engineer
+
+We are looking for a DevOps Engineer to own our cloud infrastructure and CI/CD.
+
+Requirements:
+- 3+ years of experience with AWS (EC2, S3, IAM, VPC).
+- Strong experience with Terraform for infrastructure-as-code.
+- Experience operating Kubernetes clusters in production.
+- Proficiency with CI/CD pipelines (GitHub Actions or similar).
+- Solid Linux administration and shell scripting skills.
+- Experience with observability (Prometheus / Grafana / Datadog).
+- Nice to have: experience with GCP or Azure.
+- Nice to have: security / compliance (SOC 2, ISO 27001).

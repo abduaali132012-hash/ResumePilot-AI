@@ -1,0 +1,15 @@
+Backend Engineer (Mid-level)
+
+We are looking for a Backend Engineer to join our platform team.
+
+Requirements:
+- 3+ years of professional experience building backend services with Python.
+- Strong experience with FastAPI (or equivalent modern Python frameworks).
+- Solid understanding of PostgreSQL, including schema design and query optimization.
+- Experience deploying and operating services on Kubernetes.
+- Hands-on experience with AWS (EC2, S3, or Lambda).
+- Proficiency with Docker for local development and CI pipelines.
+- Excellent written and verbal communication skills.
+- Ability to write automated tests (unit and integration).
+- Nice to have: experience with message queues (RabbitMQ or Kafka).
+- Nice to have: a computer science degree or equivalent.

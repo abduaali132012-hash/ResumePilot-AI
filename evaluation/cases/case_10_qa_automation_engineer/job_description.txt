@@ -1,0 +1,14 @@
+QA Automation Engineer
+
+We are hiring a QA Automation Engineer to own test automation for our web platform.
+
+Requirements:
+- 2+ years of experience in test automation.
+- Strong experience with Selenium or Playwright.
+- Experience with Python or JavaScript for test scripting.
+- Experience building CI-integrated test suites.
+- Solid understanding of testing best practices (test pyramid, flaky test handling).
+- Experience with API testing.
+- Nice to have: experience with performance testing (JMeter or k6).
+- Nice to have: experience with accessibility testing.
+- Nice to have: experience with mobile testing.

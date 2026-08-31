@@ -1,0 +1,25 @@
+Emma Larsson
+DevOps Engineer
+
+SUMMARY
+DevOps engineer with 2 years of experience managing cloud infrastructure and
+automating deployments for SaaS products.
+
+EXPERIENCE
+DevOps Engineer — SaaS Company (2023 - Present)
+- Managed cloud infrastructure for a multi-tenant SaaS product.
+- Automated infrastructure provisioning with Terraform.
+- Built and maintained CI/CD pipelines in GitLab CI.
+- Wrote Bash and Python scripts to automate deployment tasks.
+
+Platform Engineer — Startup (2021 - 2023)
+- Set up Docker-based dev environments.
+- Handled Linux server administration and SSH access.
+- Worked with a managed Kubernetes service for one service.
+
+SKILLS
+Terraform, Docker, GitLab CI, Linux, Bash, Python, AWS.
+Familiar with Prometheus and basic monitoring dashboards.
+
+EDUCATION
+B.Sc. Information Technology, KTH Stockholm (2021)

@@ -1,398 +1,1198 @@
 {
-  "system": "baseline",
-  "cases": [
-    {
-      "case_id": "case_01",
-      "requirements": [
-        {
-          "requirement": "Python",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "FastAPI",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "PostgreSQL",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Docker",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Kubernetes",
-          "expected": "not_verified",
-          "predicted": "supported",
-          "correct": false
-        },
-        {
-          "requirement": "AWS",
-          "expected": "partially_supported",
-          "predicted": "supported",
-          "correct": false
-        }
-      ],
-      "accuracy": 0.667,
-      "false_positives": 0,
-      "false_negatives": 0
-    },
-    {
-      "case_id": "case_02",
-      "requirements": [
-        {
-          "requirement": "Kubernetes",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Terraform",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "AWS",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Docker",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Python",
-          "expected": "not_verified",
-          "predicted": "supported",
-          "correct": false
-        }
-      ],
-      "accuracy": 0.8,
-      "false_positives": 0,
-      "false_negatives": 0
-    },
-    {
-      "case_id": "case_03",
-      "requirements": [
-        {
-          "requirement": "Python",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "SQL",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Spark",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Machine Learning",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Kubernetes",
-          "expected": "not_verified",
-          "predicted": "supported",
-          "correct": false
-        }
-      ],
-      "accuracy": 0.8,
-      "false_positives": 0,
-      "false_negatives": 0
-    },
-    {
-      "case_id": "case_04",
-      "requirements": [
-        {
-          "requirement": "React",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "TypeScript",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Next.js",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Accessibility",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "GraphQL",
-          "expected": "not_verified",
-          "predicted": "partially_supported",
-          "correct": false
-        }
-      ],
-      "accuracy": 0.8,
-      "false_positives": 0,
-      "false_negatives": 0
-    },
-    {
-      "case_id": "case_05",
-      "requirements": [
-        {
-          "requirement": "IAM",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Cloud Security",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Incident Response",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Kubernetes",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Zero Trust",
-          "expected": "partially_supported",
-          "predicted": "supported",
-          "correct": false
-        }
-      ],
-      "accuracy": 0.8,
-      "false_positives": 0,
-      "false_negatives": 0
-    },
-    {
-      "case_id": "case_06",
-      "requirements": [
-        {
-          "requirement": "SQL",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "A/B Testing",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Stakeholder Management",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Customer Research",
-          "expected": "partially_supported",
-          "predicted": "supported",
-          "correct": false
-        },
-        {
-          "requirement": "Python",
-          "expected": "not_verified",
-          "predicted": "supported",
-          "correct": false
-        }
-      ],
-      "accuracy": 0.6,
-      "false_positives": 0,
-      "false_negatives": 0
-    },
-    {
-      "case_id": "case_07",
-      "requirements": [
-        {
-          "requirement": "Java",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Selenium",
-          "expected": "partially_supported",
-          "predicted": "supported",
-          "correct": false
-        },
-        {
-          "requirement": "Cypress",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "CI/CD",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "API Testing",
-          "expected": "supported",
-          "predicted": "not_verified",
-          "correct": false
-        }
-      ],
-      "accuracy": 0.6,
-      "false_positives": 0,
-      "false_negatives": 0
-    },
-    {
-      "case_id": "case_08",
-      "requirements": [
-        {
-          "requirement": "Swift",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Kotlin",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Firebase",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "App Performance",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "React Native",
-          "expected": "not_verified",
-          "predicted": "supported",
-          "correct": false
-        }
-      ],
-      "accuracy": 0.8,
-      "false_positives": 0,
-      "false_negatives": 0
-    },
-    {
-      "case_id": "case_09",
-      "requirements": [
-        {
-          "requirement": "Python",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Docker",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Kubernetes",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Airflow",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Monitoring",
-          "expected": "partially_supported",
-          "predicted": "supported",
-          "correct": false
-        }
-      ],
-      "accuracy": 0.8,
-      "false_positives": 0,
-      "false_negatives": 0
-    },
-    {
-      "case_id": "case_10",
-      "requirements": [
-        {
-          "requirement": "Python",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Statistics",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Machine Learning",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "SQL",
-          "expected": "supported",
-          "predicted": "supported",
-          "correct": true
-        },
-        {
-          "requirement": "Spark",
-          "expected": "not_verified",
-          "predicted": "supported",
-          "correct": false
-        }
-      ],
-      "accuracy": 0.8,
-      "false_positives": 0,
-      "false_negatives": 0
-    }
-  ],
-  "summary": {
-    "total_cases": 10,
-    "total_requirements": 51,
-    "accuracy": 0.745,
-    "false_positives": 7,
-    "false_negatives": 1
+  "case_01_backend_engineer": {
+    "aligned": 5,
+    "total_expected": 10,
+    "correct": 1,
+    "evidence_accuracy": 20.0,
+    "false_positives": 0,
+    "false_negatives": 2,
+    "detail": [
+      {
+        "predicted_requirement": "backend",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'backend'."
+        ]
+      },
+      {
+        "predicted_requirement": "python",
+        "status": "SUPPORTED",
+        "expected_requirement": "Python experience",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'python'."
+        ]
+      },
+      {
+        "predicted_requirement": "services",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'services'."
+        ]
+      },
+      {
+        "predicted_requirement": "automated",
+        "status": "NOT_FOUND",
+        "expected_requirement": "automated tests",
+        "expected_status": "SUPPORTED",
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "aws",
+        "status": "SUPPORTED",
+        "expected_requirement": "AWS",
+        "expected_status": "PARTIALLY_SUPPORTED",
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'aws'."
+        ]
+      },
+      {
+        "predicted_requirement": "building",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'building'."
+        ]
+      },
+      {
+        "predicted_requirement": "ci",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "communication",
+        "status": "NOT_FOUND",
+        "expected_requirement": "communication skills",
+        "expected_status": "PARTIALLY_SUPPORTED",
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "computer",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'computer'."
+        ]
+      },
+      {
+        "predicted_requirement": "degree",
+        "status": "NOT_FOUND",
+        "expected_requirement": "CS degree",
+        "expected_status": "SUPPORTED",
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "deploying",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "design",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      }
+    ]
+  },
+  "case_02_data_analyst": {
+    "aligned": 5,
+    "total_expected": 9,
+    "correct": 3,
+    "evidence_accuracy": 60.0,
+    "false_positives": 0,
+    "false_negatives": 1,
+    "detail": [
+      {
+        "predicted_requirement": "data",
+        "status": "SUPPORTED",
+        "expected_requirement": "data analysis experience",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'data'."
+        ]
+      },
+      {
+        "predicted_requirement": "analysis",
+        "status": "SUPPORTED",
+        "expected_requirement": "Python for data analysis",
+        "expected_status": "PARTIALLY_SUPPORTED",
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'analysis'."
+        ]
+      },
+      {
+        "predicted_requirement": "analyst",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'analyst'."
+        ]
+      },
+      {
+        "predicted_requirement": "bi",
+        "status": "NOT_FOUND",
+        "expected_requirement": "Tableau or Power BI",
+        "expected_status": "SUPPORTED",
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "as",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "excel",
+        "status": "SUPPORTED",
+        "expected_requirement": "Excel",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'excel'."
+        ]
+      },
+      {
+        "predicted_requirement": "hypothesis",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'hypothesis'."
+        ]
+      },
+      {
+        "predicted_requirement": "insights",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "into",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "large",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'large'."
+        ]
+      },
+      {
+        "predicted_requirement": "learning",
+        "status": "NOT_FOUND",
+        "expected_requirement": "machine learning",
+        "expected_status": "NOT_FOUND",
+        "correct": true,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "machine",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      }
+    ]
+  },
+  "case_03_frontend_engineer": {
+    "aligned": 5,
+    "total_expected": 9,
+    "correct": 3,
+    "evidence_accuracy": 60.0,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "detail": [
+      {
+        "predicted_requirement": "frontend",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'frontend'."
+        ]
+      },
+      {
+        "predicted_requirement": "react",
+        "status": "SUPPORTED",
+        "expected_requirement": "React experience",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'react'."
+        ]
+      },
+      {
+        "predicted_requirement": "testing",
+        "status": "SUPPORTED",
+        "expected_requirement": "component testing",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'testing'."
+        ]
+      },
+      {
+        "predicted_requirement": "accessible",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "building",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'building'."
+        ]
+      },
+      {
+        "predicted_requirement": "collaboration",
+        "status": "NOT_FOUND",
+        "expected_requirement": "team collaboration",
+        "expected_status": "PARTIALLY_SUPPORTED",
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "communication",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "component",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'component'."
+        ]
+      },
+      {
+        "predicted_requirement": "cross",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "css",
+        "status": "SUPPORTED",
+        "expected_requirement": "modern CSS / accessibility",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'css'."
+        ]
+      },
+      {
+        "predicted_requirement": "design",
+        "status": "SUPPORTED",
+        "expected_requirement": "design systems",
+        "expected_status": "PARTIALLY_SUPPORTED",
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'design'."
+        ]
+      },
+      {
+        "predicted_requirement": "functional",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      }
+    ]
+  },
+  "case_04_ml_engineer": {
+    "aligned": 4,
+    "total_expected": 10,
+    "correct": 2,
+    "evidence_accuracy": 50.0,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "detail": [
+      {
+        "predicted_requirement": "models",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'models'."
+        ]
+      },
+      {
+        "predicted_requirement": "training",
+        "status": "SUPPORTED",
+        "expected_requirement": "GPU training",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'training'."
+        ]
+      },
+      {
+        "predicted_requirement": "data",
+        "status": "SUPPORTED",
+        "expected_requirement": "data pipelines",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'data'."
+        ]
+      },
+      {
+        "predicted_requirement": "learning",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'learning'."
+        ]
+      },
+      {
+        "predicted_requirement": "machine",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'machine'."
+        ]
+      },
+      {
+        "predicted_requirement": "ml",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'ml'."
+        ]
+      },
+      {
+        "predicted_requirement": "model",
+        "status": "NOT_FOUND",
+        "expected_requirement": "model deployment",
+        "expected_status": "PARTIALLY_SUPPORTED",
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "apache",
+        "status": "SUPPORTED",
+        "expected_requirement": "Apache Spark",
+        "expected_status": "PARTIALLY_SUPPORTED",
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'apache'."
+        ]
+      },
+      {
+        "predicted_requirement": "building",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'building'."
+        ]
+      },
+      {
+        "predicted_requirement": "ci",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "containerized",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'containerized'."
+        ]
+      },
+      {
+        "predicted_requirement": "deployment",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      }
+    ]
+  },
+  "case_05_devops_engineer": {
+    "aligned": 4,
+    "total_expected": 9,
+    "correct": 3,
+    "evidence_accuracy": 75.0,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "detail": [
+      {
+        "predicted_requirement": "cd",
+        "status": "SUPPORTED",
+        "expected_requirement": "CI/CD pipelines",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'cd'."
+        ]
+      },
+      {
+        "predicted_requirement": "ci",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'ci'."
+        ]
+      },
+      {
+        "predicted_requirement": "devops",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'devops'."
+        ]
+      },
+      {
+        "predicted_requirement": "infrastructure",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'infrastructure'."
+        ]
+      },
+      {
+        "predicted_requirement": "actions",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "administration",
+        "status": "SUPPORTED",
+        "expected_requirement": "Linux administration",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'administration'."
+        ]
+      },
+      {
+        "predicted_requirement": "as",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "aws",
+        "status": "SUPPORTED",
+        "expected_requirement": "AWS",
+        "expected_status": "PARTIALLY_SUPPORTED",
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'aws'."
+        ]
+      },
+      {
+        "predicted_requirement": "cloud",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'cloud'."
+        ]
+      },
+      {
+        "predicted_requirement": "clusters",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "compliance",
+        "status": "NOT_FOUND",
+        "expected_requirement": "security / compliance",
+        "expected_status": "NOT_FOUND",
+        "correct": true,
+        "evidence_quotes": []
+      }
+    ]
+  },
+  "case_06_fullstack_engineer": {
+    "aligned": 5,
+    "total_expected": 10,
+    "correct": 1,
+    "evidence_accuracy": 20.0,
+    "false_positives": 0,
+    "false_negatives": 3,
+    "detail": [
+      {
+        "predicted_requirement": "end",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "full",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'full'."
+        ]
+      },
+      {
+        "predicted_requirement": "stack",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'stack'."
+        ]
+      },
+      {
+        "predicted_requirement": "web",
+        "status": "SUPPORTED",
+        "expected_requirement": "deploying web applications",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'web'."
+        ]
+      },
+      {
+        "predicted_requirement": "authentication",
+        "status": "SUPPORTED",
+        "expected_requirement": "authentication and security",
+        "expected_status": "PARTIALLY_SUPPORTED",
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'authentication'."
+        ]
+      },
+      {
+        "predicted_requirement": "automated",
+        "status": "NOT_FOUND",
+        "expected_requirement": "automated tests",
+        "expected_status": "SUPPORTED",
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "backends",
+        "status": "NOT_FOUND",
+        "expected_requirement": "Node.js backends",
+        "expected_status": "SUPPORTED",
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "best",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "building",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'building'."
+        ]
+      },
+      {
+        "predicted_requirement": "customer",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'customer'."
+        ]
+      },
+      {
+        "predicted_requirement": "databases",
+        "status": "NOT_FOUND",
+        "expected_requirement": "relational databases",
+        "expected_status": "SUPPORTED",
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "deploying",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      }
+    ]
+  },
+  "case_07_product_manager": {
+    "aligned": 4,
+    "total_expected": 9,
+    "correct": 1,
+    "evidence_accuracy": 25.0,
+    "false_positives": 0,
+    "false_negatives": 1,
+    "detail": [
+      {
+        "predicted_requirement": "product",
+        "status": "SUPPORTED",
+        "expected_requirement": "product manager experience",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'product'."
+        ]
+      },
+      {
+        "predicted_requirement": "manager",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'manager'."
+        ]
+      },
+      {
+        "predicted_requirement": "skills",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'skills'."
+        ]
+      },
+      {
+        "predicted_requirement": "testing",
+        "status": "SUPPORTED",
+        "expected_requirement": "A/B testing",
+        "expected_status": "PARTIALLY_SUPPORTED",
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'testing'."
+        ]
+      },
+      {
+        "predicted_requirement": "agile",
+        "status": "NOT_FOUND",
+        "expected_requirement": "agile / scrum",
+        "expected_status": "SUPPORTED",
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "apis",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "as",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "b2b",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'b2b'."
+        ]
+      },
+      {
+        "predicted_requirement": "background",
+        "status": "NOT_FOUND",
+        "expected_requirement": "technical background",
+        "expected_status": "PARTIALLY_SUPPORTED",
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "communication",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "data",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'data'."
+        ]
+      },
+      {
+        "predicted_requirement": "defining",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      }
+    ]
+  },
+  "case_08_mobile_developer": {
+    "aligned": 4,
+    "total_expected": 10,
+    "correct": 1,
+    "evidence_accuracy": 25.0,
+    "false_positives": 1,
+    "false_negatives": 1,
+    "detail": [
+      {
+        "predicted_requirement": "ios",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'ios'."
+        ]
+      },
+      {
+        "predicted_requirement": "mobile",
+        "status": "NOT_FOUND",
+        "expected_requirement": "CI/CD for mobile",
+        "expected_status": "PARTIALLY_SUPPORTED",
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "app",
+        "status": "SUPPORTED",
+        "expected_requirement": "App Store submission",
+        "expected_status": "NOT_FOUND",
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'app'."
+        ]
+      },
+      {
+        "predicted_requirement": "cd",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "ci",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "cocoapods",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'cocoapods'."
+        ]
+      },
+      {
+        "predicted_requirement": "consumer",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'consumer'."
+        ]
+      },
+      {
+        "predicted_requirement": "core",
+        "status": "SUPPORTED",
+        "expected_requirement": "Core Data",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'core'."
+        ]
+      },
+      {
+        "predicted_requirement": "data",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'data'."
+        ]
+      },
+      {
+        "predicted_requirement": "dependency",
+        "status": "NOT_FOUND",
+        "expected_requirement": "dependency management",
+        "expected_status": "SUPPORTED",
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "fastlane",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'fastlane'."
+        ]
+      },
+      {
+        "predicted_requirement": "local",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      }
+    ]
+  },
+  "case_09_data_engineer": {
+    "aligned": 5,
+    "total_expected": 9,
+    "correct": 2,
+    "evidence_accuracy": 40.0,
+    "false_positives": 0,
+    "false_negatives": 1,
+    "detail": [
+      {
+        "predicted_requirement": "data",
+        "status": "SUPPORTED",
+        "expected_requirement": "cloud data warehouses",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'data'."
+        ]
+      },
+      {
+        "predicted_requirement": "modeling",
+        "status": "SUPPORTED",
+        "expected_requirement": "dimensional modeling",
+        "expected_status": "PARTIALLY_SUPPORTED",
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'modeling'."
+        ]
+      },
+      {
+        "predicted_requirement": "similar",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "airflow",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'airflow'."
+        ]
+      },
+      {
+        "predicted_requirement": "apache",
+        "status": "SUPPORTED",
+        "expected_requirement": "Apache Spark",
+        "expected_status": "PARTIALLY_SUPPORTED",
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'apache'."
+        ]
+      },
+      {
+        "predicted_requirement": "bigquery",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'bigquery'."
+        ]
+      },
+      {
+        "predicted_requirement": "building",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'building'."
+        ]
+      },
+      {
+        "predicted_requirement": "cloud",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "dbt",
+        "status": "SUPPORTED",
+        "expected_requirement": "dbt",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'dbt'."
+        ]
+      },
+      {
+        "predicted_requirement": "dimensional",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'dimensional'."
+        ]
+      },
+      {
+        "predicted_requirement": "elt",
+        "status": "NOT_FOUND",
+        "expected_requirement": "ETL / ELT pipelines",
+        "expected_status": "SUPPORTED",
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "etl",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'etl'."
+        ]
+      }
+    ]
+  },
+  "case_10_qa_automation_engineer": {
+    "aligned": 4,
+    "total_expected": 9,
+    "correct": 3,
+    "evidence_accuracy": 75.0,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "detail": [
+      {
+        "predicted_requirement": "test",
+        "status": "SUPPORTED",
+        "expected_requirement": "test automation",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'test'."
+        ]
+      },
+      {
+        "predicted_requirement": "testing",
+        "status": "SUPPORTED",
+        "expected_requirement": "testing best practices",
+        "expected_status": "PARTIALLY_SUPPORTED",
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'testing'."
+        ]
+      },
+      {
+        "predicted_requirement": "automation",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'automation'."
+        ]
+      },
+      {
+        "predicted_requirement": "qa",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'qa'."
+        ]
+      },
+      {
+        "predicted_requirement": "accessibility",
+        "status": "NOT_FOUND",
+        "expected_requirement": "accessibility testing",
+        "expected_status": "NOT_FOUND",
+        "correct": true,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "api",
+        "status": "SUPPORTED",
+        "expected_requirement": "API testing",
+        "expected_status": "SUPPORTED",
+        "correct": true,
+        "evidence_quotes": [
+          "Resume mentions 'api'."
+        ]
+      },
+      {
+        "predicted_requirement": "best",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "building",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'building'."
+        ]
+      },
+      {
+        "predicted_requirement": "ci",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'ci'."
+        ]
+      },
+      {
+        "predicted_requirement": "flaky",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'flaky'."
+        ]
+      },
+      {
+        "predicted_requirement": "handling",
+        "status": "NOT_FOUND",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": []
+      },
+      {
+        "predicted_requirement": "integrated",
+        "status": "SUPPORTED",
+        "expected_requirement": null,
+        "expected_status": null,
+        "correct": false,
+        "evidence_quotes": [
+          "Resume mentions 'integrated'."
+        ]
+      }
+    ]
   }
 }

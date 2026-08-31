@@ -10,7 +10,7 @@ from google import genai
 
 st.set_page_config(page_title="Recruiter Dashboard", page_icon="📊", layout="wide")
 
-MODEL = "gemini-2.0-flash"
+MODEL = "gemini-2.5-flash"
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 DATA_FILE = DATA_DIR / "analyses.json"
 

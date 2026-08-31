@@ -1,0 +1,25 @@
+Nina Petrova
+Product Manager
+
+SUMMARY
+Product manager with 2 years of experience owning features for a B2B SaaS
+product used by mid-market customers.
+
+EXPERIENCE
+Product Manager — SaaS Company (2023 - Present)
+- Owned the roadmap for a billing feature area.
+- Ran weekly scrum ceremonies for a cross-functional team of 6.
+- Interviewed customers to understand billing pain points.
+- Collaborated with sales and customer success on requirements.
+
+Associate PM — FinTech Company (2021 - 2023)
+- Supported senior PMs with market research and slide decks.
+- Helped define acceptance criteria for development tickets.
+
+SKILLS
+Roadmapping, user interviews, scrum, Jira, Confluence, Figma.
+Basic SQL for data pulls.
+Familiar with A/B testing concepts.
+
+EDUCATION
+B.A. Economics, HSE Moscow (2021)

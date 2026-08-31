@@ -1,0 +1,24 @@
+Miguel Alvarez
+Data Analyst
+
+SUMMARY
+Data professional focused on SQL and reporting, with growing experience in
+Python for analysis.
+
+EXPERIENCE
+Analyst — E-commerce Company (2022 - Present)
+- Write complex SQL queries against a large clickstream data warehouse.
+- Build weekly dashboards in Tableau for the marketing team.
+- Perform ad-hoc analysis and reporting in Excel.
+- Run A/B test analyses and present results to stakeholders.
+
+Data Intern — Retail Bank (2021 - 2022)
+- Cleaned and organized data in Excel.
+- Assisted senior analysts with SQL queries.
+
+SKILLS
+SQL, Excel, Tableau, statistics, hypothesis testing.
+Some experience with Python and pandas.
+
+EDUCATION
+B.A. Economics, Universidad de Madrid (2021)

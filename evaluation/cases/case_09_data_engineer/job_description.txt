@@ -1,0 +1,14 @@
+Data Engineer
+
+We are hiring a Data Engineer to build and maintain our data platform.
+
+Requirements:
+- 3+ years of experience with Python.
+- Strong experience with SQL and query optimization.
+- Experience building ETL / ELT pipelines.
+- Experience with Apache Spark for large-scale processing.
+- Experience with orchestration tools (Airflow or similar).
+- Experience with cloud data warehouses (Snowflake, BigQuery, or Redshift).
+- Experience with dbt for transformations.
+- Nice to have: experience with streaming (Kafka or similar).
+- Nice to have: experience with data modeling / dimensional modeling.

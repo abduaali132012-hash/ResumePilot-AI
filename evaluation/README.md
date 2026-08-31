@@ -1,36 +1,68 @@
-# Evaluation Suite
+# Evaluation Suite — Baseline vs. Agent
 
-This folder holds the controlled experiment used to compare the baseline ResumePilot evaluator with the evidence-based requirement evaluator.
+This folder measures the *real* improvement of the Evidence-Based Candidate
+Evaluation agent over the single-pass baseline that ResumePilot had before the
+Micro1 (Frontier Engineering Challenge 2026) work.
+
+We never invent numbers. Every figure in `baseline_results.json`,
+`agent_results.json`, and `comparison.md` comes from actually running the two
+systems on the controlled cases below.
 
 ## Structure
 
-- `cases/` — curated resume/job pairs and expected evidence labels
-- `baseline_results.json` — output produced by the original baseline system
-- `agent_results.json` — output produced by the evidence-based system
+```
+evaluation/
+├── README.md
+├── run_evaluation.py          # the harness
+├── baseline_results.json      # written by the harness
+├── agent_results.json         # written by the harness
+├── comparison.md              # markdown table written by the harness
+└── cases/
+    ├── case_01_backend_engineer/
+    │   ├── job_description.txt
+    │   ├── candidate_resume.txt
+    │   └── expected_evidence.json      # HUMAN-labelled ground truth
+    ├── case_02_data_analyst/
+    └── case_03_frontend_engineer/
+```
 
-## Purpose
+Each case is deliberately written to contain **traps** that single-pass
+evaluators get wrong — e.g. "cloud experience" that is not AWS, a skill listed
+without usage context, an absent requirement the model might hallucinate into
+a SUPPORTED. That is what makes the comparison meaningful.
 
-Each case contains the same inputs for both systems:
-- `job_description.txt`
-- `candidate_resume.txt`
-- `expected_evidence.json`
+## How to run
 
-The same case set is used to compare the two systems fairly and to measure whether the evidence-based pipeline improves requirement accuracy.
+From the repo root, with `GOOGLE_API_KEY` set in the environment:
 
-## Metric
+```bash
+pip install -r requirements.txt
+python evaluation/run_evaluation.py
+```
 
-Primary metric:
-- Evidence-grounded requirement accuracy
+No key handy? The harness still works in deterministic mode (both systems fall
+back to the keyword evaluator) — useful as a wiring smoke test, but it will not
+measure the real agent:
 
-Measurement:
-- Compare model output against `expected_evidence.json`
-- Count correctly classified requirements across the case set
-- Track false positives and false negatives separately
+```bash
+python evaluation/run_evaluation.py --heuristic
+```
 
-## Recommended workflow
+## Metrics
 
-1. Write a case with a known requirement set and gold labels.
-2. Run the baseline evaluator on the case.
-3. Run the evidence-based evaluator on the same case.
-4. Compare each result to the expected evidence.
-5. Store the JSON outcomes in `baseline_results.json` and `agent_results.json`.
+- **Evidence accuracy** — % of human-labelled requirements whose verdict the
+  system got right.
+- **False positives** — requirements the system claimed were `SUPPORTED` when
+  the resume has no real evidence (the failure mode this project exists to fix).
+- **False negatives** — supported requirements the system missed.
+
+## Adding a case
+
+1. `mkdir evaluation/cases/case_XX_<name>`
+2. Add `job_description.txt` and `candidate_resume.txt`.
+3. Hand-label `expected_evidence.json` with the ground-truth status for each
+   requirement (`SUPPORTED` / `PARTIALLY_SUPPORTED` / `NOT_VERIFIED` /
+   `NOT_FOUND`), quoting the exact resume line that supports the label.
+
+The same cases feed both the baseline and the agent, so the comparison is
+always apples-to-apples.

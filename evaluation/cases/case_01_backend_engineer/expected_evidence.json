@@ -1,0 +1,16 @@
+{
+  "_comment": "Human-labelled ground truth. Each expected status reflects what the resume ACTUALLY supports. An empty evidence_quotes means 'no explicit evidence'.",
+  "case": "case_01_backend_engineer",
+  "expected": [
+    {"requirement": "Python experience", "status": "SUPPORTED", "evidence": "Built and maintained microservices in Python using FastAPI."},
+    {"requirement": "FastAPI experience", "status": "SUPPORTED", "evidence": "Built and maintained microservices in Python using FastAPI."},
+    {"requirement": "PostgreSQL", "status": "SUPPORTED", "evidence": "Designed PostgreSQL schemas and wrote optimized queries for reporting."},
+    {"requirement": "Kubernetes", "status": "SUPPORTED", "evidence": "deployed them to a Kubernetes cluster."},
+    {"requirement": "AWS", "status": "PARTIALLY_SUPPORTED", "evidence": "Worked with a cloud provider for hosting static assets" },
+    {"requirement": "Docker", "status": "SUPPORTED", "evidence": "Containerized services with Docker"},
+    {"requirement": "communication skills", "status": "PARTIALLY_SUPPORTED", "evidence": "Familiar with agile development and team collaboration."},
+    {"requirement": "automated tests", "status": "SUPPORTED", "evidence": "Wrote unit tests with pytest covering core business logic."},
+    {"requirement": "message queues", "status": "NOT_FOUND", "evidence": ""},
+    {"requirement": "CS degree", "status": "SUPPORTED", "evidence": "B.Sc. Computer Science"}
+  ]
+}

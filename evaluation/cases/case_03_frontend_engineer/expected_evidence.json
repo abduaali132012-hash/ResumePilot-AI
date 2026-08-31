@@ -1,0 +1,15 @@
+{
+  "_comment": "Human-labelled ground truth for case_03_frontend_engineer.",
+  "case": "case_03_frontend_engineer",
+  "expected": [
+    {"requirement": "React experience", "status": "SUPPORTED", "evidence": "Build customer-facing features in React with TypeScript."},
+    {"requirement": "TypeScript", "status": "SUPPORTED", "evidence": "Build customer-facing features in React with TypeScript."},
+    {"requirement": "modern CSS / accessibility", "status": "SUPPORTED", "evidence": "Style components with modern CSS (flexbox, grid) ensuring accessibility (WCAG AA)."},
+    {"requirement": "component testing", "status": "SUPPORTED", "evidence": "Write component tests using Jest and React Testing Library."},
+    {"requirement": "REST APIs", "status": "SUPPORTED", "evidence": "Integrate with backend REST APIs."},
+    {"requirement": "GraphQL", "status": "PARTIALLY_SUPPORTED", "evidence": "Working knowledge of GraphQL (read queries)."},
+    {"requirement": "Next.js", "status": "NOT_FOUND", "evidence": ""},
+    {"requirement": "design systems", "status": "PARTIALLY_SUPPORTED", "evidence": "Familiar with design systems."},
+    {"requirement": "team collaboration", "status": "PARTIALLY_SUPPORTED", "evidence": "Familiar with design systems."}
+  ]
+}

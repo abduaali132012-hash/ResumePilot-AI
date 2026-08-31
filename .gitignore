@@ -17,6 +17,7 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
@@ -26,7 +27,22 @@ dist-ssr
 # Streamlit secrets (local API keys)
 .streamlit/secrets.toml
 
-# Python cache and compiled files
+# ---------- Python ----------
 __pycache__/
 *.py[cod]
-.pytest_cache/
+.venv/
+venv/
+.env
+.ipynb_checkpoints/
+
+# ---------- AI models (never push large weights to GitHub) ----------
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+*.gguf
+
+# ---------- Data ----------
+data/*
+!data/.gitkeep

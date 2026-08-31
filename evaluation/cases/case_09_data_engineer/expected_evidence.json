@@ -1,0 +1,15 @@
+{
+  "_comment": "Human-labelled ground truth for case_09_data_engineer. Traps: Spark only 'some experience' (PARTIAL), dimensional modeling only 'familiar' (PARTIAL), streaming absent.",
+  "case": "case_09_data_engineer",
+  "expected": [
+    {"requirement": "Python", "status": "SUPPORTED", "evidence": "Built ETL pipelines in Python (pandas, SQLAlchemy)."},
+    {"requirement": "SQL", "status": "SUPPORTED", "evidence": "Wrote complex SQL queries and optimized slow reporting queries."},
+    {"requirement": "ETL / ELT pipelines", "status": "SUPPORTED", "evidence": "Built ETL pipelines in Python (pandas, SQLAlchemy)."},
+    {"requirement": "Apache Spark", "status": "PARTIALLY_SUPPORTED", "evidence": "Some experience with Apache Spark."},
+    {"requirement": "orchestration tools", "status": "SUPPORTED", "evidence": "Scheduled and monitored jobs with Airflow."},
+    {"requirement": "cloud data warehouses", "status": "SUPPORTED", "evidence": "Loaded data into BigQuery for the analytics team."},
+    {"requirement": "dbt", "status": "SUPPORTED", "evidence": "Skills: Python, SQL, Airflow, BigQuery, pandas, dbt, Git."},
+    {"requirement": "streaming", "status": "NOT_FOUND", "evidence": ""},
+    {"requirement": "dimensional modeling", "status": "PARTIALLY_SUPPORTED", "evidence": "Familiar with dimensional modeling concepts."}
+  ]
+}

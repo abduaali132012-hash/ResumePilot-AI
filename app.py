@@ -1,6 +1,3 @@
-import os
-import socket
-from dotenv import load_dotenv
 import streamlit as st
 import pdfplumber
 from docx import Document
@@ -11,21 +8,8 @@ import tempfile
 import time
 import json
 import hashlib
-import re
 from datetime import datetime
 from reportlab.pdfgen import canvas
-
-# Import AI module for resume analysis
-from ai import (
-    extract_key_skills,
-    calculate_ats_score,
-    find_skill_gaps,
-    calculate_match_percentage,
-    analyze_resume_structure,
-    get_ai_insights_summary,
-)
-
-load_dotenv()
 
 # -----------------------------
 # PAGE CONFIG (MUST BE THE FIRST STREAMLIT COMMAND)
@@ -36,58 +20,6 @@ st.set_page_config(
     layout="wide"
 )
 
-st.markdown("""
-<style>
-    .analysis-panel {
-        background: linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.78));
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        border-radius: 16px;
-        padding: 1.1rem 1.2rem;
-        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18);
-        margin-bottom: 1rem;
-    }
-    .section-header {
-        font-size: 1.15rem;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-        color: #e2e8f0;
-        margin-bottom: 0.4rem;
-    }
-    .subsection-header {
-        font-size: 0.92rem;
-        font-weight: 700;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        color: #7dd3fc;
-        margin-bottom: 0.5rem;
-    }
-    .kpi-card {
-        background: rgba(15, 23, 42, 0.7);
-        border-radius: 14px;
-        border: 1px solid rgba(96, 165, 250, 0.3);
-        padding: 0.9rem 1rem;
-        height: 100%;
-    }
-    .requirement-card {
-        padding: 0.8rem 0.95rem;
-        border-left: 5px solid var(--status-color, #94a3b8);
-        background: rgba(15, 23, 42, 0.55);
-        border-radius: 12px;
-        margin-bottom: 0.7rem;
-    }
-    div[data-testid="stMetric"] {
-        background: rgba(15, 23, 42, 0.72);
-        border: 1px solid rgba(148, 163, 184, 0.28);
-        border-radius: 14px;
-        padding: 0.7rem 0.9rem;
-        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
-    }
-    .stProgress > div > div {
-        background: linear-gradient(90deg, #38bdf8, #34d399);
-    }
-</style>
-""", unsafe_allow_html=True)
-
 # Banner rendered immediately AFTER page config
 st.markdown("""
 # 🚀 ResumePilot AI
@@ -96,29 +28,15 @@ st.markdown("""
 """)
 
 # -----------------------------
-# HERO / BRANDING / CTA
-# -----------------------------
-hero_col, action_col = st.columns([2, 1])
-with hero_col:
-    st.markdown("""
-    ## 📉 75% of Qualified Applicants Are Rejected Before a Human Reads Their Resume
-
-    **Applicant Tracking Systems (ATS)** silently filter resumes on keyword matches and
-    formatting — and most job seekers never know *why* their application disappeared
-    into a void.
-    """)
-    st.caption("Built to make ATS scoring, job-fit analysis, and resume optimization transparent and actionable.")
-with action_col:
-    st.markdown("### Quick start")
-    st.info("**1️⃣ Upload** your resume\n**2️⃣ Paste** the job description\n**3️⃣ Get ATS-fit feedback, gaps, and rewrite ideas")
-    st.button("Start analysis", key="hero_cta", help="Scroll down and begin your resume review.")
-
-st.markdown("---")
-
-# -----------------------------
 # COMPELLING INTRO — THE "WHY" (Problem framing for judges/users)
 # -----------------------------
 st.markdown("""
+## 📉 75% of Qualified Applicants Are Rejected Before a Human Reads Their Resume
+
+**Applicant Tracking Systems (ATS)** silently filter resumes on keyword matches and
+formatting — and most job seekers never know *why* their application disappeared
+into a void.
+
 - 🏢 **99% of Fortune 500** companies use ATS software
 - 📄 **~75% of qualified resumes** are rejected before reaching a recruiter
 - 🎯 The average corporate job posting gets **250+ applications** — standing out is harder than ever
@@ -137,102 +55,24 @@ with col_step3:
 
 st.markdown("---")
 
-def get_runtime_api_key():
-    """Return the Gemini API key from environment variables or Streamlit secrets."""
-    env_keys = [
-        "GEMINI_API_KEY",
-        "GOOGLE_API_KEY",
-        "GOOGLE_GENERATIVE_AI_API_KEY",
-    ]
-    for key in env_keys:
-        value = os.getenv(key)
-        if value and str(value).strip():
-            return str(value).strip()
-
-    try:
-        if hasattr(st, "secrets"):
-            for key in env_keys:
-                value = st.secrets.get(key)
-                if value and str(value).strip():
-                    return str(value).strip()
-    except Exception:
-        pass
-
-    return None
-
-
-def select_free_port(preferred_port=8501):
-    """Return a free localhost port, falling back to the next available port."""
-    preferred_port = int(preferred_port)
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        try:
-            sock.bind(("127.0.0.1", preferred_port))
-            return preferred_port
-        except OSError:
-            pass
-
-        for port in range(preferred_port + 1, 65535):
-            try:
-                sock.bind(("127.0.0.1", port))
-                return port
-            except OSError:
-                continue
-
-    raise RuntimeError("No free local port available on this machine.")
-
-
-def get_user_facing_error(exc):
-    """Convert library errors into clearer user-facing messages."""
-    if exc is None:
-        return "An unexpected error occurred."
-    message = str(exc).lower()
-    if "429" in message or "quota" in message:
-        return (
-            "You've hit the Gemini API quota limit for today. "
-            "The app will still work with manual inputs, but AI generation is temporarily paused until the quota resets."
-        )
-    if "api key" in message or "unauthorized" in message or "forbidden" in message:
-        return "The configured Gemini API key is invalid or unavailable. Please verify your key and restart the app."
-    if "timeout" in message:
-        return "The AI request timed out. Please try again with a shorter prompt or a more stable connection."
-    return "The AI service could not complete the request. Please try again in a moment."
-
-
-def validate_resume_inputs(resume_text, job_description):
-    """Return user-friendly validation warnings for weak or missing input."""
-    warnings = []
-    resume_value = (resume_text or "").strip()
-    jd_value = (job_description or "").strip()
-
-    if not resume_value:
-        warnings.append("Please provide a resume before running analysis.")
-    elif len(resume_value) < 80:
-        warnings.append("The resume looks very short. Add more experience details for a more useful ATS analysis.")
-
-    if not jd_value:
-        warnings.append("Please paste a target job description before running analysis.")
-    elif len(jd_value) < 60:
-        warnings.append("The job description looks short. Add more of the role requirements to improve matching quality.")
-
-    return warnings
-
-
 # -----------------------------
 # GEMINI CONFIG
 # -----------------------------
-api_key = get_runtime_api_key()
 try:
-    gemini_client = genai.Client(api_key=api_key) if api_key else None
+    gemini_client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
     GEMINI_MODEL = "gemini-2.5-flash"
-    gemini_enabled = bool(gemini_client)
-    if not gemini_enabled:
-        st.warning(
-            "⚠️ Gemini API key not found in environment variables or Streamlit secrets. "
-            "The app will still load, but AI-powered features remain disabled until you add a valid key."
-        )
+    gemini_enabled = True
+except KeyError:
+    gemini_enabled = False
+    st.error(
+        "❌ **Gemini API key not found.**\n\n"
+        "Add it in Streamlit Cloud → your app → Settings → Secrets "
+        "(never in a file that gets committed to GitHub):\n"
+        '```\nGEMINI_API_KEY = "AIza..."\n```\n\n'
+        "Get a free key at https://aistudio.google.com/apikey"
+    )
 except Exception as e:
     gemini_enabled = False
-    gemini_client = None
     error_msg = str(e)
     if "API_KEY_INVALID" in error_msg or "unauthorized" in error_msg.lower():
         st.error(
@@ -322,240 +162,6 @@ def extract_section(text, header, next_header=None):
         return "Section layout mismatched. Please try analyzing again."
 
 
-def _normalize_requirement_text(value):
-    """Normalize requirement text so exact evidence checks are consistent."""
-    if value is None:
-        return ""
-    value = str(value).lower()
-    value = re.sub(r"[^a-z0-9+\s/.-]", " ", value)
-    value = re.sub(r"\s+", " ", value).strip()
-    return value
-
-
-def evaluate_requirement_evidence(resume_text, requirement):
-    """
-    Conservative evidence-based requirement checker.
-
-    Goal: prevent false positives where the model claims a skill is supported
-    even though the resume never actually mentions it.
-
-    Classification rules:
-    - supported: direct phrase or exact token evidence exists in the resume
-    - partial: some weaker indication or partial match exists
-    - unsupported: no meaningful evidence found
-    """
-    requirement_text = _normalize_requirement_text(requirement)
-    resume_text = _normalize_requirement_text(resume_text)
-    if not requirement_text:
-        return {"requirement": requirement, "status": "unsupported", "evidence": "none", "reason": "empty requirement"}
-    if not resume_text:
-        return {"requirement": requirement, "status": "unsupported", "evidence": "none", "reason": "empty resume"}
-
-    normalized_resume = " " + resume_text + " "
-    normalized_requirement = requirement_text
-
-    # Exact phrase check is the strongest signal.
-    if normalized_requirement in normalized_resume:
-        return {"requirement": requirement, "status": "supported", "evidence": "explicit", "reason": "exact evidence found"}
-
-    tokens = [token for token in re.split(r"[\s/+-]+", normalized_requirement) if token]
-    if not tokens:
-        return {"requirement": requirement, "status": "unsupported", "evidence": "none", "reason": "no tokenized evidence"}
-
-    # Multi-token requirements require all meaningful tokens to be present.
-    if len(tokens) > 1:
-        token_hits = 0
-        for token in tokens:
-            if token in normalized_resume:
-                token_hits += 1
-        if token_hits == len(tokens):
-            return {"requirement": requirement, "status": "supported", "evidence": "explicit", "reason": "all requirement tokens found"}
-        if token_hits > 0:
-            return {"requirement": requirement, "status": "partial", "evidence": "indirect", "reason": "partial keyword evidence"}
-        return {"requirement": requirement, "status": "unsupported", "evidence": "none", "reason": "no requirement terms found"}
-
-    # Single-token requirement: require a real match to avoid false positives.
-    token = tokens[0]
-    if token in normalized_resume:
-        return {"requirement": requirement, "status": "supported", "evidence": "explicit", "reason": "token evidence found"}
-
-    # Conservative fallback for attached forms like "node.js" -> "nodejs" or "aws" -> "amazon web services"
-    alias_map = {
-        "nodejs": ["node.js", "node js"],
-        "aws": ["amazon web services", "amazon-web-services"],
-        "postgresql": ["postgres", "postgre sql"],
-        "kubernetes": ["k8s"],
-        "fastapi": ["fast api"],
-        "machinelearning": ["machine learning"],
-    }
-    aliases = alias_map.get(token, [])
-    if any(alias in normalized_resume for alias in aliases):
-        return {"requirement": requirement, "status": "supported", "evidence": "explicit", "reason": "alias evidence found"}
-
-    return {"requirement": requirement, "status": "unsupported", "evidence": "none", "reason": "no direct evidence"}
-
-
-def evaluate_requirement_set(resume_text, requirements):
-    """Evaluate a list of requirement strings and return a requirement-by-requirement result set."""
-    if not requirements:
-        return []
-    return [evaluate_requirement_evidence(resume_text, requirement) for requirement in requirements]
-
-
-def extract_resume_evidence(resume_text):
-    """
-    First evidence-extraction agent.
-
-    Extracts concise, structured factual signals from a resume, including:
-    - skills
-    - experience context
-    - project accomplishments
-    - education
-    - certifications
-
-    Each evidence item has a direct source and a confidence label.
-    """
-    if not resume_text:
-        return []
-
-    text = str(resume_text)
-    evidence = []
-
-    patterns = [
-        ("Python", ["python"], "Projects", "high"),
-        ("FastAPI", ["fastapi", "fast api"], "Projects", "high"),
-        ("PostgreSQL", ["postgresql", "postgres"], "Projects", "high"),
-        ("AWS", ["aws", "amazon web services"], "Experience", "medium"),
-        ("Docker", ["docker"], "Experience", "high"),
-        ("Kubernetes", ["kubernetes", "k8s"], "Experience", "medium"),
-        ("Bachelor's degree", ["bachelor's degree", "bachelors degree", "bachelor degree"], "Education", "high"),
-        ("Master's degree", ["master's degree", "masters degree", "master degree"], "Education", "high"),
-        ("AWS Certified", ["aws certified", "aws certification"], "Certification", "high"),
-    ]
-
-    lower_text = text.lower()
-    for skill, aliases, source, confidence in patterns:
-        for alias in aliases:
-            if alias in lower_text:
-                evidence.append({
-                    "skill": skill,
-                    "evidence": f"Resume contains direct mention of {skill}.",
-                    "source": source,
-                    "confidence": confidence,
-                })
-                break
-
-    # Add a generic fallback for skills not in the alias map but clearly named in the resume.
-    if not evidence:
-        for sentence in re.split(r"\n+|(?<=[.!?])\s+", text):
-            cleaned = sentence.strip()
-            if cleaned:
-                evidence.append({
-                    "skill": cleaned.split()[0],
-                    "evidence": cleaned,
-                    "source": "Projects",
-                    "confidence": "low",
-                })
-
-    return evidence
-
-
-def verify_requirement_evidence(resume_text, requirement):
-    """
-    Verification stage for a requirement.
-
-    Produces a defensible classification based on evidence in the resume:
-    - supported: explicit evidence found
-    - partially_supported: related but not explicit evidence found
-    - not_verified: no evidence found
-    """
-    check = evaluate_requirement_evidence(resume_text, requirement)
-    evidence_items = extract_resume_evidence(resume_text)
-    requirement_norm = _normalize_requirement_text(requirement)
-    resume_norm = _normalize_requirement_text(resume_text)
-    cloud_context = any(term in resume_norm for term in ["cloud", "deployed in the cloud", "cloud infrastructure", "cloud platforms"])
-
-    direct_match = any(
-        _normalize_requirement_text(item["skill"]) == requirement_norm or requirement_norm in _normalize_requirement_text(item["skill"])
-        for item in evidence_items
-    )
-
-    if check["status"] == "supported" or direct_match:
-        matched = next(
-            (item for item in evidence_items if _normalize_requirement_text(item["skill"]) == requirement_norm or requirement_norm in _normalize_requirement_text(item["skill"])),
-            None,
-        )
-        if matched:
-            return {
-                "requirement": requirement,
-                "status": "supported",
-                "evidence_found": True,
-                "evidence": matched["evidence"],
-                "source": matched["source"],
-                "confidence": matched["confidence"],
-                "reason": "Explicit evidence found in the resume."
-            }
-
-    related_context = any(
-        requirement_norm in _normalize_requirement_text(item["skill"]) or _normalize_requirement_text(item["skill"]) in requirement_norm
-        for item in evidence_items
-    ) or (
-        requirement_norm in ["aws", "amazon web services"] and cloud_context
-    )
-
-    if related_context:
-        return {
-            "requirement": requirement,
-            "status": "partially_supported",
-            "evidence_found": True,
-            "evidence": "Cloud experience mentioned, but the specific requirement is not explicitly identified.",
-            "source": "Experience",
-            "confidence": "medium",
-            "reason": "Related context exists, but the requirement is not explicitly proven."
-        }
-
-    return {
-        "requirement": requirement,
-        "status": "not_verified",
-        "evidence_found": False,
-        "evidence": "No explicit or indirect evidence found.",
-        "source": "None",
-        "confidence": "low",
-        "reason": "No direct evidence detected in the resume."
-    }
-
-
-def build_evidence_summary(resume_text, requirements, candidate_name="Example Candidate", position_name="Backend Engineer"):
-    """Build a structured evidence summary for the dashboard."""
-    requirement_results = []
-    for requirement in requirements:
-        result = verify_requirement_evidence(resume_text, requirement)
-        requirement_results.append({
-            "requirement": result["requirement"],
-            "status": result["status"],
-            "evidence": result["evidence"],
-            "confidence": result["confidence"].title() if result["confidence"] else "High",
-            "source": result["source"],
-            "reason": result["reason"],
-        })
-
-    score_map = {
-        "supported": 1,
-        "partially_supported": 0.5,
-        "not_verified": 0,
-    }
-    overall_coverage = 0 if not requirement_results else round(
-        (sum(score_map.get(item["status"], 0) for item in requirement_results) / len(requirement_results)) * 100
-    )
-
-    return {
-        "candidate": candidate_name,
-        "position": position_name,
-        "overall_coverage": overall_coverage,
-        "requirements": requirement_results,
-    }
-
-
 # -----------------------------
 # FILE UPLOAD SYSTEM
 # -----------------------------
@@ -622,10 +228,6 @@ with st.expander("🔗 LinkedIn Profile Analyzer (optional)"):
 # -----------------------------
 if "analysis_results" not in st.session_state:
     st.session_state.analysis_results = None
-
-validation_warnings = validate_resume_inputs(resume, job1)
-if validation_warnings:
-    st.warning("\n".join(f"• {warning}" for warning in validation_warnings))
 if "version_history" not in st.session_state:
     st.session_state.version_history = []
 if "job_recommendations" not in st.session_state:
@@ -712,7 +314,15 @@ if run_recommendations:
                 st.session_state.job_recommendations = recommendation_text
                 st.success("Recommendations ready — see the '🧭 Job Recommendations' tab below.")
             except Exception as e:
-                st.error(get_user_facing_error(e))
+                error_text = str(e).lower()
+                if "429" in error_text:
+                    st.error(
+                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
+                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
+                        "project for higher limits."
+                    )
+                else:
+                    st.error(f"Could not generate recommendations: {e}")
 
 if run_linkedin:
     if not linkedin_text:
@@ -753,7 +363,15 @@ if run_linkedin:
                 st.session_state.linkedin_analysis = generate_with_retry(linkedin_prompt)
                 st.success("LinkedIn analysis ready — see the section below.")
             except Exception as e:
-                st.error(get_user_facing_error(e))
+                error_text = str(e).lower()
+                if "429" in error_text:
+                    st.error(
+                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
+                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
+                        "project for higher limits."
+                    )
+                else:
+                    st.error(f"Could not analyze LinkedIn profile: {e}")
 
 if run_career_gap:
     if not resume:
@@ -787,7 +405,15 @@ if run_career_gap:
                 st.session_state.career_gap_analysis = generate_with_retry(career_gap_prompt)
                 st.success("Career gap analysis ready — see the section below.")
             except Exception as e:
-                st.error(get_user_facing_error(e))
+                error_text = str(e).lower()
+                if "429" in error_text:
+                    st.error(
+                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
+                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
+                        "project for higher limits."
+                    )
+                else:
+                    st.error(f"Could not analyze career gaps: {e}")
 
 if run_salary:
     if not resume:
@@ -827,7 +453,15 @@ if run_salary:
                 st.session_state.salary_insights = generate_with_retry(salary_prompt)
                 st.success("Salary insights ready — see the section below.")
             except Exception as e:
-                st.error(get_user_facing_error(e))
+                error_text = str(e).lower()
+                if "429" in error_text:
+                    st.error(
+                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
+                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
+                        "project for higher limits."
+                    )
+                else:
+                    st.error(f"Could not generate salary insights: {e}")
 
 if run_analysis:
     if not resume or not job1:
@@ -847,13 +481,6 @@ if run_analysis:
             score1 = calculate_score(resume, job1)
             score2 = calculate_score(resume, job2) if job2 else 0
             score3 = calculate_score(resume, job3) if job3 else 0
-
-            # AI Module Analysis - Enhanced Resume Analysis
-            ai_ats_score = calculate_ats_score(resume, job1)
-            ai_skill_gaps = find_skill_gaps(resume, job1)
-            ai_match_percentage = calculate_match_percentage(resume, job1)
-            ai_resume_structure = analyze_resume_structure(resume)
-            ai_insights = get_ai_insights_summary(resume, job1)
 
             # Combined prompts for optimal single-token parsing
             master_prompt = f"""
@@ -935,15 +562,7 @@ if run_analysis:
                     "rewrite": extract_section(ai_text, "### RESUME REWRITE SUGGESTIONS", "### CAREER COACH GUIDANCE"),
                     "coach": extract_section(ai_text, "### CAREER COACH GUIDANCE", "### KEYWORD GAP ANALYSIS"),
                     "keyword_analysis": extract_section(ai_text, "### KEYWORD GAP ANALYSIS", "### TAILORED COVER LETTER"),
-                    "cover_letter": ai_text.split("### TAILORED COVER LETTER")[-1].strip(),
-                    # AI Module Results
-                    "ai_ats_score": ai_ats_score["score"],
-                    "ai_matched_skills": ai_ats_score["matched_skills"],
-                    "ai_missing_skills": ai_ats_score["missing_skills"],
-                    "ai_skill_gaps": ai_skill_gaps,
-                    "ai_match_percentage": ai_match_percentage,
-                    "ai_resume_structure": ai_resume_structure,
-                    "ai_insights_summary": ai_insights,
+                    "cover_letter": ai_text.split("### TAILORED COVER LETTER")[-1].strip()
                 }
                 st.session_state.last_analyzed_hash = current_input_hash
                 if auto_triggered and not run_analysis_clicked:
@@ -1088,72 +707,17 @@ with st.expander("📋 Application Tracker", expanded=False):
 if st.session_state.analysis_results:
     res = st.session_state.analysis_results
 
-    candidate_requirements = ["Python", "FastAPI", "AWS", "Kubernetes"]
-    evidence_summary = build_evidence_summary(
-        resume or "",
-        candidate_requirements,
-        candidate_name="Example Candidate",
-        position_name=("Backend Engineer" if not job1 else "Role Review"),
-    )
-
-    st.markdown("---")
-    st.markdown('<div class="section-header">📊 Candidate Evidence Evaluation</div>', unsafe_allow_html=True)
-    c_col1, c_col2 = st.columns(2)
-    with c_col1:
-        st.markdown(f"<div class='analysis-panel'><div class='subsection-header'>Candidate</div><div>{evidence_summary['candidate']}</div></div>", unsafe_allow_html=True)
-    with c_col2:
-        st.markdown(f"<div class='analysis-panel'><div class='subsection-header'>Position</div><div>{evidence_summary['position']}</div></div>", unsafe_allow_html=True)
-
-    st.markdown('<div class="analysis-panel">', unsafe_allow_html=True)
-    st.markdown('<div class="subsection-header">Overall Evidence Coverage</div>', unsafe_allow_html=True)
-    st.progress(min(max(evidence_summary["overall_coverage"], 0), 100) / 100)
-    st.write(f"{evidence_summary['overall_coverage']}%")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown('<div class="analysis-panel">', unsafe_allow_html=True)
-    st.markdown('<div class="subsection-header">Requirements</div>', unsafe_allow_html=True)
-    for item in evidence_summary["requirements"]:
-        if item["status"] == "supported":
-            icon = "✓"
-            color = "#22c55e"
-        elif item["status"] == "partially_supported":
-            icon = "⚠"
-            color = "#f59e0b"
-        else:
-            icon = "?"
-            color = "#94a3b8"
-
-        st.markdown(
-            f"<div class='requirement-card' style='--status-color: {color};'>"
-            f"<strong>{icon} {item['requirement']}</strong><br>"
-            f"Evidence: {item['evidence']}<br>"
-            f"Confidence: {item['confidence']}"
-            f"</div>",
-            unsafe_allow_html=True,
-        )
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    review_col1, review_col2, review_col3 = st.columns(3)
-    with review_col1:
-        st.button("Confirm")
-    with review_col2:
-        st.button("Reject")
-    with review_col3:
-        st.button("Needs Review")
-
-    st.markdown("---")
-
     # Top Metric Dashboard Cards Array
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
     with m_col1:
-        st.markdown('<div class="kpi-card"><div class="subsection-header">ATS Match</div><div style="font-size: 2rem; font-weight: 700;">{}</div></div>'.format(f"{res['score']}%"), unsafe_allow_html=True)
+        st.metric("ATS Match Score", f"{res['score']}%")
     with m_col2:
-        st.markdown('<div class="kpi-card"><div class="subsection-header">Matched Keywords</div><div style="font-size: 2rem; font-weight: 700;">{}</div></div>'.format(res['matched_count']), unsafe_allow_html=True)
+        st.metric("Matched Keywords", res['matched_count'])
     with m_col3:
-        st.markdown('<div class="kpi-card"><div class="subsection-header">Missing Gaps</div><div style="font-size: 2rem; font-weight: 700;">{}</div></div>'.format(len(res['missing_skills'])), unsafe_allow_html=True)
+        st.metric("Missing Gaps", len(res['missing_skills']))
     with m_col4:
         word_count = len(resume.split()) if resume else 0
-        st.markdown('<div class="kpi-card"><div class="subsection-header">Resume Words</div><div style="font-size: 2rem; font-weight: 700;">{}</div></div>'.format(word_count if word_count > 0 else "—"), unsafe_allow_html=True)
+        st.metric("Resume Word Count", word_count if word_count > 0 else "—")
     
     st.progress(res['score'] / 100)
 

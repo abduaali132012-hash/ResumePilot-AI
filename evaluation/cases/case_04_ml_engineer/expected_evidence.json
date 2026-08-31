@@ -1,0 +1,16 @@
+{
+  "_comment": "Human-labelled ground truth for case_04_ml_engineer. Traps: deep learning frameworks named only vaguely, model deployment only mentioned as 'training jobs', Spark only listed in skills with no scale evidence.",
+  "case": "case_04_ml_engineer",
+  "expected": [
+    {"requirement": "Python experience", "status": "SUPPORTED", "evidence": "Built data pipelines in Python (pandas, numpy)"},
+    {"requirement": "PyTorch or TensorFlow", "status": "SUPPORTED", "evidence": "Trained and fine-tuned CNN models with PyTorch on GPU instances."},
+    {"requirement": "model deployment", "status": "PARTIALLY_SUPPORTED", "evidence": "Trained and fine-tuned CNN models with PyTorch on GPU instances."},
+    {"requirement": "MLOps practices", "status": "NOT_FOUND", "evidence": ""},
+    {"requirement": "data pipelines", "status": "SUPPORTED", "evidence": "Built data pipelines in Python (pandas, numpy) to prepare training datasets."},
+    {"requirement": "statistics", "status": "PARTIALLY_SUPPORTED", "evidence": "Ran offline experiments and documented results."},
+    {"requirement": "GPU training", "status": "SUPPORTED", "evidence": "Trained and fine-tuned CNN models with PyTorch on GPU instances."},
+    {"requirement": "Docker", "status": "SUPPORTED", "evidence": "Containerized training jobs with Docker for reproducibility."},
+    {"requirement": "Apache Spark", "status": "PARTIALLY_SUPPORTED", "evidence": "Some exposure to Apache Spark during data engineering work."},
+    {"requirement": "NLP / LLM fine-tuning", "status": "NOT_FOUND", "evidence": ""}
+  ]
+}

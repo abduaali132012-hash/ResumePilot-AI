@@ -7,7 +7,7 @@ from google import genai
 
 st.set_page_config(page_title="AI Interview Coach", page_icon="🎤", layout="wide")
 
-MODEL = "gemini-2.0-flash"
+MODEL = "gemini-2.5-flash"
 
 ROLES = [
     "Software Engineer", "Frontend Engineer", "Backend Engineer", "Data Scientist",

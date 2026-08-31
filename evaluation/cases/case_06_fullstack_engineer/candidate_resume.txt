@@ -1,0 +1,24 @@
+Liam O'Connor
+Full-Stack Engineer
+
+SUMMARY
+Full-stack engineer with 2 years of experience building web apps with React,
+TypeScript, and Node.js.
+
+EXPERIENCE
+Full-Stack Engineer — HealthTech Startup (2023 - Present)
+- Built customer-facing features in React with TypeScript.
+- Developed Node.js REST APIs with Express for the backend.
+- Wrote unit and integration tests with Jest and supertest.
+- Deployed services to a cloud platform using containers.
+
+Junior Developer — Consulting Firm (2021 - 2023)
+- Maintained existing React applications.
+- Wrote SQL queries against a MySQL database.
+
+SKILLS
+React, TypeScript, Node.js, Express, Jest, SQL, Docker, Git.
+Working knowledge of authentication concepts.
+
+EDUCATION
+B.Sc. Software Engineering, UCD Dublin (2021)

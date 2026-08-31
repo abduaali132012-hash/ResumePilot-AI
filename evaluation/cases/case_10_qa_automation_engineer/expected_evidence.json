@@ -1,0 +1,15 @@
+{
+  "_comment": "Human-labelled ground truth for case_10_qa_automation_engineer. Traps: Selenium only 'basic scripting' (PARTIAL, Playwright is primary), performance only 'familiar with JMeter' (PARTIAL), accessibility and mobile absent.",
+  "case": "case_10_qa_automation_engineer",
+  "expected": [
+    {"requirement": "test automation", "status": "SUPPORTED", "evidence": "Built end-to-end test suites with Playwright (TypeScript)."},
+    {"requirement": "Selenium or Playwright", "status": "SUPPORTED", "evidence": "Built end-to-end test suites with Playwright (TypeScript)."},
+    {"requirement": "Python or JavaScript", "status": "SUPPORTED", "evidence": "Built end-to-end test suites with Playwright (TypeScript)."},
+    {"requirement": "CI-integrated test suites", "status": "SUPPORTED", "evidence": "Integrated tests into CI pipelines (GitHub Actions)."},
+    {"requirement": "testing best practices", "status": "PARTIALLY_SUPPORTED", "evidence": "Debugged and de-flaked flaky browser tests."},
+    {"requirement": "API testing", "status": "SUPPORTED", "evidence": "Wrote API tests with Postman and pytest."},
+    {"requirement": "performance testing", "status": "PARTIALLY_SUPPORTED", "evidence": "Familiar with JMeter for load testing."},
+    {"requirement": "accessibility testing", "status": "NOT_FOUND", "evidence": ""},
+    {"requirement": "mobile testing", "status": "NOT_FOUND", "evidence": ""}
+  ]
+}

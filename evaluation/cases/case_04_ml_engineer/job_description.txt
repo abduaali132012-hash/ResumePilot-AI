@@ -1,0 +1,15 @@
+Machine Learning Engineer
+
+We are hiring a Machine Learning Engineer to productionize ML models for our platform team.
+
+Requirements:
+- 3+ years of experience in Python.
+- Strong experience with PyTorch or TensorFlow.
+- Experience taking ML models from research to production (model deployment).
+- Experience with MLOps practices: model versioning, CI for models, monitoring.
+- Proficiency building data pipelines for training and inference.
+- Solid understanding of statistics and experimental design.
+- Experience training models on GPU infrastructure.
+- Proficiency with Docker and containerized training jobs.
+- Nice to have: experience with Apache Spark for large-scale data.
+- Nice to have: experience with NLP / LLM fine-tuning.

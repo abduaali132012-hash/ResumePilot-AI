@@ -1,0 +1,15 @@
+{
+  "_comment": "Human-labelled ground truth for case_07_product_manager. Traps: 'data-driven decisions' implied but not explicit (PARTIAL), A/B testing only 'familiar with concepts' (PARTIAL), monetization absent.",
+  "case": "case_07_product_manager",
+  "expected": [
+    {"requirement": "product manager experience", "status": "SUPPORTED", "evidence": "Owned the roadmap for a billing feature area."},
+    {"requirement": "product strategy and roadmaps", "status": "SUPPORTED", "evidence": "Owned the roadmap for a billing feature area."},
+    {"requirement": "user research", "status": "SUPPORTED", "evidence": "Interviewed customers to understand billing pain points."},
+    {"requirement": "data-driven decisions", "status": "PARTIALLY_SUPPORTED", "evidence": "Basic SQL for data pulls."},
+    {"requirement": "A/B testing", "status": "PARTIALLY_SUPPORTED", "evidence": "Familiar with A/B testing concepts."},
+    {"requirement": "stakeholder management", "status": "SUPPORTED", "evidence": "Collaborated with sales and customer success on requirements."},
+    {"requirement": "agile / scrum", "status": "SUPPORTED", "evidence": "Ran weekly scrum ceremonies for a cross-functional team of 6."},
+    {"requirement": "technical background", "status": "PARTIALLY_SUPPORTED", "evidence": "Basic SQL for data pulls."},
+    {"requirement": "pricing / monetization", "status": "NOT_FOUND", "evidence": ""}
+  ]
+}

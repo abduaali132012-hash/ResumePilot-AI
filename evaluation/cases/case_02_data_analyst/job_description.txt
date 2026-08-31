@@ -1,0 +1,14 @@
+Data Analyst
+
+We are looking for a Data Analyst to turn data into insights for our product team.
+
+Requirements:
+- 2+ years of experience in data analysis.
+- Strong proficiency in SQL for querying large datasets.
+- Experience with Python for data analysis (pandas, numpy).
+- Proficiency with a BI tool such as Tableau or Power BI.
+- Solid grasp of statistics and hypothesis testing.
+- Experience with Excel for ad-hoc analysis.
+- Nice to have: experience with machine learning models.
+- Nice to have: experience with A/B testing.
+- Excellent attention to detail.

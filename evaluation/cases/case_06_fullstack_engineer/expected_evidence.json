@@ -1,0 +1,16 @@
+{
+  "_comment": "Human-labelled ground truth for case_06_fullstack_engineer. Traps: SQL only 'queries against a MySQL database' (counts as relational DB but via MySQL), authentication only 'working knowledge', GraphQL absent.",
+  "case": "case_06_fullstack_engineer",
+  "expected": [
+    {"requirement": "React experience", "status": "SUPPORTED", "evidence": "Built customer-facing features in React with TypeScript."},
+    {"requirement": "TypeScript", "status": "SUPPORTED", "evidence": "Built customer-facing features in React with TypeScript."},
+    {"requirement": "Node.js backends", "status": "SUPPORTED", "evidence": "Developed Node.js REST APIs with Express for the backend."},
+    {"requirement": "relational databases", "status": "SUPPORTED", "evidence": "Wrote SQL queries against a MySQL database."},
+    {"requirement": "REST APIs", "status": "SUPPORTED", "evidence": "Developed Node.js REST APIs with Express for the backend."},
+    {"requirement": "automated tests", "status": "SUPPORTED", "evidence": "Wrote unit and integration tests with Jest and supertest."},
+    {"requirement": "authentication and security", "status": "PARTIALLY_SUPPORTED", "evidence": "Working knowledge of authentication concepts."},
+    {"requirement": "deploying web applications", "status": "SUPPORTED", "evidence": "Deployed services to a cloud platform using containers."},
+    {"requirement": "GraphQL", "status": "NOT_FOUND", "evidence": ""},
+    {"requirement": "Docker", "status": "SUPPORTED", "evidence": "Deployed services to a cloud platform using containers."}
+  ]
+}

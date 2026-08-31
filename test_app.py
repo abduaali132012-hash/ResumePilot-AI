@@ -8,103 +8,12 @@ run without a Gemini API key, Streamlit runtime, or any other external
 dependency.
 """
 
-from app import (
-    calculate_score,
-    extract_section,
-    evaluate_requirement_evidence,
-    evaluate_requirement_set,
-    extract_resume_evidence,
-    verify_requirement_evidence,
-    build_evidence_summary,
-    get_runtime_api_key,
-    select_free_port,
-)
-
-
-# ---------------------------------------------------------------------------
-# Evidence-grounded requirement agent tests
-# ---------------------------------------------------------------------------
-
-def test_evaluate_requirement_evidence_supported_requirement():
-    resume = "Built APIs in Python and FastAPI. Deployed PostgreSQL in production."
-    result = evaluate_requirement_evidence(resume, "FastAPI")
-    assert result["status"] == "supported"
-    assert result["requirement"] == "FastAPI"
-
-
-def test_evaluate_requirement_evidence_missing_requirement_is_unsupported():
-    resume = "Built APIs in Python and FastAPI. Deployed PostgreSQL in production."
-    result = evaluate_requirement_evidence(resume, "Kubernetes")
-    assert result["status"] == "unsupported"
-
-
-def test_evaluate_requirement_set_detects_false_positive_requirements():
-    resume = "Python, FastAPI, PostgreSQL, Docker"
-    job_requirements = ["Python", "FastAPI", "PostgreSQL", "AWS", "Kubernetes", "Docker"]
-    results = evaluate_requirement_set(resume, job_requirements)
-    statuses = {item["requirement"]: item["status"] for item in results}
-    assert statuses["Python"] == "supported"
-    assert statuses["FastAPI"] == "supported"
-    assert statuses["PostgreSQL"] == "supported"
-    assert statuses["Docker"] == "supported"
-    assert statuses["AWS"] == "unsupported"
-    assert statuses["Kubernetes"] == "unsupported"
-
-
-def test_extract_resume_evidence_returns_structured_evidence():
-    resume = """Senior Software Engineer\n\nBuilt APIs with Python and FastAPI.\nDeployed PostgreSQL services on AWS and Docker.\nBachelor's degree in Computer Science."""
-    evidence = extract_resume_evidence(resume)
-    assert any(item["skill"] == "Python" and item["source"] == "Projects" for item in evidence)
-    assert any(item["skill"] == "FastAPI" and item["confidence"] == "high" for item in evidence)
-    assert any(item["skill"] == "AWS" and item["source"] == "Experience" for item in evidence)
-    assert any(item["skill"] == "Bachelor's degree" and item["source"] == "Education" for item in evidence)
-
-
-def test_verify_requirement_evidence_classifies_supported_and_unverified():
-    resume = "Built APIs with Python and FastAPI; deployed PostgreSQL services on Docker and cloud infrastructure."
-    supported = verify_requirement_evidence(resume, "Python")
-    unverified = verify_requirement_evidence(resume, "Kubernetes")
-    partial = verify_requirement_evidence(resume, "AWS")
-
-    assert supported["status"] == "supported"
-    assert supported["evidence_found"]
-    assert unverified["status"] == "not_verified"
-    assert partial["status"] == "partially_supported"
-
-
-def test_build_evidence_summary_sets_dashboard_metrics():
-    resume = "Built APIs with Python and FastAPI; deployed PostgreSQL services on Docker and cloud infrastructure."
-    summary = build_evidence_summary(
-        resume,
-        ["Python", "FastAPI", "AWS", "Kubernetes"],
-        candidate_name="Example Candidate",
-        position_name="Backend Engineer",
-    )
-
-    assert summary["candidate"] == "Example Candidate"
-    assert summary["position"] == "Backend Engineer"
-    assert summary["overall_coverage"] >= 50
-    statuses = {item["requirement"]: item["status"] for item in summary["requirements"]}
-    assert statuses["Python"] == "supported"
-    assert statuses["FastAPI"] == "supported"
-    assert statuses["AWS"] == "partially_supported"
-    assert statuses["Kubernetes"] == "not_verified"
+from app import calculate_score, extract_section
 
 
 # ---------------------------------------------------------------------------
 # calculate_score tests
 # ---------------------------------------------------------------------------
-
-def test_get_runtime_api_key_supports_environment_fallback(monkeypatch):
-    monkeypatch.setenv("GEMINI_API_KEY", "env-test-key")
-    assert get_runtime_api_key() == "env-test-key"
-
-
-def test_select_free_port_returns_valid_port():
-    port = select_free_port(8765)
-    assert isinstance(port, int)
-    assert 1 <= port <= 65535
-
 
 def test_score_empty_resume():
     assert calculate_score("", "Python developer") == 0

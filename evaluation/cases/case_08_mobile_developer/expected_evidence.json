@@ -1,0 +1,16 @@
+{
+  "_comment": "Human-labelled ground truth for case_08_mobile_developer. Traps: UIKit only 'fixed bugs' (PARTIAL), Fastlane only 'some experience' (PARTIAL), App Store submission and GraphQL absent.",
+  "case": "case_08_mobile_developer",
+  "expected": [
+    {"requirement": "Swift", "status": "SUPPORTED", "evidence": "Built features in SwiftUI for a travel booking app."},
+    {"requirement": "SwiftUI", "status": "SUPPORTED", "evidence": "Built features in SwiftUI for a travel booking app."},
+    {"requirement": "UIKit", "status": "PARTIALLY_SUPPORTED", "evidence": "Fixed bugs in an existing UIKit app."},
+    {"requirement": "Core Data", "status": "SUPPORTED", "evidence": "Implemented offline storage with Core Data."},
+    {"requirement": "networking", "status": "SUPPORTED", "evidence": "Made network calls using URLSession and decoded REST JSON."},
+    {"requirement": "dependency management", "status": "SUPPORTED", "evidence": "Managed dependencies with CocoaPods."},
+    {"requirement": "unit tests", "status": "SUPPORTED", "evidence": "Wrote unit tests with XCTest for core logic."},
+    {"requirement": "CI/CD for mobile", "status": "PARTIALLY_SUPPORTED", "evidence": "Some experience with Fastlane for test builds."},
+    {"requirement": "App Store submission", "status": "NOT_FOUND", "evidence": ""},
+    {"requirement": "GraphQL", "status": "NOT_FOUND", "evidence": ""}
+  ]
+}

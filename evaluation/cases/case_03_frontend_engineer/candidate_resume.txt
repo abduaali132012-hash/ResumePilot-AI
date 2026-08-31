@@ -1,0 +1,26 @@
+Aisha Rahman
+Frontend Engineer
+
+SUMMARY
+Frontend engineer with 3 years of experience building responsive web apps with
+React and TypeScript.
+
+EXPERIENCE
+Frontend Engineer — SaaS Company (2022 - Present)
+- Build customer-facing features in React with TypeScript.
+- Style components with modern CSS (flexbox, grid) ensuring accessibility
+  (WCAG AA).
+- Write component tests using Jest and React Testing Library.
+- Integrate with backend REST APIs.
+
+Web Developer — Agency (2020 - 2022)
+- Built marketing sites with HTML, CSS, and jQuery.
+- Consumed third-party APIs.
+
+SKILLS
+React, TypeScript, JavaScript, CSS, HTML, Jest, REST APIs.
+Working knowledge of GraphQL (read queries).
+Familiar with design systems.
+
+EDUCATION
+B.Sc. Computer Science, University of Lagos (2020)

@@ -19,7 +19,7 @@ LANGUAGES = {
     "Turkish": "Turkish",
 }
 
-MODEL = "gemini-2.0-flash"
+MODEL = "gemini-2.5-flash"
 
 
 def get_client():

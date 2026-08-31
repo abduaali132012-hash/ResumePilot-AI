@@ -1,0 +1,13 @@
+Frontend Engineer
+
+We are hiring a Frontend Engineer to build delightful web experiences.
+
+Requirements:
+- 3+ years of experience with React.
+- Strong TypeScript skills.
+- Proficiency with modern CSS (including responsive and accessible markup).
+- Experience with component testing (Jest / React Testing Library).
+- Experience building and consuming REST and GraphQL APIs.
+- Nice to have: experience with Next.js.
+- Nice to have: familiarity with design systems.
+- Good communication and collaboration within a cross-functional team.

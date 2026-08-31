@@ -1,0 +1,23 @@
+Tom Becker
+iOS Developer
+
+SUMMARY
+iOS developer with 2 years of experience building consumer apps with Swift.
+
+EXPERIENCE
+iOS Developer — Travel Startup (2023 - Present)
+- Built features in SwiftUI for a travel booking app.
+- Implemented offline storage with Core Data.
+- Made network calls using URLSession and decoded REST JSON.
+- Wrote unit tests with XCTest for core logic.
+
+iOS Intern — Agency (2022 - 2023)
+- Fixed bugs in an existing UIKit app.
+- Managed dependencies with CocoaPods.
+
+SKILLS
+Swift, SwiftUI, UIKit, Core Data, URLSession, XCTest, CocoaPods, Git.
+Some experience with Fastlane for test builds.
+
+EDUCATION
+B.Sc. Computer Science, TU Berlin (2022)

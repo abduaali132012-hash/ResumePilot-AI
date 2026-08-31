@@ -1,0 +1,15 @@
+{
+  "_comment": "Human-labelled ground truth for case_05_devops_engineer. Traps: AWS only listed in skills with no concrete EC2/IAM evidence, Kubernetes only 'one service', CI/CD is GitLab not GitHub Actions (still counts), observability only 'familiar'.",
+  "case": "case_05_devops_engineer",
+  "expected": [
+    {"requirement": "AWS", "status": "PARTIALLY_SUPPORTED", "evidence": "Managed cloud infrastructure for a multi-tenant SaaS product."},
+    {"requirement": "Terraform", "status": "SUPPORTED", "evidence": "Automated infrastructure provisioning with Terraform."},
+    {"requirement": "Kubernetes", "status": "PARTIALLY_SUPPORTED", "evidence": "Worked with a managed Kubernetes service for one service."},
+    {"requirement": "CI/CD pipelines", "status": "SUPPORTED", "evidence": "Built and maintained CI/CD pipelines in GitLab CI."},
+    {"requirement": "Linux administration", "status": "SUPPORTED", "evidence": "Handled Linux server administration and SSH access."},
+    {"requirement": "shell scripting", "status": "SUPPORTED", "evidence": "Wrote Bash and Python scripts to automate deployment tasks."},
+    {"requirement": "observability", "status": "PARTIALLY_SUPPORTED", "evidence": "Familiar with Prometheus and basic monitoring dashboards."},
+    {"requirement": "GCP or Azure", "status": "NOT_FOUND", "evidence": ""},
+    {"requirement": "security / compliance", "status": "NOT_FOUND", "evidence": ""}
+  ]
+}

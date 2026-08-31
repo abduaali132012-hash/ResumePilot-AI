@@ -1,0 +1,14 @@
+Full-Stack Engineer
+
+We are hiring a Full-Stack Engineer to build customer-facing web products end to end.
+
+Requirements:
+- 3+ years of experience with React and TypeScript.
+- Strong experience with Node.js backends (Express or NestJS).
+- Experience with relational databases (PostgreSQL or MySQL).
+- Proficiency building and consuming REST APIs.
+- Experience writing automated tests (unit and integration).
+- Solid understanding of authentication and security best practices.
+- Experience deploying web applications.
+- Nice to have: experience with GraphQL.
+- Nice to have: experience with Docker.
