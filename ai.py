@@ -4,8 +4,8 @@ Handles all AI-powered resume analysis, score calculations, and recommendations.
 """
 
 import re
-from typing import Dict, List, Tuple, Any
-from collections import Counter
+from typing import Dict, List, Any
+
 
 
 def extract_key_skills(text: str) -> List[str]:
@@ -48,8 +48,8 @@ def calculate_ats_score(resume_text: str, job_description: str) -> Dict[str, Any
     Returns:
         Dictionary with score metrics
     """
-    resume_skills = set(extract_key_skills(resume_text).lower() for word in extract_key_skills(resume_text))
-    job_skills = set(extract_key_skills(job_description).lower() for word in extract_key_skills(job_description))
+    resume_skills = set(skill.lower() for skill in extract_key_skills(resume_text))
+    job_skills = set(skill.lower() for skill in extract_key_skills(job_description))
     
     # Calculate match percentage
     if not job_skills:
