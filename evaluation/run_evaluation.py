@@ -183,18 +183,28 @@ def main() -> int:
         action="store_true",
         help="Use only the deterministic evaluator (no API key needed).",
     )
+    parser.add_argument(
+        "--mode",
+        choices=("mock",),
+        help="Alias for --heuristic, kept for the submission smoke-test command.",
+    )
     args = parser.parse_args()
 
     cases = sorted(
-        [d for d in CASES_DIR.iterdir() if d.is_dir() and not d.name.startswith(".")]
+        [
+            d
+            for d in CASES_DIR.iterdir()
+            if d.is_dir() and not d.name.startswith(".") and d.name.count("_") >= 2
+        ]
     )
     if not cases:
         print("No cases found under evaluation/cases/. Add case folders first.")
         return 1
 
     client = GeminiClient()
-    use_agent = client.available and not args.heuristic
-    if args.heuristic:
+    use_heuristic = args.heuristic or args.mode == "mock"
+    use_agent = client.available and not use_heuristic
+    if use_heuristic:
         print("Running in --heuristic mode (deterministic evaluator only).")
     elif not client.available:
         print(
