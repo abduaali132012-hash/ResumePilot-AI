@@ -9,10 +9,10 @@ _Branch: `speccheck` · Target: ResumePilot AI v1.0 · Requirements source: `spe
 
 The SpecCheck pipeline processed 18 requirements across 13 requirement IDs (REQ-01–REQ-13, with REQ-05 split into four sub-requirements).
 Before SpecCheck ran, only 1 requirement (REQ-11) was covered by any passing test, yielding a coverage score of **5.6 %**.
-The Test Writer (Step 4) added 62 tests across `tests/speccheck/test_requirements.py`; when run via `python -m pytest tests/speccheck -v` those tests produce 53 **PASS** and 9 **XFAIL** results (0 failures, 0 errors).
-The 9 XFAIL results each represent a confirmed defect: the test asserts the PRD-required behaviour, the application violates it, and `strict=True` ensures any accidental fix is surfaced immediately as an ERROR rather than silently passing.
-Per the project rule that requirements with xfail defect tests count as **DEFECT** (not "Implemented AND Tested"), 10 requirements are now fully covered, raising the after-SpecCheck coverage score to **55.6 %** — an improvement of **50.0 percentage points**.
-Seven requirements remain defective (REQ-04, REQ-05a–d, REQ-07, REQ-12), one is missing entirely (REQ-13), and one roadmap item (REQ-12) is also partially implemented with a design mismatch; REQ-07 is counted as DEFECT because the evaluation harness rewrites its own ground-truth files on every run (DEFECT-07-gt, see §4), so the reproducibility acceptance criterion cannot be independently verified.
+The Test Writer (Step 4) added 62 tests across `tests/speccheck/test_requirements.py`; when run via `python -m pytest tests/speccheck -v` those tests produce 50 **PASS**, 6 **SKIP**, and 12 **XFAIL** results (0 failures, 0 errors).
+The 12 XFAIL results each represent a confirmed defect: the test asserts the PRD-required behaviour, the application violates it, and `strict=True` ensures any accidental fix is surfaced immediately as an ERROR rather than silently passing.
+Per the project rule that requirements with xfail defect tests count as **DEFECT** (not "Implemented AND Tested"), 7 requirements are now fully covered, raising the after-SpecCheck coverage score to **38.9 %** — an improvement of **33.3 percentage points**.
+Ten requirements remain defective (REQ-04, REQ-05a–d, REQ-07, REQ-08a, REQ-08b, REQ-08c, REQ-12), one is missing entirely (REQ-13), and one roadmap item (REQ-12) is also partially implemented with a design mismatch; REQ-07 is counted as DEFECT because the evaluation harness rewrites its own ground-truth files on every run (DEFECT-07-gt, see §4), so the reproducibility acceptance criterion cannot be independently verified; REQ-08a, REQ-08b, and REQ-08c are counted as DEFECT because on a clean checkout the evaluation harness crashes with `KeyError: 'expected'` on the committed ground-truth files, so the acceptance criterion (output files written) can never be met (DEFECT-08, see §4).
 
 ---
 
@@ -37,9 +37,9 @@ Seven requirements remain defective (REQ-04, REQ-05a–d, REQ-07, REQ-12), one i
 | REQ-05d | Absent technology is never SUPPORTED | [`ai/agents/verifier.py:69–71`](../../ai/agents/verifier.py), [`ai/prompts/templates.py:65–70`](../../ai/prompts/templates.py) | **XFAIL** `TestReq05d::test_req_05d_heuristic_absent_technology_not_supported` · PASS `test_req_05d_heuristic_absent_term_is_not_found` · PASS `test_req_05d_verifier_unknown_status_coerced_not_inflated` · PASS `test_req_05d_verifier_missing_requirement_gets_not_verified_not_supported` | **DEFECT** |
 | REQ-06 | App falls back to deterministic evaluator when no API key | [`ai/pipeline.py:183–192`](../../ai/pipeline.py), [`ai/inference/__init__.py:86–97`](../../ai/inference/__init__.py), [`pages/7_📋_Candidate_Evaluation.py:206–209`](../../pages/7_📋_Candidate_Evaluation.py) | `TestReq06::test_req_06_no_api_key_gemini_client_not_available` · `test_req_06_auto_evaluate_falls_back_without_key` · `test_req_06_heuristic_evaluate_returns_structured_result` · `test_req_06_heuristic_mode_field_is_set` · `test_req_06_fallback_produces_valid_verdicts` · `test_req_06_auto_evaluate_without_key_uses_heuristic_mode` | **PASS** |
 | REQ-07 | `--heuristic` run is byte-identical across PYTHONHASHSEED values | [`ai/pipeline.py:128–133`](../../ai/pipeline.py), [`evaluation/run_evaluation.py:188–189`](../../evaluation/run_evaluation.py) | `TestReq07::test_req_07_identical_output_seed_0_vs_seed_12345` · `test_req_07_identical_output_seed_1_vs_seed_99999` | **DEFECT** _(DEFECT-07-gt: harness rewrites ground-truth files; reproducibility cannot be independently verified — see §4)_ |
-| REQ-08a | Harness writes `evaluation/baseline_results.json` | [`evaluation/run_evaluation.py:237–240`](../../evaluation/run_evaluation.py) | `TestReq08a::test_req_08a_harness_writes_baseline_results_json` · `test_req_08a_baseline_results_is_valid_json` · `test_req_08a_baseline_results_contains_case_entries` | **PASS** |
-| REQ-08b | Harness writes `evaluation/agent_results.json` | [`evaluation/run_evaluation.py:241–244`](../../evaluation/run_evaluation.py) | `TestReq08b::test_req_08b_harness_writes_agent_results_json` · `test_req_08b_agent_results_is_valid_json` · `test_req_08b_agent_results_contains_case_entries` | **PASS** |
-| REQ-08c | Harness writes `evaluation/comparison.md` | [`evaluation/run_evaluation.py:245–250`](../../evaluation/run_evaluation.py) | `TestReq08c::test_req_08c_harness_writes_comparison_md` · `test_req_08c_comparison_md_is_markdown_table` | **PASS** |
+| REQ-08a | Harness writes `evaluation/baseline_results.json` | [`evaluation/run_evaluation.py:237–240`](../../evaluation/run_evaluation.py) | **XFAIL** `TestReq08a::test_req_08a_harness_writes_baseline_results_json` · SKIP `test_req_08a_baseline_results_is_valid_json` · SKIP `test_req_08a_baseline_results_contains_case_entries` | **DEFECT** _(DEFECT-08: harness crashes with `KeyError: 'expected'` on committed ground-truth files — see §4)_ |
+| REQ-08b | Harness writes `evaluation/agent_results.json` | [`evaluation/run_evaluation.py:241–244`](../../evaluation/run_evaluation.py) | **XFAIL** `TestReq08b::test_req_08b_harness_writes_agent_results_json` · SKIP `test_req_08b_agent_results_is_valid_json` · SKIP `test_req_08b_agent_results_contains_case_entries` | **DEFECT** _(DEFECT-08: same root cause as REQ-08a — see §4)_ |
+| REQ-08c | Harness writes `evaluation/comparison.md` | [`evaluation/run_evaluation.py:245–250`](../../evaluation/run_evaluation.py) | **XFAIL** `TestReq08c::test_req_08c_harness_writes_comparison_md` · SKIP `test_req_08c_comparison_md_is_markdown_table` | **DEFECT** _(DEFECT-08: same root cause as REQ-08a — see §4)_ |
 | REQ-09 | Human review dashboard: Confirm / Reject / Needs-review | [`pages/7_📋_Candidate_Evaluation.py:100–122`](../../pages/7_📋_Candidate_Evaluation.py), [`ai/models/schemas.py:17–18`](../../ai/models/schemas.py) | `TestReq09::test_req_09_review_decision_type_has_all_three_values` · `test_req_09_verdict_review_defaults_to_none` · `test_req_09_review_survives_serialisation` · `test_req_09_review_persisted_on_evaluation_object` · `test_req_09_review_decision_schema_in_schemas_module` | **PASS** |
 | REQ-10 | JSON export contains requirement, verdict, and reviewer decision | [`pages/7_📋_Candidate_Evaluation.py:140–149`](../../pages/7_📋_Candidate_Evaluation.py), [`ai/models/schemas.py:99–122`](../../ai/models/schemas.py) | `TestReq10::test_req_10_to_dict_includes_requirement_field` · `test_req_10_to_dict_includes_status_field` · `test_req_10_to_dict_includes_review_field` · `test_req_10_review_value_preserved_in_export` · `test_req_10_review_none_when_no_decision_made` · `test_req_10_full_export_structure` | **PASS** |
 | REQ-11 | Original `app.py` remains runnable | [`app.py:1–973`](../../app.py) | [`test_app.py`](../../test_app.py) (import-level smoke — pre-existing) | **PASS (PRE-EXISTING)** |
@@ -72,22 +72,23 @@ Requirements with at least one `xfail(strict=True)` test are classified **DEFECT
 |--------|-------|
 | Total requirements | 18 |
 | Total tests | 62 |
-| PASS | 53 |
-| XFAIL (confirmed defects) | 9 |
+| PASS | 50 |
+| SKIP (output absent due to harness defect) | 6 |
+| XFAIL (confirmed defects) | 12 |
 | XPASS / ERROR | 0 |
-| Requirements with all-PASS tests (Implemented AND Tested) | 10 |
-| Requirements with ≥1 XFAIL test (DEFECT) | 7 (REQ-04, REQ-05a, REQ-05b, REQ-05c, REQ-05d, REQ-07, REQ-12) |
+| Requirements with all-PASS tests (Implemented AND Tested) | 7 |
+| Requirements with ≥1 XFAIL test (DEFECT) | 10 (REQ-04, REQ-05a, REQ-05b, REQ-05c, REQ-05d, REQ-07, REQ-08a, REQ-08b, REQ-08c, REQ-12) |
 | MISSING (no code) | 1 (REQ-13) |
-| **AFTER coverage score** | **55.6 %** |
+| **AFTER coverage score** | **38.9 %** |
 
 ```
-Coverage = 10 / 18 × 100 = 55.6%
+Coverage = 7 / 18 × 100 = 38.9%
 ```
 
-The 10 requirements counted as Implemented AND Tested after SpecCheck:
-REQ-01, REQ-02, REQ-03, REQ-06, REQ-08a, REQ-08b, REQ-08c, REQ-09, REQ-10, REQ-11.
+The 7 requirements counted as Implemented AND Tested after SpecCheck:
+REQ-01, REQ-02, REQ-03, REQ-06, REQ-09, REQ-10, REQ-11.
 
-**Coverage improvement: +50.0 percentage points (5.6 % → 55.6 %)**
+**Coverage improvement: +33.3 percentage points (5.6 % → 38.9 %)**
 
 ---
 
@@ -107,10 +108,11 @@ REQ-01, REQ-02, REQ-03, REQ-06, REQ-08a, REQ-08b, REQ-08c, REQ-09, REQ-10, REQ-1
 | DEFECT-05d | REQ-05d | High | Same root cause as DEFECT-05b-h: single-technology JDs of the form `"Requires Kubernetes."` may yield only `"requires"` in the extracted requirements list, so absent-technology look-ups never find the correct requirement | [`ai/pipeline.py:87–103`](../../ai/pipeline.py) |
 | DEFECT-12 | REQ-12 | Medium | Recruiter Dashboard sorts candidates by an LLM-generated 0–100 score, not by verified-requirement coverage as the acceptance criterion specifies | [`pages/5_📊_Recruiter_Dashboard.py:113`](../../pages/5_📊_Recruiter_Dashboard.py) |
 
-### Newly observed defect (not yet covered by an xfail test)
+### Newly observed defects (confirmed by XFAIL tests or direct observation)
 
 | ID | Req | Severity | Description | Observed Evidence |
 |----|-----|----------|-------------|-------------------|
+| DEFECT-08 | REQ-08a / REQ-08b / REQ-08c | Critical | On a clean checkout, `evaluation/cases/case_01`–`case_10/expected_evidence.json` use `"requirements"` as the top-level JSON key; the harness reads `json.load(...)["expected"]` → `KeyError: 'expected'` → process exits with code 1; `baseline_results.json`, `agent_results.json`, and `comparison.md` are never written. Confirmed by XFAIL tests `test_req_08a_harness_writes_baseline_results_json`, `test_req_08b_harness_writes_agent_results_json`, `test_req_08c_harness_writes_comparison_md`. | `evaluation/run_evaluation.py:213` / `evaluation/cases/case_*/expected_evidence.json` |
 | DEFECT-07-gt | REQ-07 | Critical | Running `python evaluation/run_evaluation.py --heuristic` modifies the tracked ground-truth files `evaluation/cases/*/expected_evidence.json`. **Observed: 13 files changed, +2244/−242 lines** after a single run. Because the labelled evaluation data is overwritten on every harness execution, the baseline is not stable across runs, the acceptance criterion of byte-identical results cannot be independently verified, and any comparison of successive runs is meaningless. This also means the ground-truth corpus committed to the repository cannot be trusted as a stable reference. | Directly observed: 13 `evaluation/cases/*/expected_evidence.json` files changed with +2244/−242 line delta after one `--heuristic` run |
 
 ### Missing features
@@ -124,7 +126,7 @@ REQ-01, REQ-02, REQ-03, REQ-06, REQ-08a, REQ-08b, REQ-08c, REQ-09, REQ-10, REQ-1
 | # | Test | Root Cause |
 |---|------|-----------|
 | F1 | `TestReq06::test_req_06_no_api_key_gemini_client_not_available` | `_secrets_file_key` patch did not prevent `st.secrets` from providing the key on developer machines with a local `.streamlit/secrets.toml`; fixed by patching `ai.inference.get_api_key` directly |
-| F2–F4 | `TestReq08a/b/c` (harness subprocess tests) | 10 case fixture files used `"requirements"` as the top-level JSON key; harness reads `["expected"]` → `KeyError` and exit code 1; all 10 fixture files updated to `"expected"` with uppercase status strings |
+| F2–F4 | `TestReq08a/b/c` (harness subprocess tests) | Initially treated as a test bug and "fixed" by updating fixture files; reclassified as **REAL DEFECT** (DEFECT-08) because on a clean checkout `evaluation/cases/case_01..case_10` still use `"requirements"` as the top-level key; `evaluation/` is frozen; tests now marked `@pytest.mark.xfail(strict=True)` to confirm the defect |
 | F5 | `TestReq08a/b/c` (Windows subprocess) | Subprocess launched without `PYTHONUTF8=1` / `PYTHONIOENCODING=utf-8`; harness crashed on non-ASCII characters; both env vars added to all three harness-writing tests |
 
 ---
@@ -144,10 +146,10 @@ REQ-01, REQ-02, REQ-03, REQ-06, REQ-08a, REQ-08b, REQ-08c, REQ-09, REQ-10, REQ-1
 | SpecCheck automated run (pytest collection + 62 tests incl. subprocess calls) | **~90–120 seconds** (estimated from subprocess-heavy test suite on a typical CI runner; no live timer attached) |
 | Full SpecCheck pipeline end-to-end (Steps 1–5, agent-assisted) | **~20–30 minutes** elapsed session time |
 
-**Key observation:** The automated test suite surfaces the same 9 defects and 50.0-point coverage gap that a manual review would have found, but does so in approximately 2 minutes of machine time versus an estimated 10–15 hours of human analyst time — roughly a **15–30× reduction** in calendar effort for the verification step alone.
+**Key observation:** The automated test suite surfaces the same 12 defects and 33.3-point coverage gap that a manual review would have found, but does so in approximately 2 minutes of machine time versus an estimated 10–15 hours of human analyst time — roughly a **15–30× reduction** in calendar effort for the verification step alone.
 
 ---
 
 _Report generated by SpecCheck Step 5 (Trace Reporter) on branch `speccheck`._
 _Test command: `python -m pytest tests/speccheck -v`_
-_Results: 53 passed, 9 xfailed — 0 errors, 0 failures._
+_Results: 50 passed, 6 skipped, 12 xfailed — 0 errors, 0 failures._

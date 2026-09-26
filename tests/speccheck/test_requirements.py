@@ -706,6 +706,14 @@ print(json.dumps(output))
 class TestReq08a:
     """REQ-08a: run_evaluation.py must write evaluation/baseline_results.json."""
 
+    @pytest.mark.xfail(
+        strict=True,
+        reason=(
+            "REQ-08 defect: harness crashes with KeyError 'expected' on the committed "
+            "ground-truth files (case_01..case_10 use key 'requirements', not 'expected') "
+            "on a clean checkout"
+        ),
+    )
     def test_req_08a_harness_writes_baseline_results_json(self, tmp_path):
         """Run the harness with --heuristic and check baseline_results.json is written."""
         result = subprocess.run(
@@ -749,6 +757,14 @@ class TestReq08a:
 class TestReq08b:
     """REQ-08b: run_evaluation.py must write evaluation/agent_results.json."""
 
+    @pytest.mark.xfail(
+        strict=True,
+        reason=(
+            "REQ-08 defect: harness crashes with KeyError 'expected' on the committed "
+            "ground-truth files (case_01..case_10 use key 'requirements', not 'expected') "
+            "on a clean checkout"
+        ),
+    )
     def test_req_08b_harness_writes_agent_results_json(self):
         """Run the harness with --heuristic and check agent_results.json is written."""
         result = subprocess.run(
@@ -792,6 +808,14 @@ class TestReq08b:
 class TestReq08c:
     """REQ-08c: run_evaluation.py must write evaluation/comparison.md."""
 
+    @pytest.mark.xfail(
+        strict=True,
+        reason=(
+            "REQ-08 defect: harness crashes with KeyError 'expected' on the committed "
+            "ground-truth files (case_01..case_10 use key 'requirements', not 'expected') "
+            "on a clean checkout"
+        ),
+    )
     def test_req_08c_harness_writes_comparison_md(self):
         """Run the harness with --heuristic and check comparison.md is written."""
         result = subprocess.run(

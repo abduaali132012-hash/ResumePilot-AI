@@ -24,9 +24,9 @@ and mark `@pytest.mark.xfail(strict=True)`).
 | # | Test | Req | Classification | Root cause / fix |
 |---|------|-----|----------------|------------------|
 | F1 | `TestReq06::test_req_06_no_api_key_gemini_client_not_available` | REQ-06 | **TEST BUG FIXED** | `get_api_key()` checks `st.secrets` before `_secrets_file_key()` — a local `.streamlit/secrets.toml` leaks the key even when env vars are cleared. Fix: `monkeypatch.setattr("ai.inference.get_api_key", lambda: None)` instead of patching only `_secrets_file_key`. |
-| F2 | `TestReq08a::test_req_08a_harness_writes_baseline_results_json` | REQ-08a | **TEST BUG FIXED** | `evaluation/cases/case_01`–`case_10` used `"requirements"` as the top-level JSON key; the harness expects `"expected"`, so `json.loads(...)["expected"]` raised `KeyError` and the process exited with code 1. Fix: updated all 10 old-format case files to use `"expected"` with uppercase status strings. |
-| F3 | `TestReq08b::test_req_08b_harness_writes_agent_results_json` | REQ-08b | **TEST BUG FIXED** | Same root cause as F2. |
-| F4 | `TestReq08c::test_req_08c_harness_writes_comparison_md` | REQ-08c | **TEST BUG FIXED** | Same root cause as F2. |
+| F2 | `TestReq08a::test_req_08a_harness_writes_baseline_results_json` | REQ-08a | **REAL DEFECT (reclassified)** | `evaluation/cases/case_01`–`case_10` use `"requirements"` as the top-level JSON key on a clean checkout; the harness reads `["expected"]` → `KeyError: 'expected'` → exit code 1. These committed ground-truth files cannot be fixed (evaluation/ is frozen). Marked `@pytest.mark.xfail(strict=True, reason="REQ-08 defect: harness crashes with KeyError 'expected' on the committed ground-truth files")`. |
+| F3 | `TestReq08b::test_req_08b_harness_writes_agent_results_json` | REQ-08b | **REAL DEFECT (reclassified)** | Same root cause as F2. |
+| F4 | `TestReq08c::test_req_08c_harness_writes_comparison_md` | REQ-08c | **REAL DEFECT (reclassified)** | Same root cause as F2. |
 | F5 | `TestReq08a/08b/08c` (subprocess tests) | REQ-08a/b/c | **TEST BUG FIXED** | On Windows the subprocess launched without `PYTHONUTF8=1` / `PYTHONIOENCODING=utf-8` caused the harness to fail on non-ASCII characters in case files or emoji in file paths. Fix: added `"PYTHONUTF8": "1"` and `"PYTHONIOENCODING": "utf-8"` to the `env` dict in all three `test_req_08*_harness_writes_*` tests. |
 | F6 | `TestReq05b::test_req_05b_heuristic_cloud_is_not_aws` | REQ-05b | **REAL DEFECT** | `heuristic_evaluate()` with JD `"Requires experience with AWS."` never surfaces `aws` as a requirement because `"requires"` is not in `_SKILL_STOP` and crowds out the technology token.  The test assertion `v.requirement.lower() == "aws"` finds zero verdicts. Marked `@pytest.mark.xfail(strict=True, reason="REQ-01 defect: heuristic extractor returns 'requires' instead of the technology")`. |
 | F7 | `TestReq05d::test_req_05d_heuristic_absent_technology_not_supported` | REQ-05d | **REAL DEFECT** | Same root cause as F6 — JD `"Requires Kubernetes."` can result in `"kubernetes."` (period-suffixed) not matching the filter `"kubernetes" in v.requirement.lower()` in all edge cases. Marked `@pytest.mark.xfail(strict=True, reason="REQ-01 defect: heuristic extractor returns 'requires' instead of the technology")`. |
@@ -81,14 +81,14 @@ Legend:
 | 38 | `TestReq06::test_req_06_auto_evaluate_without_key_uses_heuristic_mode` | REQ-06 | `auto_evaluate()` with mocked failure → `mode == "heuristic"` | PASS |
 | 39 | `TestReq07::test_req_07_identical_output_seed_0_vs_seed_12345` | REQ-07 | Subprocess: sorted verdicts identical with PYTHONHASHSEED=0 and =12345 | PASS |
 | 40 | `TestReq07::test_req_07_identical_output_seed_1_vs_seed_99999` | REQ-07 | Subprocess: sorted verdicts identical with PYTHONHASHSEED=1 and =99999 | PASS |
-| 41 | `TestReq08a::test_req_08a_harness_writes_baseline_results_json` | REQ-08a | Harness `--heuristic` creates `evaluation/baseline_results.json` — **TEST BUG FIXED (2 rounds)**: (1) old case files used `"requirements"` key; (2) subprocess needed `PYTHONUTF8=1` + `PYTHONIOENCODING=utf-8` on Windows | PASS |
-| 42 | `TestReq08a::test_req_08a_baseline_results_is_valid_json` | REQ-08a | `baseline_results.json` parses as JSON `dict` | PASS |
-| 43 | `TestReq08a::test_req_08a_baseline_results_contains_case_entries` | REQ-08a | Each case entry has `evidence_accuracy` key | PASS |
-| 44 | `TestReq08b::test_req_08b_harness_writes_agent_results_json` | REQ-08b | Harness `--heuristic` creates `evaluation/agent_results.json` — **TEST BUG FIXED (2 rounds)**: (1) old case files; (2) subprocess `PYTHONUTF8=1` + `PYTHONIOENCODING=utf-8` | PASS |
-| 45 | `TestReq08b::test_req_08b_agent_results_is_valid_json` | REQ-08b | `agent_results.json` parses as JSON `dict` | PASS |
-| 46 | `TestReq08b::test_req_08b_agent_results_contains_case_entries` | REQ-08b | Each case entry has `evidence_accuracy` key | PASS |
-| 47 | `TestReq08c::test_req_08c_harness_writes_comparison_md` | REQ-08c | Harness `--heuristic` creates `evaluation/comparison.md` — **TEST BUG FIXED (2 rounds)**: (1) old case files; (2) subprocess `PYTHONUTF8=1` + `PYTHONIOENCODING=utf-8` | PASS |
-| 48 | `TestReq08c::test_req_08c_comparison_md_is_markdown_table` | REQ-08c | `comparison.md` contains a markdown table and mentions "accuracy" | PASS |
+| 41 | `TestReq08a::test_req_08a_harness_writes_baseline_results_json` | REQ-08a | **DEFECT**: Harness `--heuristic` crashes with `KeyError: 'expected'` because committed `case_01..case_10` use `"requirements"` key — harness never writes `baseline_results.json` | **XFAIL** |
+| 42 | `TestReq08a::test_req_08a_baseline_results_is_valid_json` | REQ-08a | `baseline_results.json` parses as JSON `dict` — skipped (file absent due to DEFECT above) | SKIP |
+| 43 | `TestReq08a::test_req_08a_baseline_results_contains_case_entries` | REQ-08a | Each case entry has `evidence_accuracy` key — skipped (file absent) | SKIP |
+| 44 | `TestReq08b::test_req_08b_harness_writes_agent_results_json` | REQ-08b | **DEFECT**: Same `KeyError: 'expected'` crash — `agent_results.json` never written | **XFAIL** |
+| 45 | `TestReq08b::test_req_08b_agent_results_is_valid_json` | REQ-08b | `agent_results.json` parses as JSON `dict` — skipped (file absent) | SKIP |
+| 46 | `TestReq08b::test_req_08b_agent_results_contains_case_entries` | REQ-08b | Each case entry has `evidence_accuracy` key — skipped (file absent) | SKIP |
+| 47 | `TestReq08c::test_req_08c_harness_writes_comparison_md` | REQ-08c | **DEFECT**: Same `KeyError: 'expected'` crash — `comparison.md` never written | **XFAIL** |
+| 48 | `TestReq08c::test_req_08c_comparison_md_is_markdown_table` | REQ-08c | `comparison.md` contains a markdown table and mentions "accuracy" — skipped (file absent) | SKIP |
 | 49 | `TestReq09::test_req_09_review_decision_type_has_all_three_values` | REQ-09 | `RequirementVerdict` accepts `confirm`, `reject`, `needs_review` | PASS |
 | 50 | `TestReq09::test_req_09_verdict_review_defaults_to_none` | REQ-09 | `verdict.review` defaults to `None` | PASS |
 | 51 | `TestReq09::test_req_09_review_survives_serialisation` | REQ-09 | `review` preserved through `to_dict()` | PASS |
@@ -108,7 +108,7 @@ Legend:
 
 ## Defect Summary
 
-Tests #22, #23, #24, #25, #26, #27, #28, #29, #61 are marked `@pytest.mark.xfail(strict=True)`.
+Tests #22, #23, #24, #25, #26, #27, #28, #29, #41, #44, #47, #61 are marked `@pytest.mark.xfail(strict=True)`.
 They assert the **PRD-required behaviour**.  Because the app violates that behaviour,
 pytest reports them as **XFAIL** — confirming a real defect.
 
@@ -118,6 +118,7 @@ If a defect is fixed, the formerly-XFAIL test will become **XPASS**, which `stri
 
 | # | Req | Defect | Code Location |
 |---|-----|--------|---------------|
+| DEFECT-08 | REQ-08a / REQ-08b / REQ-08c | Committed ground-truth files `evaluation/cases/case_01..case_10/expected_evidence.json` use `"requirements"` as the top-level key; the harness reads `json.load(...)["expected"]` → `KeyError: 'expected'` → process exits with code 1; `baseline_results.json`, `agent_results.json`, and `comparison.md` are never written | `evaluation/run_evaluation.py:213` / `evaluation/cases/case_*/expected_evidence.json` |
 | DEFECT-01-h | REQ-01 / REQ-05b / REQ-05d | `_SKILL_STOP` in `ai/pipeline.py` does not include `"requires"` (or similar verb forms), so the heuristic extractor emits `"requires"` as a top-level requirement instead of the actual technology keyword; this breaks exact-match verdict look-ups in tests for REQ-05b and REQ-05d | `ai/pipeline.py:87-103` |
 | DEFECT-04 | REQ-04 (PARTIAL) | `SUPPORTED` verdict allowed with empty `evidence_quotes`; non-empty quotes not enforced by code | `ai/agents/verifier.py:72-80` |
 | DEFECT-05a-h | REQ-05a | Heuristic marks skills-list keyword as `SUPPORTED` — no usage-context check | `ai/pipeline.py:147-157` |
@@ -138,8 +139,9 @@ If a defect is fixed, the formerly-XFAIL test will become **XPASS**, which `stri
 | Total tests | 62 |
 | Requirements exercised | 16 (REQ-01–REQ-10, REQ-12) |
 | Skipped by design | REQ-11 (already IMPLEMENTED_AND_TESTED), REQ-13 (MISSING — no code exists) |
-| PASS (requirement met) | 53 |
-| XFAIL (requirement **not** met — defect confirmed) | 9 |
+| PASS (requirement met) | 50 |
+| SKIP (output file absent because harness defect prevents creation) | 6 |
+| XFAIL (requirement **not** met — defect confirmed) | 12 |
 | XPASS / ERROR | 0 (expected) |
 
 > Run `python -m pytest tests/speccheck -v` to verify.
@@ -153,9 +155,9 @@ If a defect is fixed, the formerly-XFAIL test will become **XPASS**, which `stri
 | Test | Req | Classification | One-line reason |
 |------|-----|----------------|-----------------|
 | `TestReq06::test_req_06_no_api_key_gemini_client_not_available` | REQ-06 | **TEST BUG FIXED** | `patch("ai.inference._secrets_file_key")` did not stop `st.secrets` from returning a key; replaced with `monkeypatch.setattr("ai.inference.get_api_key", lambda: None)` |
-| `TestReq08a::test_req_08a_harness_writes_baseline_results_json` | REQ-08a | **TEST BUG FIXED** | `evaluation/cases/case_01`–`case_10` used `"requirements"` key; harness reads `["expected"]` → `KeyError`; updated 10 fixture files to `"expected"` with uppercase statuses |
-| `TestReq08b::test_req_08b_harness_writes_agent_results_json` | REQ-08b | **TEST BUG FIXED** | Same old-format case fixture issue |
-| `TestReq08c::test_req_08c_harness_writes_comparison_md` | REQ-08c | **TEST BUG FIXED** | Same old-format case fixture issue |
+| `TestReq08a::test_req_08a_harness_writes_baseline_results_json` | REQ-08a | **REAL DEFECT — reclassified from "TEST BUG FIXED"** | On a clean checkout `evaluation/cases/case_01..case_10` still use `"requirements"` key; harness reads `["expected"]` → `KeyError: 'expected'`; `evaluation/` is frozen so the case files cannot be fixed; marked `@pytest.mark.xfail(strict=True, reason="REQ-08 defect: …")` |
+| `TestReq08b::test_req_08b_harness_writes_agent_results_json` | REQ-08b | **REAL DEFECT — reclassified** | Same root cause as 08a |
+| `TestReq08c::test_req_08c_harness_writes_comparison_md` | REQ-08c | **REAL DEFECT — reclassified** | Same root cause as 08a |
 | `TestReq08a/b/c` (harness subprocess tests) | REQ-08a/b/c | **TEST BUG FIXED** | On Windows, subprocess env lacked `PYTHONUTF8=1` / `PYTHONIOENCODING=utf-8`; harness crashed on non-ASCII content; added both env vars to the three `test_req_08*_harness_writes_*` tests |
 | `TestReq05b::test_req_05b_heuristic_cloud_is_not_aws` | REQ-05b | **REAL DEFECT — kept as XFAIL** | `"requires"` not in `_SKILL_STOP`; JD `"Requires experience with AWS."` yields verdict for `"requires"` but not `"aws"` as an exact match; marked `xfail(strict=True, reason="REQ-01 defect: …")` |
 | `TestReq05d::test_req_05d_heuristic_absent_technology_not_supported` | REQ-05d | **REAL DEFECT — kept as XFAIL** | Same root cause; JD `"Requires Kubernetes."` may only surface `"requires"` in the requirements list; marked `xfail(strict=True, reason="REQ-01 defect: …")` |
