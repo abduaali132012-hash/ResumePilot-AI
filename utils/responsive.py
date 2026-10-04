@@ -67,30 +67,20 @@ class ResponsiveLayout:
         return ResponsiveLayout.get_device_type() == ResponsiveLayout.DESKTOP
     
     @staticmethod
-    def get_columns(num_cols: int = 2) -> tuple:
+    def get_columns(num_cols: int = 2) -> list:
         """
-        Return responsive column layout based on device type.
+        Return the requested number of Streamlit columns.
         
         Args:
-            num_cols: Desired number of columns on desktop
+            num_cols: Number of columns to create.
         
         Returns:
-            Tuple of streamlit columns
+            Streamlit columns. Streamlit handles narrow viewport layout in the browser.
         
         Example:
             col1, col2 = ResponsiveLayout.get_columns(2)
         """
-        device = ResponsiveLayout.get_device_type()
-        
-        if device == ResponsiveLayout.MOBILE:
-            # Mobile: always single column
-            return st.columns(1)
-        elif device == ResponsiveLayout.TABLET:
-            # Tablet: max 2 columns
-            return st.columns(min(num_cols, 2))
-        else:
-            # Desktop: use requested columns
-            return st.columns(num_cols)
+        return st.columns(num_cols)
     
     @staticmethod
     def get_chart_height() -> int:
