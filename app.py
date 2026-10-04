@@ -10,14 +10,18 @@ import json
 import hashlib
 from datetime import datetime
 from reportlab.pdfgen import canvas
+from utils.responsive import ResponsiveLayout
 
 # -----------------------------
 # PAGE CONFIG (MUST BE THE FIRST STREAMLIT COMMAND)
+# Device-aware configuration: sidebar collapses on mobile for better UX
 # -----------------------------
+device_type = ResponsiveLayout.get_device_type()
 st.set_page_config(
     page_title="ResumePilot AI",
     page_icon="🚀",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed" if device_type == ResponsiveLayout.MOBILE else "expanded"
 )
 
 # Banner rendered immediately AFTER page config
@@ -45,13 +49,25 @@ into a void.
 *exactly* what keywords you're missing, how your resume scores, and what to fix.
 """)
 
-col_step1, col_step2, col_step3 = st.columns(3)
-with col_step1:
-    st.info("**1️⃣ Upload** your resume\n(PDF, DOCX, or TXT)")
-with col_step2:
-    st.info("**2️⃣ Paste** the job description\nyou're targeting")
-with col_step3:
-    st.info("**3️⃣ Optimize** — get ATS score,\nkeyword gaps, rewrite & more")
+# Show mobile-optimized banner
+if ResponsiveLayout.is_mobile():
+    st.info("📱 **Optimized for Mobile**\n\nThis app works great on your phone! For complex analysis, a tablet or desktop provides the best experience.")
+
+# Responsive step indicators
+if ResponsiveLayout.is_mobile():
+    st.markdown("### Quick Setup:")
+    st.markdown("1️⃣ **Upload** your resume (PDF, DOCX, or TXT)")
+    st.markdown("2️⃣ **Paste** the job description you're targeting")
+    st.markdown("3️⃣ **Optimize** — get ATS score, keyword gaps, rewrite & more")
+else:
+    # Desktop/Tablet: show as columns
+    step_cols = ResponsiveLayout.get_columns(3)
+    with step_cols[0]:
+        st.info("**1️⃣ Upload** your resume\n(PDF, DOCX, or TXT)")
+    with step_cols[1]:
+        st.info("**2️⃣ Paste** the job description\nyou're targeting")
+    with step_cols[2]:
+        st.info("**3️⃣ Optimize** — get ATS score,\nkeyword gaps, rewrite & more")
 
 st.markdown("---")
 
@@ -193,28 +209,40 @@ if uploaded_file:
             resume_text += para.text + "\n"
 
 # -----------------------------
-# TWO-COLUMN DATA INPUTS
+# RESPONSIVE DATA INPUTS
+# Adapts layout based on device: single column on mobile, two columns on tablet/desktop
 # -----------------------------
 # If a version was just loaded from the History tab, it overrides whatever
 # was uploaded/typed, so the person sees their older draft restored.
 resume_default = st.session_state.pop("_reload_resume", None) or resume_text
 job1_default = st.session_state.pop("_reload_job1", "") or st.session_state.pop("jd_from_extension", "")
 
-col_res, col_jd = st.columns(2)
+# Get responsive text area height
+text_area_height = ResponsiveLayout.get_text_area_height()
 
-with col_res:
-    resume = st.text_area("Paste / Verify Your Resume Here", value=resume_default, height=400)
-
-with col_jd:
+if ResponsiveLayout.is_mobile():
+    # Mobile: stack vertically
+    st.markdown("### Your Resume")
+    resume = st.text_area("Paste / Verify Your Resume Here", value=resume_default, height=text_area_height)
+    
     st.markdown("### Target Job Descriptions")
     job1 = st.text_area("Primary Job Description (Used for Main Analysis)", value=job1_default, height=150)
     job2 = st.text_area("Comparison Job Description 2 (Optional)", height=120)
     job3 = st.text_area("Comparison Job Description 3 (Optional)", height=120)
+else:
+    # Desktop/Tablet: side-by-side columns
+    col_res, col_jd = st.columns(2)
+    
+    with col_res:
+        resume = st.text_area("Paste / Verify Your Resume Here", value=resume_default, height=text_area_height)
+    
+    with col_jd:
+        st.markdown("### Target Job Descriptions")
+        job1 = st.text_area("Primary Job Description (Used for Main Analysis)", value=job1_default, height=150)
+        job2 = st.text_area("Comparison Job Description 2 (Optional)", height=120)
+        job3 = st.text_area("Comparison Job Description 3 (Optional)", height=120)
 
-# -----------------------------
-# LINKEDIN PROFILE INPUT (manual paste — we never scrape LinkedIn, which
-# prohibits it in their Terms of Service)
-# -----------------------------
+# LinkedIn input (same for all devices)
 with st.expander("🔗 LinkedIn Profile Analyzer (optional)"):
     st.caption(
         "Copy your Headline, About section, and a couple of Experience "
@@ -258,24 +286,36 @@ auto_analyze = st.checkbox(
     ),
 )
 
-col_analyze, col_recommend, col_linkedin = st.columns(3)
-
-with col_analyze:
-    run_analysis_clicked = st.button("Analyze Resume", type="primary")
-
-with col_recommend:
-    run_recommendations = st.button("🧭 Find Matching Job Roles")
-
-with col_linkedin:
-    run_linkedin = st.button("🔗 Analyze LinkedIn Profile")
-
-col_career, col_salary = st.columns(2)
-
-with col_career:
-    run_career_gap = st.button("🎓 Career Gap Analyzer")
-
-with col_salary:
-    run_salary = st.button("💰 Salary Insights")
+# Responsive button layout
+if ResponsiveLayout.is_mobile():
+    # Mobile: stack buttons vertically for easier clicking
+    st.markdown("### Analysis Tools")
+    run_analysis_clicked = st.button("Analyze Resume", type="primary", use_container_width=True)
+    run_recommendations = st.button("🧭 Find Matching Job Roles", use_container_width=True)
+    run_linkedin = st.button("🔗 Analyze LinkedIn Profile", use_container_width=True)
+    run_career_gap = st.button("🎓 Career Gap Analyzer", use_container_width=True)
+    run_salary = st.button("💰 Salary Insights", use_container_width=True)
+else:
+    # Tablet/Desktop: organize in grid
+    st.markdown("### Analysis Tools")
+    col_analyze, col_recommend, col_linkedin = st.columns(3)
+    
+    with col_analyze:
+        run_analysis_clicked = st.button("Analyze Resume", type="primary", use_container_width=True)
+    
+    with col_recommend:
+        run_recommendations = st.button("🧭 Find Matching Job Roles", use_container_width=True)
+    
+    with col_linkedin:
+        run_linkedin = st.button("🔗 Analyze LinkedIn Profile", use_container_width=True)
+    
+    col_career, col_salary_btn = st.columns(2)
+    
+    with col_career:
+        run_career_gap = st.button("🎓 Career Gap Analyzer", use_container_width=True)
+    
+    with col_salary_btn:
+        run_salary = st.button("💰 Salary Insights", use_container_width=True)
 
 # Auto-trigger only when the resume/job1 content has actually changed since
 # the last successful run — prevents burning API quota on every unrelated

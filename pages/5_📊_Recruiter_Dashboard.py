@@ -7,8 +7,15 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 from google import genai
+from utils.responsive import ResponsiveLayout
 
-st.set_page_config(page_title="Recruiter Dashboard", page_icon="📊", layout="wide")
+device_type = ResponsiveLayout.get_device_type()
+st.set_page_config(
+    page_title="Recruiter Dashboard",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="collapsed" if device_type == ResponsiveLayout.MOBILE else "expanded"
+)
 
 MODEL = "gemini-2.5-flash"
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
