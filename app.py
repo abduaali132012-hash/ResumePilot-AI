@@ -59,7 +59,11 @@ st.markdown("---")
 # GEMINI CONFIG
 # -----------------------------
 try:
-    gemini_client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+    # Check both key names for compatibility (same as ai/inference/__init__.py)
+    api_key = st.secrets.get("GOOGLE_API_KEY") or st.secrets.get("GEMINI_API_KEY")
+    if not api_key:
+        raise KeyError("API key not found")
+    gemini_client = genai.Client(api_key=api_key)
     GEMINI_MODEL = "gemini-2.5-flash"
     gemini_enabled = True
 except KeyError:
@@ -68,7 +72,7 @@ except KeyError:
         "❌ **Gemini API key not found.**\n\n"
         "Add it in Streamlit Cloud → your app → Settings → Secrets "
         "(never in a file that gets committed to GitHub):\n"
-        '```\nGEMINI_API_KEY = "AIza..."\n```\n\n'
+        '```\nGOOGLE_API_KEY = "AIza..."\n```\n\n'
         "Get a free key at https://aistudio.google.com/apikey"
     )
 except Exception as e:
