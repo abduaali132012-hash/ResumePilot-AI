@@ -5,8 +5,47 @@ Provides device detection and responsive layout helpers for mobile, tablet, and 
 Streamlit automatically detects the device based on screen width and browser capabilities.
 """
 
-import streamlit as st
+from __future__ import annotations
+
 from typing import Literal
+
+try:
+    import streamlit as st
+except ModuleNotFoundError:  # pragma: no cover - test environment fallback
+    class _FallbackSessionState(dict):
+        def __getattr__(self, name):
+            return self.get(name)
+
+        def __setattr__(self, name, value):
+            self[name] = value
+
+    class _FallbackContainer:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def __getattr__(self, name):
+            return lambda *args, **kwargs: None
+
+    class _FallbackStreamlit:
+        session_state = _FallbackSessionState()
+        query_params = {}
+        secrets = {}
+
+        def __getattr__(self, name):
+            if name == "session_state":
+                return self.__class__.session_state
+            return lambda *args, **kwargs: None
+
+        def columns(self, num_cols):
+            return [_FallbackContainer() for _ in range(num_cols)]
+
+        def tabs(self, labels):
+            return [_FallbackContainer() for _ in labels]
+
+    st = _FallbackStreamlit()
 
 
 class ResponsiveLayout:

@@ -1,124 +1,95 @@
-import streamlit as st
-import pdfplumber
-from docx import Document
-from google import genai
-import pandas as pd
-import plotly.express as px
+try:
+    import streamlit as st
+except ModuleNotFoundError:  # pragma: no cover - enables unit tests without Streamlit
+    class _FallbackSessionState(dict):
+        def __getattr__(self, name):
+            return self.get(name)
+
+        def __setattr__(self, name, value):
+            self[name] = value
+
+    class _FallbackContainer:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+        def __getattr__(self, name):
+            return lambda *args, **kwargs: None
+
+    class _FallbackStreamlit:
+        session_state = _FallbackSessionState()
+        query_params = {}
+        secrets = {}
+
+        def __getattr__(self, name):
+            def _fallback(*args, **kwargs):
+                if name == "expander":
+                    return _FallbackContainer()
+                if name in {"text_area", "selectbox", "radio", "checkbox", "button", "file_uploader"}:
+                    if "value" in kwargs:
+                        return kwargs["value"]
+                    if "default" in kwargs:
+                        return kwargs["default"]
+                    return None
+                if "default" in kwargs:
+                    return kwargs["default"]
+                if "value" in kwargs:
+                    return kwargs["value"]
+                return None
+            return _fallback
+
+        def columns(self, num_cols):
+            return [_FallbackContainer() for _ in range(num_cols)]
+
+        def tabs(self, labels):
+            return [_FallbackContainer() for _ in labels]
+
+        def expander(self, *args, **kwargs):
+            return _FallbackContainer()
+
+    st = _FallbackStreamlit()
+
+try:
+    import pdfplumber
+except ModuleNotFoundError:  # pragma: no cover - optional for tests
+    pdfplumber = None
+
+try:
+    from docx import Document
+except ModuleNotFoundError:  # pragma: no cover - optional for tests
+    Document = None
+
+try:
+    from google import genai
+except ModuleNotFoundError:  # pragma: no cover - optional for tests
+    genai = None
+
+try:
+    import pandas as pd
+except ModuleNotFoundError:  # pragma: no cover - optional for tests
+    pd = None
+
+try:
+    import plotly.express as px
+except ModuleNotFoundError:  # pragma: no cover - optional for tests
+    px = None
+
 import tempfile
 import time
 import json
 import hashlib
 from datetime import datetime
-from reportlab.pdfgen import canvas
+
+try:
+    from reportlab.pdfgen import canvas
+except ModuleNotFoundError:  # pragma: no cover - optional for tests
+    canvas = None
+
 from utils.responsive import ResponsiveLayout
 
-# -----------------------------
-# PAGE CONFIG (MUST BE THE FIRST STREAMLIT COMMAND)
-# Device-aware configuration: sidebar collapses on mobile for better UX
-# -----------------------------
-device_type = ResponsiveLayout.get_device_type()
-st.set_page_config(
-    page_title="ResumePilot AI",
-    page_icon="🚀",
-    layout="wide",
-    initial_sidebar_state="collapsed" if device_type == ResponsiveLayout.MOBILE else "expanded"
-)
 
-# Banner rendered immediately AFTER page config
-st.markdown("""
-# 🚀 ResumePilot AI
-### Smart Resume Optimization Platform
----
-""")
-
-# -----------------------------
-# COMPELLING INTRO — THE "WHY" (Problem framing for judges/users)
-# -----------------------------
-st.markdown("""
-## 📉 75% of Qualified Applicants Are Rejected Before a Human Reads Their Resume
-
-**Applicant Tracking Systems (ATS)** silently filter resumes on keyword matches and
-formatting — and most job seekers never know *why* their application disappeared
-into a void.
-
-- 🏢 **99% of Fortune 500** companies use ATS software
-- 📄 **~75% of qualified resumes** are rejected before reaching a recruiter
-- 🎯 The average corporate job posting gets **250+ applications** — standing out is harder than ever
-
-🚀 **ResumePilot AI opens the black box** — paste any job description and see
-*exactly* what keywords you're missing, how your resume scores, and what to fix.
-""")
-
-# Show mobile-optimized banner
-if ResponsiveLayout.is_mobile():
-    st.info("📱 **Optimized for Mobile**\n\nThis app works great on your phone! For complex analysis, a tablet or desktop provides the best experience.")
-
-# Responsive step indicators
-if ResponsiveLayout.is_mobile():
-    st.markdown("### Quick Setup:")
-    st.markdown("1️⃣ **Upload** your resume (PDF, DOCX, or TXT)")
-    st.markdown("2️⃣ **Paste** the job description you're targeting")
-    st.markdown("3️⃣ **Optimize** — get ATS score, keyword gaps, rewrite & more")
-else:
-    # Desktop/Tablet: show as columns
-    step_cols = ResponsiveLayout.get_columns(3)
-    with step_cols[0]:
-        st.info("**1️⃣ Upload** your resume\n(PDF, DOCX, or TXT)")
-    with step_cols[1]:
-        st.info("**2️⃣ Paste** the job description\nyou're targeting")
-    with step_cols[2]:
-        st.info("**3️⃣ Optimize** — get ATS score,\nkeyword gaps, rewrite & more")
-
-st.markdown("---")
-
-# -----------------------------
-# GEMINI CONFIG
-# -----------------------------
-try:
-    # Check both key names for compatibility (same as ai/inference/__init__.py)
-    api_key = st.secrets.get("GOOGLE_API_KEY") or st.secrets.get("GEMINI_API_KEY")
-    if not api_key:
-        raise KeyError("API key not found")
-    gemini_client = genai.Client(api_key=api_key)
-    GEMINI_MODEL = "gemini-2.5-flash"
-    gemini_enabled = True
-except KeyError:
-    gemini_enabled = False
-    st.error(
-        "❌ **Gemini API key not found.**\n\n"
-        "Add it in Streamlit Cloud → your app → Settings → Secrets "
-        "(never in a file that gets committed to GitHub):\n"
-        '```\nGOOGLE_API_KEY = "AIza..."\n```\n\n'
-        "Get a free key at https://aistudio.google.com/apikey"
-    )
-except Exception as e:
-    gemini_enabled = False
-    error_msg = str(e)
-    if "API_KEY_INVALID" in error_msg or "unauthorized" in error_msg.lower():
-        st.error(
-            f"❌ **Your Gemini API key was rejected.**\n\n"
-            f"• It may have been revoked (e.g. after GitHub's secret scanning detected it).\n"
-            f"• Generate a **new** key at https://aistudio.google.com/apikey\n"
-            f"• Update it in Streamlit Cloud → Settings → Secrets (never in a committed file), then reboot the app.\n\n"
-            f"_(Error: {error_msg[:200]})_"
-        )
-    else:
-        st.error(f"❌ Gemini API error: {error_msg[:300]}")
-
-# -----------------------------
-# CHROME EXTENSION SUPPORT
-# When the user clicks the Chrome extension on a job posting, it opens
-# ResumePilot with ?jd=<encoded-job-description>.  We capture it here and
-# pin it into the session so the JD text area below picks it up.
-# -----------------------------
-jd_param = st.query_params.get("jd")
-if jd_param and "jd_pinned" not in st.session_state:
-    st.session_state["jd_pinned"] = True
-    st.session_state["jd_from_extension"] = jd_param
-
-# -----------------------------
-# HELPER CORE FUNCTIONS
-# -----------------------------
 def calculate_score(resume_text, jd, boost=0):
     """
     Returns an ATS match score from 0-100.
@@ -137,6 +108,7 @@ def calculate_score(resume_text, jd, boost=0):
         return 0
     return min(int((matched / required) * 100) + boost, 100)
 
+
 def generate_with_retry(prompt, max_attempts=3, delay_seconds=2):
     """
     Calls Gemini and retries a couple of times on transient failures
@@ -146,11 +118,15 @@ def generate_with_retry(prompt, max_attempts=3, delay_seconds=2):
     resets once a day, so retrying there would just burn through whatever
     quota is left even faster.
     """
+    if genai is None:
+        raise RuntimeError("google-genai is not installed")
+    if not hasattr(st, "secrets"):
+        raise RuntimeError("Streamlit is not available")
     last_error = None
     for attempt in range(1, max_attempts + 1):
         try:
-            response = gemini_client.models.generate_content(
-                model=GEMINI_MODEL, contents=prompt
+            response = genai.Client(api_key=st.secrets.get("GOOGLE_API_KEY") or st.secrets.get("GEMINI_API_KEY")).models.generate_content(
+                model="gemini-2.5-flash", contents=prompt
             )
             return response.text
         except Exception as e:
@@ -160,7 +136,7 @@ def generate_with_retry(prompt, max_attempts=3, delay_seconds=2):
                 "perday" in error_text.replace(" ", "").lower() or "quota exceeded" in error_text
             )
             if is_daily_quota_exhausted:
-                break  # no point retrying — won't recover until tomorrow
+                break
             if attempt < max_attempts:
                 time.sleep(delay_seconds)
     raise last_error
@@ -182,835 +158,915 @@ def extract_section(text, header, next_header=None):
         return "Section layout mismatched. Please try analyzing again."
 
 
-# -----------------------------
-# FILE UPLOAD SYSTEM
-# -----------------------------
-MAX_UPLOAD_MB = 5
-
-uploaded_file = st.file_uploader("Upload Resume", type=["txt", "pdf", "docx"])
-resume_text = ""
-
-if uploaded_file:
-    file_size_mb = uploaded_file.size / (1024 * 1024)
-    if file_size_mb > MAX_UPLOAD_MB:
-        st.error(f"File is {file_size_mb:.1f}MB. Please upload a resume under {MAX_UPLOAD_MB}MB.")
-        uploaded_file = None
-
-if uploaded_file:
-    if uploaded_file.name.endswith(".txt"):
-        resume_text = uploaded_file.read().decode("utf-8")
-    elif uploaded_file.name.endswith(".pdf"):
-        with pdfplumber.open(uploaded_file) as pdf:
-            for page in pdf.pages:
-                resume_text += page.extract_text() or ""
-    elif uploaded_file.name.endswith(".docx"):
-        doc = Document(uploaded_file)
-        for para in doc.paragraphs:
-            resume_text += para.text + "\n"
-
-# -----------------------------
-# RESPONSIVE DATA INPUTS
-# Adapts layout based on device: single column on mobile, two columns on tablet/desktop
-# -----------------------------
-# If a version was just loaded from the History tab, it overrides whatever
-# was uploaded/typed, so the person sees their older draft restored.
-resume_default = st.session_state.pop("_reload_resume", None) or resume_text
-job1_default = st.session_state.pop("_reload_job1", "") or st.session_state.pop("jd_from_extension", "")
-
-# Get responsive text area height
-text_area_height = ResponsiveLayout.get_text_area_height()
-
-if ResponsiveLayout.is_mobile():
-    # Mobile: stack vertically
-    st.markdown("### Your Resume")
-    resume = st.text_area("Paste / Verify Your Resume Here", value=resume_default, height=text_area_height)
-    
-    st.markdown("### Target Job Descriptions")
-    job1 = st.text_area("Primary Job Description (Used for Main Analysis)", value=job1_default, height=150)
-    job2 = st.text_area("Comparison Job Description 2 (Optional)", height=120)
-    job3 = st.text_area("Comparison Job Description 3 (Optional)", height=120)
-else:
-    # Desktop/Tablet: side-by-side columns
-    col_res, col_jd = st.columns(2)
-    
-    with col_res:
-        resume = st.text_area("Paste / Verify Your Resume Here", value=resume_default, height=text_area_height)
-    
-    with col_jd:
-        st.markdown("### Target Job Descriptions")
-        job1 = st.text_area("Primary Job Description (Used for Main Analysis)", value=job1_default, height=150)
-        job2 = st.text_area("Comparison Job Description 2 (Optional)", height=120)
-        job3 = st.text_area("Comparison Job Description 3 (Optional)", height=120)
-
-# LinkedIn input (same for all devices)
-with st.expander("🔗 LinkedIn Profile Analyzer (optional)"):
-    st.caption(
-        "Copy your Headline, About section, and a couple of Experience "
-        "descriptions from your own LinkedIn profile page and paste them "
-        "below. We don't fetch LinkedIn profiles automatically."
-    )
-    linkedin_text = st.text_area(
-        "Paste your LinkedIn profile text here",
-        height=200,
-        placeholder="Headline: ...\n\nAbout: ...\n\nExperience: ...",
+if __name__ == "__main__":
+    # -----------------------------
+    # PAGE CONFIG (MUST BE THE FIRST STREAMLIT COMMAND)
+    # Device-aware configuration: sidebar collapses on mobile for better UX
+    # -----------------------------
+    device_type = ResponsiveLayout.get_device_type()
+    st.set_page_config(
+        page_title="ResumePilot AI",
+        page_icon="🚀",
+        layout="wide",
+        initial_sidebar_state="collapsed" if device_type == ResponsiveLayout.MOBILE else "expanded"
     )
 
-# -----------------------------
-# PROCESSING PIPELINE
-# -----------------------------
-if "analysis_results" not in st.session_state:
-    st.session_state.analysis_results = None
-if "version_history" not in st.session_state:
-    st.session_state.version_history = []
-if "job_recommendations" not in st.session_state:
-    st.session_state.job_recommendations = None
-if "linkedin_analysis" not in st.session_state:
-    st.session_state.linkedin_analysis = None
-if "career_gap_analysis" not in st.session_state:
-    st.session_state.career_gap_analysis = None
-if "salary_insights" not in st.session_state:
-    st.session_state.salary_insights = None
-if "applications" not in st.session_state:
-    st.session_state.applications = []
-if "last_analyzed_hash" not in st.session_state:
-    st.session_state.last_analyzed_hash = None
-
-auto_analyze = st.checkbox(
-    "⚡ Auto-analyze as soon as both fields are filled",
-    value=True,
-    help=(
-        "Runs automatically the moment your resume and primary job "
-        "description both have content, and only re-runs if you actually "
-        "change the text — not on unrelated clicks. Turn this off if you're "
-        "close to today's Gemini API request limit (free tier: 20/day)."
-    ),
-)
-
-# Responsive button layout
-if ResponsiveLayout.is_mobile():
-    # Mobile: stack buttons vertically for easier clicking
-    st.markdown("### Analysis Tools")
-    run_analysis_clicked = st.button("Analyze Resume", type="primary", use_container_width=True)
-    run_recommendations = st.button("🧭 Find Matching Job Roles", use_container_width=True)
-    run_linkedin = st.button("🔗 Analyze LinkedIn Profile", use_container_width=True)
-    run_career_gap = st.button("🎓 Career Gap Analyzer", use_container_width=True)
-    run_salary = st.button("💰 Salary Insights", use_container_width=True)
-else:
-    # Tablet/Desktop: organize in grid
-    st.markdown("### Analysis Tools")
-    col_analyze, col_recommend, col_linkedin = st.columns(3)
-    
-    with col_analyze:
-        run_analysis_clicked = st.button("Analyze Resume", type="primary", use_container_width=True)
-    
-    with col_recommend:
-        run_recommendations = st.button("🧭 Find Matching Job Roles", use_container_width=True)
-    
-    with col_linkedin:
-        run_linkedin = st.button("🔗 Analyze LinkedIn Profile", use_container_width=True)
-    
-    col_career, col_salary_btn = st.columns(2)
-    
-    with col_career:
-        run_career_gap = st.button("🎓 Career Gap Analyzer", use_container_width=True)
-    
-    with col_salary_btn:
-        run_salary = st.button("💰 Salary Insights", use_container_width=True)
-
-# Auto-trigger only when the resume/job1 content has actually changed since
-# the last successful run — prevents burning API quota on every unrelated
-# rerun (switching tabs, opening the sidebar, etc.), since Streamlit reruns
-# the whole script on any interaction.
-current_input_hash = hashlib.sha256(f"{resume}||{job1}".encode()).hexdigest() if resume and job1 else None
-auto_triggered = (
-    auto_analyze
-    and current_input_hash is not None
-    and current_input_hash != st.session_state.last_analyzed_hash
-)
-
-run_analysis = run_analysis_clicked or auto_triggered
-
-if run_recommendations:
-    if not resume:
-        st.warning("Please provide a resume first.")
-    elif not gemini_enabled:
-        st.error("Cannot generate recommendations. Gemini API is not configured.")
-    else:
-        with st.spinner("🧭 Matching your background against likely-fit roles..."):
-            recommendation_prompt = f"""
-            You are a career advisor. Based ONLY on the skills, experience, and
-            background shown in this resume, recommend job roles this person is
-            genuinely well-suited for — including roles they may not have
-            considered.
-
-            [RESUME]
-            {resume}
-
-            Return exactly 5 recommended job titles. For each one, use this
-            exact format:
-
-            ### [Job Title]
-            **Why it fits:** 1-2 sentences tying it to specific evidence in the resume.
-            **Search keywords:** 3 comma-separated terms to use on job boards for this role.
-            """
-            try:
-                recommendation_text = generate_with_retry(recommendation_prompt)
-                st.session_state.job_recommendations = recommendation_text
-                st.success("Recommendations ready — see the '🧭 Job Recommendations' tab below.")
-            except Exception as e:
-                error_text = str(e).lower()
-                if "429" in error_text:
-                    st.error(
-                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
-                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
-                        "project for higher limits."
-                    )
-                else:
-                    st.error(f"Could not generate recommendations: {e}")
-
-if run_linkedin:
-    if not linkedin_text:
-        st.warning("Please paste your LinkedIn profile text in the expander above first.")
-    elif not gemini_enabled:
-        st.error("Cannot analyze profile. Gemini API is not configured.")
-    else:
-        with st.spinner("🔗 Reviewing your LinkedIn profile..."):
-            consistency_note = (
-                f"\n\nAlso compare it against this resume for consistency "
-                f"(flag any conflicting job titles, dates, or claims):\n[RESUME]\n{resume}"
-                if resume else ""
-            )
-            linkedin_prompt = f"""
-            You are a LinkedIn profile optimization expert. Review this
-            profile content and provide feedback in exactly this format:
-
-            ### Headline Assessment
-            Is it keyword-rich and specific, or generic? Suggest a stronger version.
-
-            ### About Section Assessment
-            Does it read well and include searchable keywords? 2-3 concrete improvement suggestions.
-
-            ### Experience Section Assessment
-            Are the bullet points achievement-focused or just duty lists? Suggest 1-2 rewrites.
-
-            ### Recruiter Searchability Score
-            Score 1-10 with a one-sentence reason.
-
-            ### Consistency Check
-            Note any conflicts with the resume if one was provided, otherwise say "No resume provided for comparison."
-
-            [LINKEDIN PROFILE TEXT]
-            {linkedin_text}
-            {consistency_note}
-            """
-            try:
-                st.session_state.linkedin_analysis = generate_with_retry(linkedin_prompt)
-                st.success("LinkedIn analysis ready — see the section below.")
-            except Exception as e:
-                error_text = str(e).lower()
-                if "429" in error_text:
-                    st.error(
-                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
-                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
-                        "project for higher limits."
-                    )
-                else:
-                    st.error(f"Could not analyze LinkedIn profile: {e}")
-
-if run_career_gap:
-    if not resume:
-        st.warning("Please provide a resume first.")
-    elif not gemini_enabled:
-        st.error("Cannot analyze career gaps. Gemini API is not configured.")
-    else:
-        with st.spinner("🎓 Identifying skill gaps and matching learning resources..."):
-            target_role_note = (
-                f"\n\n[TARGET JOB DESCRIPTION]\n{job1}" if job1 else ""
-            )
-            career_gap_prompt = f"""
-            You are a career development advisor. Based on this resume{" and the target job description below" if job1 else ""},
-            identify the top skill or qualification gaps holding this candidate
-            back from more competitive roles. For each gap, recommend a SPECIFIC
-            real course, certification, or resource to close it — name real
-            providers (e.g. Coursera, edX, LinkedIn Learning, official
-            certification bodies like AWS/PMI/Google) rather than generic advice.
-
-            [RESUME]
-            {resume}
-            {target_role_note}
-
-            Return exactly 3-5 gaps, each in this format:
-
-            ### Gap: [Skill or Qualification]
-            **Why it matters:** 1-2 sentences on the impact of closing this gap.
-            **Recommended resource:** A specific, real course/certification and provider.
-            """
-            try:
-                st.session_state.career_gap_analysis = generate_with_retry(career_gap_prompt)
-                st.success("Career gap analysis ready — see the section below.")
-            except Exception as e:
-                error_text = str(e).lower()
-                if "429" in error_text:
-                    st.error(
-                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
-                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
-                        "project for higher limits."
-                    )
-                else:
-                    st.error(f"Could not analyze career gaps: {e}")
-
-if run_salary:
-    if not resume:
-        st.warning("Please provide a resume first.")
-    elif not gemini_enabled:
-        st.error("Cannot generate salary insights. Gemini API is not configured.")
-    else:
-        with st.spinner("💰 Estimating salary ranges..."):
-            role_context = f"\n\n[TARGET JOB DESCRIPTION]\n{job1}" if job1 else ""
-            salary_prompt = f"""
-            You are a compensation research analyst. Based on this resume's
-            experience level and skills{" and the target role below" if job1 else ""},
-            estimate a realistic salary range for roles this candidate is
-            suited for.
-
-            IMPORTANT: Clearly state this is an AI-generated estimate based on
-            general market knowledge, NOT live or guaranteed data, and may be
-            inaccurate or outdated. Recommend the candidate verify with current
-            sources like Glassdoor, levels.fyi, or Payscale before relying on it.
-
-            [RESUME]
-            {resume}
-            {role_context}
-
-            Return in this format:
-
-            ### Estimated Salary Range
-            [range with currency — state your assumed region/market if not specified]
-
-            ### Reasoning
-            2-3 sentences on what drove this estimate (experience level, skills, role type).
-
-            ### Verify With
-            Name 2-3 real sites/tools to cross-check this estimate.
-            """
-            try:
-                st.session_state.salary_insights = generate_with_retry(salary_prompt)
-                st.success("Salary insights ready — see the section below.")
-            except Exception as e:
-                error_text = str(e).lower()
-                if "429" in error_text:
-                    st.error(
-                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
-                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
-                        "project for higher limits."
-                    )
-                else:
-                    st.error(f"Could not generate salary insights: {e}")
-
-if run_analysis:
-    if not resume or not job1:
-        st.warning("Please provide at least a resume and the Primary Job Description.")
-    elif not gemini_enabled:
-        st.error("Cannot perform analysis. Gemini API is not configured.")
-    else:
-        with st.spinner("🤖 Remote Pilot AI is scanning your credentials and simulating ATS filtering..."):
-            
-            # Primary Keyword Calculations
-            resume_words = set(resume.lower().split())
-            job_words = set(job1.lower().split())
-            matched_keywords = resume_words.intersection(job_words)
-            missing_keywords = job_words - resume_words
-
-            # Multi-Job Comparative Logic Calculations
-            score1 = calculate_score(resume, job1)
-            score2 = calculate_score(resume, job2) if job2 else 0
-            score3 = calculate_score(resume, job3) if job3 else 0
-
-            # Combined prompts for optimal single-token parsing
-            master_prompt = f"""
-            You are an expert corporate Recruiter and an advanced ATS parser.
-            Analyze the following Resume against the Primary Job Description.
-
-            [RESUME]
-            {resume}
-
-            [JOB DESCRIPTION]
-            {job1}
-
-            Provide a comprehensive evaluation divided explicitly into these sections using these exact headers:
-            
-            ### RESUME SUMMARY
-            Provide a short, 3-sentence professional summary of the candidate's background relative to this job.
-
-            ### CORE STRENGTHS
-            List 3 major strengths or matching qualifications found in the resume.
-
-            ### CRITICAL WEAKNESSES
-            List 2-3 main gaps or formatting blocks keeping this resume from passing recruiters.
-
-            ### INTERVIEW PREPARATION
-            Provide 3 realistic interview questions tailored to this job role, along with high-scoring sample answers or talking points for this candidate.
-
-            ### RESUME REWRITE SUGGESTIONS
-            Provide a restructured, high-impact rewrite of the candidate's professional summary and their top experience bullet points, optimized with keywords to rank highly.
-
-            ### CAREER COACH GUIDANCE
-            Give 2-3 actionable career recommendations to permanently overcome the skill gaps discovered.
-
-            ### KEYWORD GAP ANALYSIS
-            List the keywords missing from the resume (compared to the job description).
-            Group them into these exact categories:
-            - **🛠️ Technical & Hard Skills:** programming languages, tools, frameworks, methodologies
-            - **🧠 Soft Skills:** leadership, communication, teamwork, problem-solving
-            - **📜 Certifications & Education:** degrees, certifications, courses, training
-            - **🏢 Domain Knowledge:** industry-specific terminology, regulations, domain expertise
-            - **📋 Other Missing Terms:** remaining keywords that don't fit above
-
-            For each category, list the specific missing terms found in the job description but absent from the resume.
-
-            ### TAILORED COVER LETTER
-            Write a professional, compelling, 3-4 paragraph cover letter customized for this applicant applying to this specific role. Include placeholder tags like [Your Name] where appropriate.
-            """
-
-            scoring_prompt = f"""
-            Score this resume from 1-10 on these parameters. Return your complete answer strictly formatted as markdown bullet points:
-            - **Technical Skills**: [Score]/10
-            - **Experience**: [Score]/10
-            - **Leadership**: [Score]/10
-            - **Communication**: [Score]/10
-            - **ATS Compatibility**: [Score]/10
-
-            Resume: {resume}
-            Job Description: {job1}
-            """
-
-            try:
-                # Each call retries automatically a couple of times on
-                # transient failures before giving up.
-                ai_text = generate_with_retry(master_prompt)
-                score_text = generate_with_retry(scoring_prompt)
-
-                # Commit metrics data mapping objects directly to permanent memory
-                st.session_state.analysis_results = {
-                    "score": calculate_score(resume, job1, boost=40),
-                    "matched_count": len(matched_keywords),
-                    "missing_skills": sorted(list(missing_keywords)),
-                    "score1": score1,
-                    "score2": score2,
-                    "score3": score3,
-                    "ai_score_breakdown": score_text,
-                    "summary": extract_section(ai_text, "### RESUME SUMMARY", "### CORE STRENGTHS"),
-                    "strengths": extract_section(ai_text, "### CORE STRENGTHS", "### CRITICAL WEAKNESSES"),
-                    "weaknesses": extract_section(ai_text, "### CRITICAL WEAKNESSES", "### INTERVIEW PREPARATION"),
-                    "interview": extract_section(ai_text, "### INTERVIEW PREPARATION", "### RESUME REWRITE SUGGESTIONS"),
-                    "rewrite": extract_section(ai_text, "### RESUME REWRITE SUGGESTIONS", "### CAREER COACH GUIDANCE"),
-                    "coach": extract_section(ai_text, "### CAREER COACH GUIDANCE", "### KEYWORD GAP ANALYSIS"),
-                    "keyword_analysis": extract_section(ai_text, "### KEYWORD GAP ANALYSIS", "### TAILORED COVER LETTER"),
-                    "cover_letter": ai_text.split("### TAILORED COVER LETTER")[-1].strip()
-                }
-                st.session_state.last_analyzed_hash = current_input_hash
-                if auto_triggered and not run_analysis_clicked:
-                    st.success("⚡ Auto-analysis complete!")
-                else:
-                    st.success("Analysis Complete!")
-            except Exception as e:
-                # Mark this input as attempted even though it failed, so
-                # auto-analyze doesn't keep retrying the same input on every
-                # unrelated rerun. A manual button click can still retry it.
-                st.session_state.last_analyzed_hash = current_input_hash
-                error_text = str(e).lower()
-                if "429" in error_text and "quota exceeded" in error_text:
-                    st.error(
-                        "You've hit today's Gemini API request limit (free tier allows 20/day). "
-                        "It resets tomorrow, or you can enable billing on your Google AI Studio "
-                        "project for higher limits."
-                    )
-                elif "429" in error_text or "rate" in error_text:
-                    st.error("Gemini is rate-limiting requests right now. Please wait a minute and try again.")
-                else:
-                    st.error(f"An error occurred during AI processing: {str(e)}")
-
-# -----------------------------
-# JOB RECOMMENDATIONS (independent of full ATS analysis)
-# -----------------------------
-if st.session_state.job_recommendations:
-    st.markdown("---")
-    st.header("🧭 Recommended Job Roles")
-    st.caption("Based on your resume alone — not tied to any specific job description above.")
-    st.markdown(st.session_state.job_recommendations)
-
-# -----------------------------
-# LINKEDIN ANALYSIS (independent of full ATS analysis)
-# -----------------------------
-if st.session_state.linkedin_analysis:
-    st.markdown("---")
-    st.header("🔗 LinkedIn Profile Analysis")
-    st.markdown(st.session_state.linkedin_analysis)
-
-# -----------------------------
-# CAREER GAP ANALYSIS (independent of full ATS analysis)
-# -----------------------------
-if st.session_state.career_gap_analysis:
-    st.markdown("---")
-    st.header("🎓 Career Gap Analysis")
-    st.caption("Skill/qualification gaps with specific course and certification recommendations.")
-    st.markdown(st.session_state.career_gap_analysis)
-
-# -----------------------------
-# SALARY INSIGHTS (independent of full ATS analysis)
-# -----------------------------
-if st.session_state.salary_insights:
-    st.markdown("---")
-    st.header("💰 Salary Insights")
-    st.warning(
-        "⚠️ AI-generated estimate, not live market data. Always verify with "
-        "Glassdoor, levels.fyi, Payscale, or similar before relying on this."
-    )
-    st.markdown(st.session_state.salary_insights)
-
-# -----------------------------
-# APPLICATION TRACKER (no AI — pure dashboard, always available)
-# -----------------------------
-st.markdown("---")
-with st.expander("📋 Application Tracker", expanded=False):
-    st.caption(
-        "Track your job applications in one place. Session-based — use "
-        "Export/Import to keep your list across visits, no account needed."
-    )
-
-    with st.form("add_application_form", clear_on_submit=True):
-        col_company, col_role, col_status, col_date = st.columns(4)
-        with col_company:
-            new_company = st.text_input("Company")
-        with col_role:
-            new_role = st.text_input("Role")
-        with col_status:
-            new_status = st.selectbox(
-                "Status", ["Applied", "Interviewing", "Offer", "Rejected", "Withdrawn"]
-            )
-        with col_date:
-            new_date = st.date_input("Date Applied")
-        add_submitted = st.form_submit_button("➕ Add Application")
-
-    if add_submitted:
-        if new_company and new_role:
-            st.session_state.applications.append({
-                "Company": new_company,
-                "Role": new_role,
-                "Status": new_status,
-                "Date Applied": str(new_date),
-            })
-            st.success(f"Added {new_role} at {new_company}.")
-        else:
-            st.warning("Please fill in at least Company and Role.")
-
-    if st.session_state.applications:
-        apps_df = pd.DataFrame(st.session_state.applications)
-        edited_df = st.data_editor(
-            apps_df,
-            column_config={
-                "Status": st.column_config.SelectboxColumn(
-                    "Status",
-                    options=["Applied", "Interviewing", "Offer", "Rejected", "Withdrawn"],
-                )
-            },
-            num_rows="dynamic",
-            use_container_width=True,
-            key="applications_editor",
-        )
-        st.session_state.applications = edited_df.to_dict("records")
-
-        status_counts = apps_df["Status"].value_counts()
-        st.bar_chart(status_counts)
-
-        col_export_apps, col_import_apps = st.columns(2)
-        with col_export_apps:
-            st.download_button(
-                "⬇️ Export Applications as JSON",
-                data=json.dumps(st.session_state.applications, indent=2),
-                file_name="resumepilot_applications.json",
-                mime="application/json",
-            )
-        with col_import_apps:
-            imported_apps_file = st.file_uploader(
-                "⬆️ Import Applications JSON", type=["json"], key="applications_import"
-            )
-            if imported_apps_file and st.button("Merge Imported Applications"):
-                try:
-                    imported_apps = json.loads(imported_apps_file.read())
-                    st.session_state.applications.extend(imported_apps)
-                    st.success(f"Imported {len(imported_apps)} application(s). Expand again to see them.")
-                except Exception as e:
-                    st.error(f"Could not read that file: {e}")
-    else:
-        st.info("No applications tracked yet. Add one above.")
-
-# -----------------------------
-# RUNTIME UI DRAW RE-RENDER INTERFACE
-# -----------------------------
-if st.session_state.analysis_results:
-    res = st.session_state.analysis_results
-
-    # Top Metric Dashboard Cards Array
-    m_col1, m_col2, m_col3, m_col4 = st.columns(4)
-    with m_col1:
-        st.metric("ATS Match Score", f"{res['score']}%")
-    with m_col2:
-        st.metric("Matched Keywords", res['matched_count'])
-    with m_col3:
-        st.metric("Missing Gaps", len(res['missing_skills']))
-    with m_col4:
-        word_count = len(resume.split()) if resume else 0
-        st.metric("Resume Word Count", word_count if word_count > 0 else "—")
-    
-    st.progress(res['score'] / 100)
+    # Banner rendered immediately AFTER page config
+    st.markdown("""
+    # 🚀 ResumePilot AI
+    ### Smart Resume Optimization Platform
+    ---
+    """)
 
     # -----------------------------
-    # SAVE THIS VERSION TO HISTORY
+    # COMPELLING INTRO — THE "WHY" (Problem framing for judges/users)
     # -----------------------------
-    if st.button("💾 Save This Version to History"):
-        st.session_state.version_history.append({
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
-            "score": res["score"],
-            "matched_count": res["matched_count"],
-            "missing_count": len(res["missing_skills"]),
-            "resume_snapshot": resume,
-            "job_snapshot": job1,
-        })
-        st.success(f"Saved! You now have {len(st.session_state.version_history)} version(s) in this session.")
+    st.markdown("""
+    ## 📉 75% of Qualified Applicants Are Rejected Before a Human Reads Their Resume
+
+    **Applicant Tracking Systems (ATS)** silently filter resumes on keyword matches and
+    formatting — and most job seekers never know *why* their application disappeared
+    into a void.
+
+    - 🏢 **99% of Fortune 500** companies use ATS software
+    - 📄 **~75% of qualified resumes** are rejected before reaching a recruiter
+    - 🎯 The average corporate job posting gets **250+ applications** — standing out is harder than ever
+
+    🚀 **ResumePilot AI opens the black box** — paste any job description and see
+    *exactly* what keywords you're missing, how your resume scores, and what to fix.
+    """)
+
+    # Show mobile-optimized banner
+    if ResponsiveLayout.is_mobile():
+        st.info("📱 **Optimized for Mobile**\n\nThis app works great on your phone! For complex analysis, a tablet or desktop provides the best experience.")
+
+    # Responsive step indicators
+    if ResponsiveLayout.is_mobile():
+        st.markdown("### Quick Setup:")
+        st.markdown("1️⃣ **Upload** your resume (PDF, DOCX, or TXT)")
+        st.markdown("2️⃣ **Paste** the job description you're targeting")
+        st.markdown("3️⃣ **Optimize** — get ATS score, keyword gaps, rewrite & more")
+    else:
+        # Desktop/Tablet: show as columns
+        step_cols = ResponsiveLayout.get_columns(3)
+        with step_cols[0]:
+            st.info("**1️⃣ Upload** your resume\n(PDF, DOCX, or TXT)")
+        with step_cols[1]:
+            st.info("**2️⃣ Paste** the job description\nyou're targeting")
+        with step_cols[2]:
+            st.info("**3️⃣ Optimize** — get ATS score,\nkeyword gaps, rewrite & more")
+
+    st.markdown("---")
 
     # -----------------------------
-    # ON-DEMAND GENERATE PDF ENGINE
+    # GEMINI CONFIG
     # -----------------------------
     try:
-        pdf_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-        c = canvas.Canvas(pdf_file.name)
-        c.drawString(100, 800, "ResumePilot AI Assessment Report")
-        c.drawString(100, 770, f"Primary ATS Score: {res['score']}%")
-        c.drawString(100, 740, f"Matched Keywords Found: {res['matched_count']}")
-        c.drawString(100, 710, f"Missing Keywords Logged: {len(res['missing_skills'])}")
-        c.save()
-        
-        with open(pdf_file.name, "rb") as f:
-            st.download_button(
-                label="📄 Download Executive Summary PDF Report",
-                data=f,
-                file_name="ResumePilot_Report.pdf",
-                mime="application/pdf"
+        # Check both key names for compatibility (same as ai/inference/__init__.py)
+        api_key = st.secrets.get("GOOGLE_API_KEY") or st.secrets.get("GEMINI_API_KEY")
+        if not api_key:
+            raise KeyError("API key not found")
+        gemini_client = genai.Client(api_key=api_key)
+        GEMINI_MODEL = "gemini-2.5-flash"
+        gemini_enabled = True
+    except KeyError:
+        gemini_enabled = False
+        st.error(
+            "❌ **Gemini API key not found.**\n\n"
+            "Add it in Streamlit Cloud → your app → Settings → Secrets "
+            "(never in a file that gets committed to GitHub):\n"
+            '```\nGOOGLE_API_KEY = "AIza..."\n```\n\n'
+            "Get a free key at https://aistudio.google.com/apikey"
+        )
+    except Exception as e:
+        gemini_enabled = False
+        error_msg = str(e)
+        if "API_KEY_INVALID" in error_msg or "unauthorized" in error_msg.lower():
+            st.error(
+                f"❌ **Your Gemini API key was rejected.**\n\n"
+                f"• It may have been revoked (e.g. after GitHub's secret scanning detected it).\n"
+                f"• Generate a **new** key at https://aistudio.google.com/apikey\n"
+                f"• Update it in Streamlit Cloud → Settings → Secrets (never in a committed file), then reboot the app.\n\n"
+                f"_(Error: {error_msg[:200]})_"
             )
-    except Exception as pdf_err:
-        st.info("PDF Summary compilation engine currently idling.")
-
-    st.markdown("---")
-
-    # Render Your Updated 10 Tabs System
-    tabs = st.tabs([
-        "📊 ATS Score", "🎯 Skill Gaps", "💡 Interview Tips", 
-        "📝 Resume Summary", "🔍 Detailed Analysis", "✍️ Resume Rewrite", 
-        "🧠 AI Coach", "✉️ Cover Letter", "📈 Job Comparison", "🕒 Version History"
-    ])
-
-    # Tab 1: ATS SCORE LAYOUT WITH PLOTLY PIE CHART
-    with tabs[0]:
-        st.header("ATS Match Optimization Breakdown")
-        
-        # Build Dataframe safely using dynamic variables mapped from session memory
-        chart_data = pd.DataFrame({
-            "Category": ["Matched Keywords", "Missing Deficiencies"],
-            "Count": [res['matched_count'], max(len(res['missing_skills']), 1)]
-        })
-        fig = px.pie(chart_data, values="Count", names="Category", title="Core Keyword Metric Density Coverage")
-        st.plotly_chart(fig, use_container_width=True)
-        
-        st.metric("Calculated Primary Matching Factor", f"{res['score']}%")
-        if res['score'] >= 80:
-            st.success("🏆 **Excellent Alignment:** Your profile shares close parity with the requirements of this role.")
-        elif res['score'] >= 65:
-            st.warning("⚡ **Moderate Alignment:** Good base, but missing target terms should be blended in.")
         else:
-            st.error("❌ **Low Alignment:** Significant keyword gaps found. Automated parsers could reject this early.")
+            st.error(f"❌ Gemini API error: {error_msg[:300]}")
 
-    # Tab 2: SKILL GAPS (categorized when Gemini analysis is available)
-    with tabs[1]:
-        st.header("Target Keyword Deficiencies")
-        st.write("These terms appear in your target specifications but were absent or phrased differently in your resume layout:")
-        if res['missing_skills']:
-            keyword_analysis = res.get('keyword_analysis', '')
-            if keyword_analysis and len(keyword_analysis) > 50 and "**" in keyword_analysis:
-                st.markdown(keyword_analysis)
-            else:
-                # Fallback to the simple comma-separated list (pre-analysis or non-standard response)
-                filtered_skills = [s for s in res['missing_skills'] if len(s) > 2 and s.isalpha()]
-                st.write(", ".join([f"`{skill}`" for skill in filtered_skills[:30]]))
+    # -----------------------------
+    # CHROME EXTENSION SUPPORT
+    # When the user clicks the Chrome extension on a job posting, it opens
+    # ResumePilot with ?jd=<encoded-job-description>.  We capture it here and
+    # pin it into the session so the JD text area below picks it up.
+    # -----------------------------
+    jd_param = st.query_params.get("jd")
+    if jd_param and "jd_pinned" not in st.session_state:
+        st.session_state["jd_pinned"] = True
+        st.session_state["jd_from_extension"] = jd_param
+
+    # -----------------------------
+    # HELPER CORE FUNCTIONS
+    # -----------------------------
+
+
+        # If a version was just loaded from the History tab, it overrides whatever
+        # was uploaded/typed, so the person sees their older draft restored.
+        resume_default = st.session_state.pop("_reload_resume", None) or resume_text
+        job1_default = st.session_state.pop("_reload_job1", "") or st.session_state.pop("jd_from_extension", "")
+
+        # Get responsive text area height
+        text_area_height = ResponsiveLayout.get_text_area_height()
+
+        if ResponsiveLayout.is_mobile():
+            # Mobile: stack vertically
+            st.markdown("### Your Resume")
+            resume = st.text_area("Paste / Verify Your Resume Here", value=resume_default, height=text_area_height)
+            
+            st.markdown("### Target Job Descriptions")
+            job1 = st.text_area("Primary Job Description (Used for Main Analysis)", value=job1_default, height=150)
+            job2 = st.text_area("Comparison Job Description 2 (Optional)", height=120)
+            job3 = st.text_area("Comparison Job Description 3 (Optional)", height=120)
         else:
-            st.success("Phenomenal keyword optimization! No major contextual metrics missing.")
+            # Desktop/Tablet: side-by-side columns
+            col_res, col_jd = st.columns(2)
+            
+            with col_res:
+                resume = st.text_area("Paste / Verify Your Resume Here", value=resume_default, height=text_area_height)
+            
+            with col_jd:
+                st.markdown("### Target Job Descriptions")
+                job1 = st.text_area("Primary Job Description (Used for Main Analysis)", value=job1_default, height=150)
+                job2 = st.text_area("Comparison Job Description 2 (Optional)", height=120)
+                job3 = st.text_area("Comparison Job Description 3 (Optional)", height=120)
 
-    # Tab 3: INTERVIEW PREPARATION
-    with tabs[2]:
-        st.header("Tailored Interview Preparation Simulator")
-        st.markdown(res['interview'])
+        # LinkedIn input (same for all devices)
+        with st.expander("🔗 LinkedIn Profile Analyzer (optional)"):
+            st.caption(
+                "Copy your Headline, About section, and a couple of Experience "
+                "descriptions from your own LinkedIn profile page and paste them "
+                "below. We don't fetch LinkedIn profiles automatically."
+            )
+            linkedin_text = st.text_area(
+                "Paste your LinkedIn profile text here",
+                height=200,
+                placeholder="Headline: ...\n\nAbout: ...\n\nExperience: ...",
+            )
 
-    # Tab 4: RESUME SUMMARY
-    with tabs[3]:
-        st.header("Objective Profile Summary")
-        st.write(res['summary'])
+        # -----------------------------
+        # PROCESSING PIPELINE
+        # -----------------------------
+        if "analysis_results" not in st.session_state:
+            st.session_state.analysis_results = None
+        if "version_history" not in st.session_state:
+            st.session_state.version_history = []
+        if "job_recommendations" not in st.session_state:
+            st.session_state.job_recommendations = None
+        if "linkedin_analysis" not in st.session_state:
+            st.session_state.linkedin_analysis = None
+        if "career_gap_analysis" not in st.session_state:
+            st.session_state.career_gap_analysis = None
+        if "salary_insights" not in st.session_state:
+            st.session_state.salary_insights = None
+        if "applications" not in st.session_state:
+            st.session_state.applications = []
+        if "last_analyzed_hash" not in st.session_state:
+            st.session_state.last_analyzed_hash = None
 
-    # Tab 5: DETAILED ANALYSIS & RAW SCORES
-    with tabs[4]:
-        st.header("Comparative Structural Report")
-        col_str, col_weak = st.columns(2)
-        with col_str:
-            st.subheader("✅ Structural Strengths")
-            st.markdown(res['strengths'])
-        with col_weak:
-            st.subheader("⚠️ ATS Bottlenecks & Gaps")
-            st.markdown(res['weaknesses'])
-        
-        st.markdown("---")
-        st.subheader("AI Scoring Breakdown Matrix")
-        st.markdown(res['ai_score_breakdown'])
-
-    # Tab 6: REWRITE SUGGESTIONS
-    with tabs[5]:
-        st.header("ATS-Optimized Phrasing Suggestions")
-        st.markdown(res['rewrite'])
-
-    # Tab 7: CAREER COACHING
-    with tabs[6]:
-        st.header("Strategic Professional Development Plan")
-        st.markdown(res['coach'])
-
-    # Tab 8: TARGET COVER LETTER
-    with tabs[7]:
-        st.header("Custom Tailored Cover Letter Generator")
-        st.text_area("Generated Output (Editable)", res['cover_letter'], height=450)
-
-    # Tab 9: MULTI-JOB SCORING COMPARISON GRAPH
-    with tabs[8]:
-        st.header("Multi-Job Intent Target Comparison Chart")
-        comparison_dict = {
-            "Primary Job (Job 1)": res['score1'],
-            "Comparison Job 2": res['score2'],
-            "Comparison Job 3": res['score3']
-        }
-        st.bar_chart(comparison_dict)
-        st.info("Use this visual data array to see which job profile variant matches best with your current resume version.")
-
-    # Tab 10: VERSION HISTORY
-    with tabs[9]:
-        st.header("Resume Version History")
-        st.caption(
-            "Saved versions live only in this browser session. Use Export/Import "
-            "below to keep your history across visits — no account needed."
+        auto_analyze = st.checkbox(
+            "⚡ Auto-analyze as soon as both fields are filled",
+            value=True,
+            help=(
+                "Runs automatically the moment your resume and primary job "
+                "description both have content, and only re-runs if you actually "
+                "change the text — not on unrelated clicks. Turn this off if you're "
+                "close to today's Gemini API request limit (free tier: 20/day)."
+            ),
         )
 
-        history = st.session_state.version_history
-
-        if not history:
-            st.info("No versions saved yet. Click '💾 Save This Version to History' above after an analysis.")
+        # Responsive button layout
+        if ResponsiveLayout.is_mobile():
+            # Mobile: stack buttons vertically for easier clicking
+            st.markdown("### Analysis Tools")
+            run_analysis_clicked = st.button("Analyze Resume", type="primary", use_container_width=True)
+            run_recommendations = st.button("🧭 Find Matching Job Roles", use_container_width=True)
+            run_linkedin = st.button("🔗 Analyze LinkedIn Profile", use_container_width=True)
+            run_career_gap = st.button("🎓 Career Gap Analyzer", use_container_width=True)
+            run_salary = st.button("💰 Salary Insights", use_container_width=True)
         else:
-            # Score trend over saved versions
-            trend_df = pd.DataFrame({
-                "Version": [f"v{i+1} ({h['timestamp']})" for i, h in enumerate(history)],
-                "Score": [h["score"] for h in history],
-            })
-            fig_trend = px.line(trend_df, x="Version", y="Score", markers=True, title="ATS Score Across Saved Versions")
-            st.plotly_chart(fig_trend, use_container_width=True)
+            # Tablet/Desktop: organize in grid
+            st.markdown("### Analysis Tools")
+            col_analyze, col_recommend, col_linkedin = st.columns(3)
+            
+            with col_analyze:
+                run_analysis_clicked = st.button("Analyze Resume", type="primary", use_container_width=True)
+            
+            with col_recommend:
+                run_recommendations = st.button("🧭 Find Matching Job Roles", use_container_width=True)
+            
+            with col_linkedin:
+                run_linkedin = st.button("🔗 Analyze LinkedIn Profile", use_container_width=True)
+            
+            col_career, col_salary_btn = st.columns(2)
+            
+            with col_career:
+                run_career_gap = st.button("🎓 Career Gap Analyzer", use_container_width=True)
+            
+            with col_salary_btn:
+                run_salary = st.button("💰 Salary Insights", use_container_width=True)
 
-            # Table of all saved versions
-            table_df = pd.DataFrame([
-                {
-                    "Version": f"v{i+1}",
-                    "Saved At": h["timestamp"],
-                    "Score": f"{h['score']}%",
-                    "Matched": h["matched_count"],
-                    "Missing": h["missing_count"],
-                }
-                for i, h in enumerate(history)
-            ])
-            st.dataframe(table_df, use_container_width=True)
+        # Auto-trigger only when the resume/job1 content has actually changed since
+        # the last successful run — prevents burning API quota on every unrelated
+        # rerun (switching tabs, opening the sidebar, etc.), since Streamlit reruns
+        # the whole script on any interaction.
+        current_input_hash = hashlib.sha256(f"{resume}||{job1}".encode()).hexdigest() if resume and job1 else None
+        auto_triggered = (
+            auto_analyze
+            and current_input_hash is not None
+            and current_input_hash != st.session_state.last_analyzed_hash
+        )
 
-            # Reload an older version back into the working text areas
-            reload_choice = st.selectbox(
-                "Load an earlier version back into the editor above",
-                options=list(range(len(history))),
-                format_func=lambda i: f"v{i+1} — {history[i]['timestamp']} — {history[i]['score']}%",
+        run_analysis = run_analysis_clicked or auto_triggered
+
+        if run_recommendations:
+            if not resume:
+                st.warning("Please provide a resume first.")
+            elif not gemini_enabled:
+                st.error("Cannot generate recommendations. Gemini API is not configured.")
+            else:
+                with st.spinner("🧭 Matching your background against likely-fit roles..."):
+                    recommendation_prompt = f"""
+                    You are a career advisor. Based ONLY on the skills, experience, and
+                    background shown in this resume, recommend job roles this person is
+                    genuinely well-suited for — including roles they may not have
+                    considered.
+
+                    [RESUME]
+                    {resume}
+
+                    Return exactly 5 recommended job titles. For each one, use this
+                    exact format:
+
+                    ### [Job Title]
+                    **Why it fits:** 1-2 sentences tying it to specific evidence in the resume.
+                    **Search keywords:** 3 comma-separated terms to use on job boards for this role.
+                    """
+                    try:
+                        recommendation_text = generate_with_retry(recommendation_prompt)
+                        st.session_state.job_recommendations = recommendation_text
+                        st.success("Recommendations ready — see the '🧭 Job Recommendations' tab below.")
+                    except Exception as e:
+                        error_text = str(e).lower()
+                        if "429" in error_text:
+                            st.error(
+                                "You've hit today's Gemini API request limit (free tier allows 20/day). "
+                                "It resets tomorrow, or you can enable billing on your Google AI Studio "
+                                "project for higher limits."
+                            )
+                        else:
+                            st.error(f"Could not generate recommendations: {e}")
+
+        if run_linkedin:
+            if not linkedin_text:
+                st.warning("Please paste your LinkedIn profile text in the expander above first.")
+            elif not gemini_enabled:
+                st.error("Cannot analyze profile. Gemini API is not configured.")
+            else:
+                with st.spinner("🔗 Reviewing your LinkedIn profile..."):
+                    consistency_note = (
+                        f"\n\nAlso compare it against this resume for consistency "
+                        f"(flag any conflicting job titles, dates, or claims):\n[RESUME]\n{resume}"
+                        if resume else ""
+                    )
+                    linkedin_prompt = f"""
+                    You are a LinkedIn profile optimization expert. Review this
+                    profile content and provide feedback in exactly this format:
+
+                    ### Headline Assessment
+                    Is it keyword-rich and specific, or generic? Suggest a stronger version.
+
+                    ### About Section Assessment
+                    Does it read well and include searchable keywords? 2-3 concrete improvement suggestions.
+
+                    ### Experience Section Assessment
+                    Are the bullet points achievement-focused or just duty lists? Suggest 1-2 rewrites.
+
+                    ### Recruiter Searchability Score
+                    Score 1-10 with a one-sentence reason.
+
+                    ### Consistency Check
+                    Note any conflicts with the resume if one was provided, otherwise say "No resume provided for comparison."
+
+                    [LINKEDIN PROFILE TEXT]
+                    {linkedin_text}
+                    {consistency_note}
+                    """
+                    try:
+                        st.session_state.linkedin_analysis = generate_with_retry(linkedin_prompt)
+                        st.success("LinkedIn analysis ready — see the section below.")
+                    except Exception as e:
+                        error_text = str(e).lower()
+                        if "429" in error_text:
+                            st.error(
+                                "You've hit today's Gemini API request limit (free tier allows 20/day). "
+                                "It resets tomorrow, or you can enable billing on your Google AI Studio "
+                                "project for higher limits."
+                            )
+                        else:
+                            st.error(f"Could not analyze LinkedIn profile: {e}")
+
+        if run_career_gap:
+            if not resume:
+                st.warning("Please provide a resume first.")
+            elif not gemini_enabled:
+                st.error("Cannot analyze career gaps. Gemini API is not configured.")
+            else:
+                with st.spinner("🎓 Identifying skill gaps and matching learning resources..."):
+                    target_role_note = (
+                        f"\n\n[TARGET JOB DESCRIPTION]\n{job1}" if job1 else ""
+                    )
+                    career_gap_prompt = f"""
+                    You are a career development advisor. Based on this resume{" and the target job description below" if job1 else ""},
+                    identify the top skill or qualification gaps holding this candidate
+                    back from more competitive roles. For each gap, recommend a SPECIFIC
+                    real course, certification, or resource to close it — name real
+                    providers (e.g. Coursera, edX, LinkedIn Learning, official
+                    certification bodies like AWS/PMI/Google) rather than generic advice.
+
+                    [RESUME]
+                    {resume}
+                    {target_role_note}
+
+                    Return exactly 3-5 gaps, each in this format:
+
+                    ### Gap: [Skill or Qualification]
+                    **Why it matters:** 1-2 sentences on the impact of closing this gap.
+                    **Recommended resource:** A specific, real course/certification and provider.
+                    """
+                    try:
+                        st.session_state.career_gap_analysis = generate_with_retry(career_gap_prompt)
+                        st.success("Career gap analysis ready — see the section below.")
+                    except Exception as e:
+                        error_text = str(e).lower()
+                        if "429" in error_text:
+                            st.error(
+                                "You've hit today's Gemini API request limit (free tier allows 20/day). "
+                                "It resets tomorrow, or you can enable billing on your Google AI Studio "
+                                "project for higher limits."
+                            )
+                        else:
+                            st.error(f"Could not analyze career gaps: {e}")
+
+        if run_salary:
+            if not resume:
+                st.warning("Please provide a resume first.")
+            elif not gemini_enabled:
+                st.error("Cannot generate salary insights. Gemini API is not configured.")
+            else:
+                with st.spinner("💰 Estimating salary ranges..."):
+                    role_context = f"\n\n[TARGET JOB DESCRIPTION]\n{job1}" if job1 else ""
+                    salary_prompt = f"""
+                    You are a compensation research analyst. Based on this resume's
+                    experience level and skills{" and the target role below" if job1 else ""},
+                    estimate a realistic salary range for roles this candidate is
+                    suited for.
+
+                    IMPORTANT: Clearly state this is an AI-generated estimate based on
+                    general market knowledge, NOT live or guaranteed data, and may be
+                    inaccurate or outdated. Recommend the candidate verify with current
+                    sources like Glassdoor, levels.fyi, or Payscale before relying on it.
+
+                    [RESUME]
+                    {resume}
+                    {role_context}
+
+                    Return in this format:
+
+                    ### Estimated Salary Range
+                    [range with currency — state your assumed region/market if not specified]
+
+                    ### Reasoning
+                    2-3 sentences on what drove this estimate (experience level, skills, role type).
+
+                    ### Verify With
+                    Name 2-3 real sites/tools to cross-check this estimate.
+                    """
+                    try:
+                        st.session_state.salary_insights = generate_with_retry(salary_prompt)
+                        st.success("Salary insights ready — see the section below.")
+                    except Exception as e:
+                        error_text = str(e).lower()
+                        if "429" in error_text:
+                            st.error(
+                                "You've hit today's Gemini API request limit (free tier allows 20/day). "
+                                "It resets tomorrow, or you can enable billing on your Google AI Studio "
+                                "project for higher limits."
+                            )
+                        else:
+                            st.error(f"Could not generate salary insights: {e}")
+
+        if run_analysis:
+            if not resume or not job1:
+                st.warning("Please provide at least a resume and the Primary Job Description.")
+            elif not gemini_enabled:
+                st.error("Cannot perform analysis. Gemini API is not configured.")
+            else:
+                with st.spinner("🤖 Remote Pilot AI is scanning your credentials and simulating ATS filtering..."):
+                    
+                    # Primary Keyword Calculations
+                    resume_words = set(resume.lower().split())
+                    job_words = set(job1.lower().split())
+                    matched_keywords = resume_words.intersection(job_words)
+                    missing_keywords = job_words - resume_words
+
+                    # Multi-Job Comparative Logic Calculations
+                    score1 = calculate_score(resume, job1)
+                    score2 = calculate_score(resume, job2) if job2 else 0
+                    score3 = calculate_score(resume, job3) if job3 else 0
+
+                    # Combined prompts for optimal single-token parsing
+                    master_prompt = f"""
+                    You are an expert corporate Recruiter and an advanced ATS parser.
+                    Analyze the following Resume against the Primary Job Description.
+
+                    [RESUME]
+                    {resume}
+
+                    [JOB DESCRIPTION]
+                    {job1}
+
+                    Provide a comprehensive evaluation divided explicitly into these sections using these exact headers:
+                    
+                    ### RESUME SUMMARY
+                    Provide a short, 3-sentence professional summary of the candidate's background relative to this job.
+
+                    ### CORE STRENGTHS
+                    List 3 major strengths or matching qualifications found in the resume.
+
+                    ### CRITICAL WEAKNESSES
+                    List 2-3 main gaps or formatting blocks keeping this resume from passing recruiters.
+
+                    ### INTERVIEW PREPARATION
+                    Provide 3 realistic interview questions tailored to this job role, along with high-scoring sample answers or talking points for this candidate.
+
+                    ### RESUME REWRITE SUGGESTIONS
+                    Provide a restructured, high-impact rewrite of the candidate's professional summary and their top experience bullet points, optimized with keywords to rank highly.
+
+                    ### CAREER COACH GUIDANCE
+                    Give 2-3 actionable career recommendations to permanently overcome the skill gaps discovered.
+
+                    ### KEYWORD GAP ANALYSIS
+                    List the keywords missing from the resume (compared to the job description).
+                    Group them into these exact categories:
+                    - **🛠️ Technical & Hard Skills:** programming languages, tools, frameworks, methodologies
+                    - **🧠 Soft Skills:** leadership, communication, teamwork, problem-solving
+                    - **📜 Certifications & Education:** degrees, certifications, courses, training
+                    - **🏢 Domain Knowledge:** industry-specific terminology, regulations, domain expertise
+                    - **📋 Other Missing Terms:** remaining keywords that don't fit above
+
+                    For each category, list the specific missing terms found in the job description but absent from the resume.
+
+                    ### TAILORED COVER LETTER
+                    Write a professional, compelling, 3-4 paragraph cover letter customized for this applicant applying to this specific role. Include placeholder tags like [Your Name] where appropriate.
+                    """
+
+                    scoring_prompt = f"""
+                    Score this resume from 1-10 on these parameters. Return your complete answer strictly formatted as markdown bullet points:
+                    - **Technical Skills**: [Score]/10
+                    - **Experience**: [Score]/10
+                    - **Leadership**: [Score]/10
+                    - **Communication**: [Score]/10
+                    - **ATS Compatibility**: [Score]/10
+
+                    Resume: {resume}
+                    Job Description: {job1}
+                    """
+
+                    try:
+                        # Each call retries automatically a couple of times on
+                        # transient failures before giving up.
+                        ai_text = generate_with_retry(master_prompt)
+                        score_text = generate_with_retry(scoring_prompt)
+
+                        # Commit metrics data mapping objects directly to permanent memory
+                        st.session_state.analysis_results = {
+                            "score": calculate_score(resume, job1, boost=40),
+                            "matched_count": len(matched_keywords),
+                            "missing_skills": sorted(list(missing_keywords)),
+                            "score1": score1,
+                            "score2": score2,
+                            "score3": score3,
+                            "ai_score_breakdown": score_text,
+                            "summary": extract_section(ai_text, "### RESUME SUMMARY", "### CORE STRENGTHS"),
+                            "strengths": extract_section(ai_text, "### CORE STRENGTHS", "### CRITICAL WEAKNESSES"),
+                            "weaknesses": extract_section(ai_text, "### CRITICAL WEAKNESSES", "### INTERVIEW PREPARATION"),
+                            "interview": extract_section(ai_text, "### INTERVIEW PREPARATION", "### RESUME REWRITE SUGGESTIONS"),
+                            "rewrite": extract_section(ai_text, "### RESUME REWRITE SUGGESTIONS", "### CAREER COACH GUIDANCE"),
+                            "coach": extract_section(ai_text, "### CAREER COACH GUIDANCE", "### KEYWORD GAP ANALYSIS"),
+                            "keyword_analysis": extract_section(ai_text, "### KEYWORD GAP ANALYSIS", "### TAILORED COVER LETTER"),
+                            "cover_letter": ai_text.split("### TAILORED COVER LETTER")[-1].strip()
+                        }
+                        st.session_state.last_analyzed_hash = current_input_hash
+                        if auto_triggered and not run_analysis_clicked:
+                            st.success("⚡ Auto-analysis complete!")
+                        else:
+                            st.success("Analysis Complete!")
+                    except Exception as e:
+                        # Mark this input as attempted even though it failed, so
+                        # auto-analyze doesn't keep retrying the same input on every
+                        # unrelated rerun. A manual button click can still retry it.
+                        st.session_state.last_analyzed_hash = current_input_hash
+                        error_text = str(e).lower()
+                        if "429" in error_text and "quota exceeded" in error_text:
+                            st.error(
+                                "You've hit today's Gemini API request limit (free tier allows 20/day). "
+                                "It resets tomorrow, or you can enable billing on your Google AI Studio "
+                                "project for higher limits."
+                            )
+                        elif "429" in error_text or "rate" in error_text:
+                            st.error("Gemini is rate-limiting requests right now. Please wait a minute and try again.")
+                        else:
+                            st.error(f"An error occurred during AI processing: {str(e)}")
+
+        # -----------------------------
+        # JOB RECOMMENDATIONS (independent of full ATS analysis)
+        # -----------------------------
+        if st.session_state.job_recommendations:
+            st.markdown("---")
+            st.header("🧭 Recommended Job Roles")
+            st.caption("Based on your resume alone — not tied to any specific job description above.")
+            st.markdown(st.session_state.job_recommendations)
+
+        # -----------------------------
+        # LINKEDIN ANALYSIS (independent of full ATS analysis)
+        # -----------------------------
+        if st.session_state.linkedin_analysis:
+            st.markdown("---")
+            st.header("🔗 LinkedIn Profile Analysis")
+            st.markdown(st.session_state.linkedin_analysis)
+
+        # -----------------------------
+        # CAREER GAP ANALYSIS (independent of full ATS analysis)
+        # -----------------------------
+        if st.session_state.career_gap_analysis:
+            st.markdown("---")
+            st.header("🎓 Career Gap Analysis")
+            st.caption("Skill/qualification gaps with specific course and certification recommendations.")
+            st.markdown(st.session_state.career_gap_analysis)
+
+        # -----------------------------
+        # SALARY INSIGHTS (independent of full ATS analysis)
+        # -----------------------------
+        if st.session_state.salary_insights:
+            st.markdown("---")
+            st.header("💰 Salary Insights")
+            st.warning(
+                "⚠️ AI-generated estimate, not live market data. Always verify with "
+                "Glassdoor, levels.fyi, Payscale, or similar before relying on this."
             )
-            if st.button("↩️ Load Selected Version"):
-                st.session_state["_reload_resume"] = history[reload_choice]["resume_snapshot"]
-                st.session_state["_reload_job1"] = history[reload_choice]["job_snapshot"]
-                st.info("Loaded. Scroll up, the resume and job description fields are now populated — click Analyze Resume to re-run.")
+            st.markdown(st.session_state.salary_insights)
+
+        # -----------------------------
+        # APPLICATION TRACKER (no AI — pure dashboard, always available)
+        # -----------------------------
+        st.markdown("---")
+        with st.expander("📋 Application Tracker", expanded=False):
+            st.caption(
+                "Track your job applications in one place. Session-based — use "
+                "Export/Import to keep your list across visits, no account needed."
+            )
+
+            with st.form("add_application_form", clear_on_submit=True):
+                col_company, col_role, col_status, col_date = st.columns(4)
+                with col_company:
+                    new_company = st.text_input("Company")
+                with col_role:
+                    new_role = st.text_input("Role")
+                with col_status:
+                    new_status = st.selectbox(
+                        "Status", ["Applied", "Interviewing", "Offer", "Rejected", "Withdrawn"]
+                    )
+                with col_date:
+                    new_date = st.date_input("Date Applied")
+                add_submitted = st.form_submit_button("➕ Add Application")
+
+            if add_submitted:
+                if new_company and new_role:
+                    st.session_state.applications.append({
+                        "Company": new_company,
+                        "Role": new_role,
+                        "Status": new_status,
+                        "Date Applied": str(new_date),
+                    })
+                    st.success(f"Added {new_role} at {new_company}.")
+                else:
+                    st.warning("Please fill in at least Company and Role.")
+
+            if st.session_state.applications:
+                apps_df = pd.DataFrame(st.session_state.applications)
+                edited_df = st.data_editor(
+                    apps_df,
+                    column_config={
+                        "Status": st.column_config.SelectboxColumn(
+                            "Status",
+                            options=["Applied", "Interviewing", "Offer", "Rejected", "Withdrawn"],
+                        )
+                    },
+                    num_rows="dynamic",
+                    use_container_width=True,
+                    key="applications_editor",
+                )
+                st.session_state.applications = edited_df.to_dict("records")
+
+                status_counts = apps_df["Status"].value_counts()
+                st.bar_chart(status_counts)
+
+                col_export_apps, col_import_apps = st.columns(2)
+                with col_export_apps:
+                    st.download_button(
+                        "⬇️ Export Applications as JSON",
+                        data=json.dumps(st.session_state.applications, indent=2),
+                        file_name="resumepilot_applications.json",
+                        mime="application/json",
+                    )
+                with col_import_apps:
+                    imported_apps_file = st.file_uploader(
+                        "⬆️ Import Applications JSON", type=["json"], key="applications_import"
+                    )
+                    if imported_apps_file and st.button("Merge Imported Applications"):
+                        try:
+                            imported_apps = json.loads(imported_apps_file.read())
+                            st.session_state.applications.extend(imported_apps)
+                            st.success(f"Imported {len(imported_apps)} application(s). Expand again to see them.")
+                        except Exception as e:
+                            st.error(f"Could not read that file: {e}")
+            else:
+                st.info("No applications tracked yet. Add one above.")
+
+        # -----------------------------
+        # RUNTIME UI DRAW RE-RENDER INTERFACE
+        # -----------------------------
+        if st.session_state.analysis_results:
+            res = st.session_state.analysis_results
+
+            # Top Metric Dashboard Cards Array
+            m_col1, m_col2, m_col3, m_col4 = st.columns(4)
+            with m_col1:
+                st.metric("ATS Match Score", f"{res['score']}%")
+            with m_col2:
+                st.metric("Matched Keywords", res['matched_count'])
+            with m_col3:
+                st.metric("Missing Gaps", len(res['missing_skills']))
+            with m_col4:
+                word_count = len(resume.split()) if resume else 0
+                st.metric("Resume Word Count", word_count if word_count > 0 else "—")
+            
+            st.progress(res['score'] / 100)
+
+            # -----------------------------
+            # SAVE THIS VERSION TO HISTORY
+            # -----------------------------
+            if st.button("💾 Save This Version to History"):
+                st.session_state.version_history.append({
+                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M"),
+                    "score": res["score"],
+                    "matched_count": res["matched_count"],
+                    "missing_count": len(res["missing_skills"]),
+                    "resume_snapshot": resume,
+                    "job_snapshot": job1,
+                })
+                st.success(f"Saved! You now have {len(st.session_state.version_history)} version(s) in this session.")
+
+            # -----------------------------
+            # ON-DEMAND GENERATE PDF ENGINE
+            # -----------------------------
+            try:
+                pdf_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+                c = canvas.Canvas(pdf_file.name)
+                c.drawString(100, 800, "ResumePilot AI Assessment Report")
+                c.drawString(100, 770, f"Primary ATS Score: {res['score']}%")
+                c.drawString(100, 740, f"Matched Keywords Found: {res['matched_count']}")
+                c.drawString(100, 710, f"Missing Keywords Logged: {len(res['missing_skills'])}")
+                c.save()
+                
+                with open(pdf_file.name, "rb") as f:
+                    st.download_button(
+                        label="📄 Download Executive Summary PDF Report",
+                        data=f,
+                        file_name="ResumePilot_Report.pdf",
+                        mime="application/pdf"
+                    )
+            except Exception as pdf_err:
+                st.info("PDF Summary compilation engine currently idling.")
 
             st.markdown("---")
 
-            # Export / Import for cross-session persistence without accounts
-            col_export, col_import = st.columns(2)
-            with col_export:
-                st.download_button(
-                    "⬇️ Export History as JSON",
-                    data=json.dumps(history, indent=2),
-                    file_name="resumepilot_version_history.json",
-                    mime="application/json",
+            # Render Your Updated 10 Tabs System
+            tabs = st.tabs([
+                "📊 ATS Score", "🎯 Skill Gaps", "💡 Interview Tips", 
+                "📝 Resume Summary", "🔍 Detailed Analysis", "✍️ Resume Rewrite", 
+                "🧠 AI Coach", "✉️ Cover Letter", "📈 Job Comparison", "🕒 Version History"
+            ])
+
+            # Tab 1: ATS SCORE LAYOUT WITH PLOTLY PIE CHART
+            with tabs[0]:
+                st.header("ATS Match Optimization Breakdown")
+                
+                # Build Dataframe safely using dynamic variables mapped from session memory
+                chart_data = pd.DataFrame({
+                    "Category": ["Matched Keywords", "Missing Deficiencies"],
+                    "Count": [res['matched_count'], max(len(res['missing_skills']), 1)]
+                })
+                fig = px.pie(chart_data, values="Count", names="Category", title="Core Keyword Metric Density Coverage")
+                st.plotly_chart(fig, use_container_width=True)
+                
+                st.metric("Calculated Primary Matching Factor", f"{res['score']}%")
+                if res['score'] >= 80:
+                    st.success("🏆 **Excellent Alignment:** Your profile shares close parity with the requirements of this role.")
+                elif res['score'] >= 65:
+                    st.warning("⚡ **Moderate Alignment:** Good base, but missing target terms should be blended in.")
+                else:
+                    st.error("❌ **Low Alignment:** Significant keyword gaps found. Automated parsers could reject this early.")
+
+            # Tab 2: SKILL GAPS (categorized when Gemini analysis is available)
+            with tabs[1]:
+                st.header("Target Keyword Deficiencies")
+                st.write("These terms appear in your target specifications but were absent or phrased differently in your resume layout:")
+                if res['missing_skills']:
+                    keyword_analysis = res.get('keyword_analysis', '')
+                    if keyword_analysis and len(keyword_analysis) > 50 and "**" in keyword_analysis:
+                        st.markdown(keyword_analysis)
+                    else:
+                        # Fallback to the simple comma-separated list (pre-analysis or non-standard response)
+                        filtered_skills = [s for s in res['missing_skills'] if len(s) > 2 and s.isalpha()]
+                        st.write(", ".join([f"`{skill}`" for skill in filtered_skills[:30]]))
+                else:
+                    st.success("Phenomenal keyword optimization! No major contextual metrics missing.")
+
+            # Tab 3: INTERVIEW PREPARATION
+            with tabs[2]:
+                st.header("Tailored Interview Preparation Simulator")
+                st.markdown(res['interview'])
+
+            # Tab 4: RESUME SUMMARY
+            with tabs[3]:
+                st.header("Objective Profile Summary")
+                st.write(res['summary'])
+
+            # Tab 5: DETAILED ANALYSIS & RAW SCORES
+            with tabs[4]:
+                st.header("Comparative Structural Report")
+                col_str, col_weak = st.columns(2)
+                with col_str:
+                    st.subheader("✅ Structural Strengths")
+                    st.markdown(res['strengths'])
+                with col_weak:
+                    st.subheader("⚠️ ATS Bottlenecks & Gaps")
+                    st.markdown(res['weaknesses'])
+                
+                st.markdown("---")
+                st.subheader("AI Scoring Breakdown Matrix")
+                st.markdown(res['ai_score_breakdown'])
+
+            # Tab 6: REWRITE SUGGESTIONS
+            with tabs[5]:
+                st.header("ATS-Optimized Phrasing Suggestions")
+                st.markdown(res['rewrite'])
+
+            # Tab 7: CAREER COACHING
+            with tabs[6]:
+                st.header("Strategic Professional Development Plan")
+                st.markdown(res['coach'])
+
+            # Tab 8: TARGET COVER LETTER
+            with tabs[7]:
+                st.header("Custom Tailored Cover Letter Generator")
+                st.text_area("Generated Output (Editable)", res['cover_letter'], height=450)
+
+            # Tab 9: MULTI-JOB SCORING COMPARISON GRAPH
+            with tabs[8]:
+                st.header("Multi-Job Intent Target Comparison Chart")
+                comparison_dict = {
+                    "Primary Job (Job 1)": res['score1'],
+                    "Comparison Job 2": res['score2'],
+                    "Comparison Job 3": res['score3']
+                }
+                st.bar_chart(comparison_dict)
+                st.info("Use this visual data array to see which job profile variant matches best with your current resume version.")
+
+            # Tab 10: VERSION HISTORY
+            with tabs[9]:
+                st.header("Resume Version History")
+                st.caption(
+                    "Saved versions live only in this browser session. Use Export/Import "
+                    "below to keep your history across visits — no account needed."
                 )
-            with col_import:
-                imported_file = st.file_uploader("⬆️ Import History JSON", type=["json"], key="history_import")
-                if imported_file and st.button("Merge Imported History"):
-                    try:
-                        imported_data = json.loads(imported_file.read())
-                        st.session_state.version_history.extend(imported_data)
-                        st.success(f"Imported {len(imported_data)} version(s). Refresh the tab to see them.")
-                    except Exception as e:
-                        st.error(f"Could not read that file: {e}")
 
-# -----------------------------
-# SIDEBAR — CHROME EXTENSION & ROADMAP
-# -----------------------------
-st.sidebar.markdown("## 🧩 Chrome Extension")
-st.sidebar.markdown(
-    "Send any job posting (LinkedIn, Indeed, Glassdoor) to ResumePilot "
-    "with one click."
-)
-st.sidebar.markdown(
-    "[📦 Download extension files]"
-    "(https://github.com/abduaali132012-hash/ResumePilot-AI/tree/main/resumepilot-extension)"
-)
-st.sidebar.caption(
-    "Chrome → `chrome://extensions` → Developer mode → Load unpacked"
-)
+                history = st.session_state.version_history
 
-st.sidebar.markdown("---")
-st.sidebar.markdown("## 🗺️ Roadmap")
-st.sidebar.markdown(
-    "- 📱 **Real job-board API integration** (live listings)\n"
-    "- 👥 **Recruiter dashboard** (batch ranking)\n"
-    "- 🌍 **Multi-language support** (Arabic, French, etc.)\n"
-    "- 🤖 **AI Interview Coach** (voice Q&A)\n"
-    "- 🔄 **Bulk resume processing**"
-)
+                if not history:
+                    st.info("No versions saved yet. Click '💾 Save This Version to History' above after an analysis.")
+                else:
+                    # Score trend over saved versions
+                    trend_df = pd.DataFrame({
+                        "Version": [f"v{i+1} ({h['timestamp']})" for i, h in enumerate(history)],
+                        "Score": [h["score"] for h in history],
+                    })
+                    fig_trend = px.line(trend_df, x="Version", y="Score", markers=True, title="ATS Score Across Saved Versions")
+                    st.plotly_chart(fig_trend, use_container_width=True)
 
-st.sidebar.markdown("---")
-st.sidebar.subheader("Infrastructure Connectivity Diagnostics")
+                    # Table of all saved versions
+                    table_df = pd.DataFrame([
+                        {
+                            "Version": f"v{i+1}",
+                            "Saved At": h["timestamp"],
+                            "Score": f"{h['score']}%",
+                            "Matched": h["matched_count"],
+                            "Missing": h["missing_count"],
+                        }
+                        for i, h in enumerate(history)
+                    ])
+                    st.dataframe(table_df, use_container_width=True)
 
-if st.sidebar.button("Test Gemini Connection"):
-    if not gemini_enabled:
-        st.sidebar.error(
-            "❌ Gemini client is not available (see errors above). "
-            "Fix the API key first."
+                    # Reload an older version back into the working text areas
+                    reload_choice = st.selectbox(
+                        "Load an earlier version back into the editor above",
+                        options=list(range(len(history))),
+                        format_func=lambda i: f"v{i+1} — {history[i]['timestamp']} — {history[i]['score']}%",
+                    )
+                    if st.button("↩️ Load Selected Version"):
+                        st.session_state["_reload_resume"] = history[reload_choice]["resume_snapshot"]
+                        st.session_state["_reload_job1"] = history[reload_choice]["job_snapshot"]
+                        st.info("Loaded. Scroll up, the resume and job description fields are now populated — click Analyze Resume to re-run.")
+
+                    st.markdown("---")
+
+                    # Export / Import for cross-session persistence without accounts
+                    col_export, col_import = st.columns(2)
+                    with col_export:
+                        st.download_button(
+                            "⬇️ Export History as JSON",
+                            data=json.dumps(history, indent=2),
+                            file_name="resumepilot_version_history.json",
+                            mime="application/json",
+                        )
+                    with col_import:
+                        imported_file = st.file_uploader("⬆️ Import History JSON", type=["json"], key="history_import")
+                        if imported_file and st.button("Merge Imported History"):
+                            try:
+                                imported_data = json.loads(imported_file.read())
+                                st.session_state.version_history.extend(imported_data)
+                                st.success(f"Imported {len(imported_data)} version(s). Refresh the tab to see them.")
+                            except Exception as e:
+                                st.error(f"Could not read that file: {e}")
+
+        # -----------------------------
+        # SIDEBAR — CHROME EXTENSION & ROADMAP
+        # -----------------------------
+        st.sidebar.markdown("## 🧩 Chrome Extension")
+        st.sidebar.markdown(
+            "Send any job posting (LinkedIn, Indeed, Glassdoor) to ResumePilot "
+            "with one click."
         )
-    else:
-        try:
-            response = gemini_client.models.generate_content(
-                model=GEMINI_MODEL, contents="Say hello"
-            )
-            st.sidebar.success(f"Gemini Active: {response.text}")
-        except Exception as e:
-            st.sidebar.error(f"Error: {e}")
+        st.sidebar.markdown(
+            "[📦 Download extension files]"
+            "(https://github.com/abduaali132012-hash/ResumePilot-AI/tree/main/resumepilot-extension)"
+        )
+        st.sidebar.caption(
+            "Chrome → `chrome://extensions` → Developer mode → Load unpacked"
+        )
 
-# NOTE: The old "Test AMD Llama Node" button hardcoded a raw server IP
-# address directly in source code that was pushed to a PUBLIC GitHub repo.
-# That let anyone reading your code hit your server directly, with no
-# authentication. It has been removed entirely.
-#
-# If you need to test a second/local LLM endpoint later, put the URL in
-# .streamlit/secrets.toml (which is .gitignored, so it never reaches GitHub)
-# and read it with st.secrets["LLAMA_NODE_URL"] instead of typing it here.
+        st.sidebar.markdown("---")
+        st.sidebar.markdown("## 🗺️ Roadmap")
+        st.sidebar.markdown(
+            "- 📱 **Real job-board API integration** (live listings)\n"
+            "- 👥 **Recruiter dashboard** (batch ranking)\n"
+            "- 🌍 **Multi-language support** (Arabic, French, etc.)\n"
+            "- 🤖 **AI Interview Coach** (voice Q&A)\n"
+            "- 🔄 **Bulk resume processing**"
+        )
+
+        st.sidebar.markdown("---")
+        st.sidebar.subheader("Infrastructure Connectivity Diagnostics")
+
+        if st.sidebar.button("Test Gemini Connection"):
+            if not gemini_enabled:
+                st.sidebar.error(
+                    "❌ Gemini client is not available (see errors above). "
+                    "Fix the API key first."
+                )
+            else:
+                try:
+                    response = gemini_client.models.generate_content(
+                        model=GEMINI_MODEL, contents="Say hello"
+                    )
+                    st.sidebar.success(f"Gemini Active: {response.text}")
+                except Exception as e:
+                    st.sidebar.error(f"Error: {e}")
+
+        # NOTE: The old "Test AMD Llama Node" button hardcoded a raw server IP
+        # address directly in source code that was pushed to a PUBLIC GitHub repo.
+        # That let anyone reading your code hit your server directly, with no
+        # authentication. It has been removed entirely.
+        #
+        # If you need to test a second/local LLM endpoint later, put the URL in
+        # .streamlit/secrets.toml (which is .gitignored, so it never reaches GitHub)
+        # and read it with st.secrets["LLAMA_NODE_URL"] instead of typing it here.
