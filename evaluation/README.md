@@ -5,8 +5,8 @@ Evaluation agent over the single-pass baseline that ResumePilot had before the
 Micro1 (Frontier Engineering Challenge 2026) work.
 
 We never invent numbers. Every figure in `baseline_results.json`,
-`agent_results.json`, and `comparison.md` comes from actually running the two
-systems on the controlled cases below.
+`agent_results.json`, `comparison.md`, and the comparison PDF comes from actually
+running the two systems on the controlled cases below.
 
 ## Structure
 
@@ -17,6 +17,8 @@ evaluation/
 ├── baseline_results.json      # written by the harness
 ├── agent_results.json         # written by the harness
 ├── comparison.md              # markdown table written by the harness
+├── generate_comparison_pdf.py # creates the report PDF with limitations
+├── ResumePilot AI comparison.pdf
 └── cases/
     ├── case_01_backend_engineer/
     │   ├── job_description.txt
@@ -25,6 +27,10 @@ evaluation/
     ├── case_02_data_analyst/
     └── case_03_frontend_engineer/
 ```
+
+The harness includes the ten named `case_XX_<name>` benchmark directories.
+Short `case_XX` fixture directories are legacy data and are not included in the
+comparison.
 
 Each case is deliberately written to contain **traps** that single-pass
 evaluators get wrong — e.g. "cloud experience" that is not AWS, a skill listed
@@ -38,14 +44,17 @@ From the repo root, with `GOOGLE_API_KEY` set in the environment:
 ```bash
 pip install -r requirements.txt
 python evaluation/run_evaluation.py
+python evaluation/generate_comparison_pdf.py
 ```
 
 No key handy? The harness still works in deterministic mode (both systems fall
 back to the keyword evaluator) — useful as a wiring smoke test, but it will not
-measure the real agent:
+measure the real agent. Since both systems run the same heuristic in this mode,
+identical results are expected and do not demonstrate an improvement:
 
 ```bash
 python evaluation/run_evaluation.py --heuristic
+python evaluation/generate_comparison_pdf.py
 ```
 
 ## Metrics

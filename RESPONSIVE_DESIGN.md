@@ -1,18 +1,20 @@
 # 📱 ResumePilot AI — Responsive Design Guide
 
-ResumePilot AI is now fully responsive and optimized for **mobile**, **tablet**, and **desktop** devices. This document explains how the responsive design works and how to extend it.
+ResumePilot AI includes responsive helpers for **mobile**, **tablet**, and
+**desktop** viewports. Browser width is measured by a small local Streamlit
+component and refreshed when the viewport is resized.
 
 ---
 
 ## 🎯 Device Classifications
 
-The app automatically detects the device type based on screen width:
+The app classifies the measured viewport width as follows:
 
 | Device | Width | Layout | Sidebar | Use Case |
 |--------|-------|--------|---------|----------|
 | 📱 **Mobile** | ≤ 600px | Single column, stacked | Collapsed | Phones, small devices |
 | 📱 **Tablet** | 601–1200px | 2 columns max, flexible | Expanded | iPads, small laptops |
-| 💻 **Desktop** | > 1200px | Full multi-column | Expanded | Large laptops, desktops |
+| 💻 **Desktop** | > 1200px | Up to 2 columns | Expanded | Large laptops, desktops |
 
 ---
 
@@ -32,7 +34,7 @@ The app automatically detects the device type based on screen width:
 - Sidebar visible for navigation
 
 **Desktop View:**
-- Full multi-column layout (up to 3 columns)
+- Up to 2 columns
 - Charts at optimal 400px height
 - Sidebar fully expanded
 
@@ -43,15 +45,15 @@ The `ResponsiveLayout` utility class in `utils/responsive.py` provides:
 ```python
 from utils.responsive import ResponsiveLayout
 
-# Detect device type
+# Detect device type after the page has been configured
 device = ResponsiveLayout.get_device_type()  # Returns: "mobile", "tablet", or "desktop"
 
 # Check specific device
 if ResponsiveLayout.is_mobile():
     # Mobile-specific logic
     
-# Get responsive columns
-cols = ResponsiveLayout.get_columns(num_cols=3)  # Auto-adjusts for device
+# Create at most 1 mobile or 2 tablet/desktop columns.
+cols = ResponsiveLayout.get_columns(num_cols=3)
 
 # Get optimal heights
 height = ResponsiveLayout.get_text_area_height()  # 200px mobile, 300px tablet, 400px desktop
@@ -80,14 +82,15 @@ height = ResponsiveLayout.get_chart_height()      # 300px mobile, 350px tablet, 
 
 #### Page Configuration
 ```python
+ResponsiveLayout.configure_page_layout("ResumePilot AI", icon="🚀")
 device_type = ResponsiveLayout.get_device_type()
-st.set_page_config(
-    page_title="ResumePilot AI",
-    page_icon="🚀",
-    layout="wide",
-    initial_sidebar_state="collapsed" if device_type == ResponsiveLayout.MOBILE else "expanded"
-)
 ```
+
+`configure_page_layout()` calls `st.set_page_config()` before rendering the
+viewport component, as required by Streamlit. The initial sidebar state uses
+Streamlit's `"auto"` behavior; the measured width is available to Python on the
+component's first value update and changes on later resizes. Until a measurement
+arrives, device helpers use a 1280px desktop fallback.
 
 #### Step Indicators
 - **Mobile:** Vertical markdown with numbered items
@@ -137,12 +140,18 @@ else:
 ### Example 3: Responsive Columns
 
 ```python
-# Automatically adjusts columns based on device
+# Creates at most 2 columns and groups extra content into subsequent rows.
 cols = ResponsiveLayout.get_columns(num_cols=4)
 
-for i, col in enumerate(cols):
-    with col:
-        st.metric(f"Metric {i+1}", value=100+i)
+ResponsiveLayout.render_responsive_columns(
+    {
+        f"Metric {i + 1}": lambda value=100 + i: st.metric(
+            f"Metric {i + 1}", value=value
+        )
+        for i in range(4)
+    },
+    num_cols=4,
+)
 ```
 
 ### Example 4: Custom Responsive Layout

@@ -14,15 +14,9 @@ from utils.responsive import ResponsiveLayout
 
 # -----------------------------
 # PAGE CONFIG (MUST BE THE FIRST STREAMLIT COMMAND)
-# Device-aware configuration: sidebar collapses on mobile for better UX
 # -----------------------------
+ResponsiveLayout.configure_page_layout("ResumePilot AI", icon="🚀")
 device_type = ResponsiveLayout.get_device_type()
-st.set_page_config(
-    page_title="ResumePilot AI",
-    page_icon="🚀",
-    layout="wide",
-    initial_sidebar_state="collapsed" if device_type == ResponsiveLayout.MOBILE else "expanded"
-)
 
 # Banner rendered immediately AFTER page config
 st.markdown("""
@@ -60,14 +54,18 @@ if ResponsiveLayout.is_mobile():
     st.markdown("2️⃣ **Paste** the job description you're targeting")
     st.markdown("3️⃣ **Optimize** — get ATS score, keyword gaps, rewrite & more")
 else:
-    # Desktop/Tablet: show as columns
-    step_cols = ResponsiveLayout.get_columns(3)
-    with step_cols[0]:
-        st.info("**1️⃣ Upload** your resume\n(PDF, DOCX, or TXT)")
-    with step_cols[1]:
-        st.info("**2️⃣ Paste** the job description\nyou're targeting")
-    with step_cols[2]:
-        st.info("**3️⃣ Optimize** — get ATS score,\nkeyword gaps, rewrite & more")
+    ResponsiveLayout.render_responsive_columns(
+        {
+            "Upload": lambda: st.info("**1️⃣ Upload** your resume\n(PDF, DOCX, or TXT)"),
+            "Job description": lambda: st.info(
+                "**2️⃣ Paste** the job description\nyou're targeting"
+            ),
+            "Optimize": lambda: st.info(
+                "**3️⃣ Optimize** — get ATS score,\nkeyword gaps, rewrite & more"
+            ),
+        },
+        num_cols=2,
+    )
 
 st.markdown("---")
 
