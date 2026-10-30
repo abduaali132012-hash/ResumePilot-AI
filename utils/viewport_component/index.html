@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+      html,
+      body {
+        height: 0;
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      (() => {
+        const post = (type, payload = {}) => {
+          window.parent.postMessage(
+            { isStreamlitMessage: true, type, ...payload },
+            "*"
+          );
+        };
+
+        let lastWidth = 0;
+        let resizeTimer;
+        const getViewportWidth = () => {
+          try {
+            const width = window.parent.innerWidth;
+            if (Number.isFinite(width) && width > 0) {
+              return width;
+            }
+          } catch (error) {
+            if (error.name !== "SecurityError") {
+              throw error;
+            }
+          }
+          return window.innerWidth;
+        };
+
+        const reportWidth = () => {
+          const width = Math.round(getViewportWidth());
+          if (width > 0 && width !== lastWidth) {
+            lastWidth = width;
+            post("streamlit:setComponentValue", {
+              value: width,
+              dataType: "json",
+            });
+          }
+        };
+
+        post("streamlit:componentReady", { apiVersion: 1 });
+        post("streamlit:setFrameHeight", { height: 0 });
+        reportWidth();
+        const scheduleReport = () => {
+          window.clearTimeout(resizeTimer);
+          resizeTimer = window.setTimeout(reportWidth, 120);
+        };
+        window.addEventListener("resize", scheduleReport, { passive: true });
+        try {
+          window.parent.addEventListener("resize", scheduleReport, { passive: true });
+        } catch (error) {
+          if (error.name !== "SecurityError") {
+            throw error;
+          }
+        }
+      })();
+    </script>
+  </body>
+</html>
