@@ -11,7 +11,7 @@ component and refreshed when the viewport is resized.
 The app classifies the measured viewport width as follows:
 
 | Device | Width | Layout | Sidebar | Use Case |
-|--------|-------|--------|---------|----------|
+| -------- | ------- | -------- | --------- | ---------- |
 | 📱 **Mobile** | ≤ 600px | Single column, stacked | Collapsed | Phones, small devices |
 | 📱 **Tablet** | 601–1200px | 2 columns max, flexible | Expanded | iPads, small laptops |
 | 💻 **Desktop** | > 1200px | Up to 2 columns | Expanded | Large laptops, desktops |
@@ -23,17 +23,20 @@ The app classifies the measured viewport width as follows:
 ### 1. **Adaptive Layout**
 
 **Mobile View:**
+
 - Single-column layout for better readability
 - Resume and job description stack vertically
 - Buttons full-width for easier clicking on touch screens
 - Sidebar collapses automatically
 
 **Tablet View:**
+
 - 2-column layout where appropriate
 - Balanced spacing and font sizes
 - Sidebar visible for navigation
 
 **Desktop View:**
+
 - Up to 2 columns
 - Charts at optimal 400px height
 - Sidebar fully expanded
@@ -81,6 +84,7 @@ height = ResponsiveLayout.get_chart_height()      # 300px mobile, 350px tablet, 
 ### Current Responsive Elements
 
 #### Page Configuration
+
 ```python
 ResponsiveLayout.configure_page_layout("ResumePilot AI", icon="🚀")
 device_type = ResponsiveLayout.get_device_type()
@@ -93,10 +97,12 @@ component's first value update and changes on later resizes. Until a measurement
 arrives, device helpers use a 1280px desktop fallback.
 
 #### Step Indicators
+
 - **Mobile:** Vertical markdown with numbered items
 - **Desktop/Tablet:** 3-column grid layout
 
 #### Data Input Section
+
 ```python
 if ResponsiveLayout.is_mobile():
     # Single column: Resume, then Job descriptions
@@ -112,6 +118,7 @@ else:
 ```
 
 #### Action Buttons
+
 - **Mobile:** Vertical stack, full-width, use `use_container_width=True`
 - **Desktop:** Grid layout (3 cols for top row, 2 for bottom)
 
@@ -176,16 +183,19 @@ else:
 ### On Your Computer
 
 1. **Mobile (Chrome DevTools):**
+
    ```
    F12 → Toggle device toolbar (Ctrl+Shift+M) → Select "iPhone 12"
    ```
 
 2. **Tablet (Chrome DevTools):**
+
    ```
    F12 → Toggle device toolbar → Select "iPad"
    ```
 
 3. **Desktop:**
+
    ```
    Normal browser window (>1200px width)
    ```
@@ -242,16 +252,21 @@ The responsive design is optimized for mobile performance:
 ## 🐛 Troubleshooting
 
 ### Issue: Buttons overlap on tablet
+
 **Solution:** Buttons use `use_container_width=True` to prevent overflow.
 
 ### Issue: Text area is too small on desktop
+
 **Solution:** Use `ResponsiveLayout.get_text_area_height()` to get optimal height.
 
 ### Issue: Sidebar doesn't collapse on mobile
+
 **Solution:** `initial_sidebar_state="collapsed"` is set in page config for mobile.
 
 ### Issue: Layout looks wrong on specific device
+
 **Solution:** Test in Chrome DevTools with exact breakpoints:
+
 ```python
 st.write(f"Device: {ResponsiveLayout.get_device_type()}")
 ```
@@ -273,10 +288,10 @@ Possible extensions to the responsive design:
 
 ## 📚 Resources
 
-- **Streamlit Responsive Design:** https://docs.streamlit.io/library/advanced-features/styling
-- **Mobile-First Design:** https://www.google.com/design/articles/responsive-web-design-basics
-- **CSS Media Queries:** https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries
-- **Touch Target Sizes:** https://www.nngroup.com/articles/touch-target-size/
+- **Streamlit Responsive Design:** <https://docs.streamlit.io/library/advanced-features/styling>
+- **Mobile-First Design:** <https://www.google.com/design/articles/responsive-web-design-basics>
+- **CSS Media Queries:** <https://developer.mozilla.org/en-US/docs/Web/CSS/Media_Queries>
+- **Touch Target Sizes:** <https://www.nngroup.com/articles/touch-target-size/>
 
 ---
 
