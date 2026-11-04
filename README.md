@@ -155,6 +155,7 @@ serves the UI is what the evaluation harness measures.
 | `evaluation/` | Controlled baseline-vs-agent harness + **10 labelled cases** |
 | `agent-traces/` | Agent trajectory log (instructions → tool calls → responses → feedback) |
 | `docs/` | `baseline-record.md`, `improvement-changelog.md`, `micro1-git-workflow.md` |
+| `agensi-resumepilot-skill/` | Portable, evidence-based resume-evaluation skill package |
 | `REPRODUCTION.md` | Clean-environment reproduction guide |
 | `notebooks/` | GPU-prep notebooks (ROCm / PyTorch / Hugging Face) |
 
