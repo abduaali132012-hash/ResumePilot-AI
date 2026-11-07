@@ -184,19 +184,19 @@ else:
 
 1. **Mobile (Chrome DevTools):**
 
-   ```
+    ```text
    F12 → Toggle device toolbar (Ctrl+Shift+M) → Select "iPhone 12"
    ```
 
 2. **Tablet (Chrome DevTools):**
 
-   ```
+    ```text
    F12 → Toggle device toolbar → Select "iPad"
    ```
 
 3. **Desktop:**
 
-   ```
+    ```text
    Normal browser window (>1200px width)
    ```
 
