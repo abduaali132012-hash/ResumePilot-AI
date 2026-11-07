@@ -2,10 +2,24 @@
   "case_01_backend_engineer": {
     "aligned": 5,
     "total_expected": 10,
+    "total_predictions": 12,
+    "matched_requirements": 5,
     "correct": 1,
     "evidence_accuracy": 20.0,
-    "false_positives": 0,
-    "false_negatives": 2,
+    "precision": 41.7,
+    "recall": 50.0,
+    "f1": 45.5,
+    "false_positives": 7,
+    "false_negatives": 5,
+    "status_false_positives": 0,
+    "status_false_negatives": 2,
+    "missed_requirements": [
+      "FastAPI experience",
+      "PostgreSQL",
+      "Kubernetes",
+      "Docker",
+      "message queues"
+    ],
     "detail": [
       {
         "predicted_requirement": "backend",
@@ -120,10 +134,23 @@
   "case_02_data_analyst": {
     "aligned": 5,
     "total_expected": 9,
+    "total_predictions": 12,
+    "matched_requirements": 5,
     "correct": 3,
     "evidence_accuracy": 60.0,
-    "false_positives": 0,
-    "false_negatives": 1,
+    "precision": 41.7,
+    "recall": 55.6,
+    "f1": 47.7,
+    "false_positives": 7,
+    "false_negatives": 4,
+    "status_false_positives": 0,
+    "status_false_negatives": 1,
+    "missed_requirements": [
+      "SQL",
+      "statistics",
+      "A/B testing",
+      "attention to detail"
+    ],
     "detail": [
       {
         "predicted_requirement": "data",
@@ -238,10 +265,23 @@
   "case_03_frontend_engineer": {
     "aligned": 5,
     "total_expected": 9,
+    "total_predictions": 12,
+    "matched_requirements": 5,
     "correct": 3,
     "evidence_accuracy": 60.0,
-    "false_positives": 0,
-    "false_negatives": 0,
+    "precision": 41.7,
+    "recall": 55.6,
+    "f1": 47.7,
+    "false_positives": 7,
+    "false_negatives": 4,
+    "status_false_positives": 0,
+    "status_false_negatives": 0,
+    "missed_requirements": [
+      "TypeScript",
+      "REST APIs",
+      "GraphQL",
+      "Next.js"
+    ],
     "detail": [
       {
         "predicted_requirement": "frontend",
@@ -358,10 +398,25 @@
   "case_04_ml_engineer": {
     "aligned": 4,
     "total_expected": 10,
+    "total_predictions": 12,
+    "matched_requirements": 4,
     "correct": 2,
     "evidence_accuracy": 50.0,
-    "false_positives": 0,
-    "false_negatives": 0,
+    "precision": 33.3,
+    "recall": 40.0,
+    "f1": 36.3,
+    "false_positives": 8,
+    "false_negatives": 6,
+    "status_false_positives": 0,
+    "status_false_negatives": 0,
+    "missed_requirements": [
+      "Python experience",
+      "PyTorch or TensorFlow",
+      "MLOps practices",
+      "statistics",
+      "Docker",
+      "NLP / LLM fine-tuning"
+    ],
     "detail": [
       {
         "predicted_requirement": "models",
@@ -482,10 +537,24 @@
   "case_05_devops_engineer": {
     "aligned": 4,
     "total_expected": 9,
+    "total_predictions": 11,
+    "matched_requirements": 4,
     "correct": 3,
     "evidence_accuracy": 75.0,
-    "false_positives": 0,
-    "false_negatives": 0,
+    "precision": 36.4,
+    "recall": 44.4,
+    "f1": 40.0,
+    "false_positives": 7,
+    "false_negatives": 5,
+    "status_false_positives": 0,
+    "status_false_negatives": 0,
+    "missed_requirements": [
+      "Terraform",
+      "Kubernetes",
+      "shell scripting",
+      "observability",
+      "GCP or Azure"
+    ],
     "detail": [
       {
         "predicted_requirement": "cd",
@@ -594,10 +663,24 @@
   "case_06_fullstack_engineer": {
     "aligned": 5,
     "total_expected": 10,
+    "total_predictions": 12,
+    "matched_requirements": 5,
     "correct": 1,
     "evidence_accuracy": 20.0,
-    "false_positives": 0,
-    "false_negatives": 3,
+    "precision": 41.7,
+    "recall": 50.0,
+    "f1": 45.5,
+    "false_positives": 7,
+    "false_negatives": 5,
+    "status_false_positives": 0,
+    "status_false_negatives": 3,
+    "missed_requirements": [
+      "React experience",
+      "TypeScript",
+      "REST APIs",
+      "GraphQL",
+      "Docker"
+    ],
     "detail": [
       {
         "predicted_requirement": "end",
@@ -712,10 +795,24 @@
   "case_07_product_manager": {
     "aligned": 4,
     "total_expected": 9,
+    "total_predictions": 12,
+    "matched_requirements": 4,
     "correct": 1,
     "evidence_accuracy": 25.0,
-    "false_positives": 0,
-    "false_negatives": 1,
+    "precision": 33.3,
+    "recall": 44.4,
+    "f1": 38.1,
+    "false_positives": 8,
+    "false_negatives": 5,
+    "status_false_positives": 0,
+    "status_false_negatives": 1,
+    "missed_requirements": [
+      "product strategy and roadmaps",
+      "user research",
+      "data-driven decisions",
+      "stakeholder management",
+      "pricing / monetization"
+    ],
     "detail": [
       {
         "predicted_requirement": "product",
@@ -830,10 +927,25 @@
   "case_08_mobile_developer": {
     "aligned": 4,
     "total_expected": 10,
+    "total_predictions": 12,
+    "matched_requirements": 4,
     "correct": 1,
     "evidence_accuracy": 25.0,
-    "false_positives": 1,
-    "false_negatives": 1,
+    "precision": 33.3,
+    "recall": 40.0,
+    "f1": 36.3,
+    "false_positives": 8,
+    "false_negatives": 6,
+    "status_false_positives": 1,
+    "status_false_negatives": 1,
+    "missed_requirements": [
+      "Swift",
+      "SwiftUI",
+      "UIKit",
+      "networking",
+      "unit tests",
+      "GraphQL"
+    ],
     "detail": [
       {
         "predicted_requirement": "ios",
@@ -950,10 +1062,23 @@
   "case_09_data_engineer": {
     "aligned": 5,
     "total_expected": 9,
+    "total_predictions": 12,
+    "matched_requirements": 5,
     "correct": 2,
     "evidence_accuracy": 40.0,
-    "false_positives": 0,
-    "false_negatives": 1,
+    "precision": 41.7,
+    "recall": 55.6,
+    "f1": 47.7,
+    "false_positives": 7,
+    "false_negatives": 4,
+    "status_false_positives": 0,
+    "status_false_negatives": 1,
+    "missed_requirements": [
+      "Python",
+      "SQL",
+      "orchestration tools",
+      "streaming"
+    ],
     "detail": [
       {
         "predicted_requirement": "data",
@@ -1074,10 +1199,24 @@
   "case_10_qa_automation_engineer": {
     "aligned": 4,
     "total_expected": 9,
+    "total_predictions": 12,
+    "matched_requirements": 4,
     "correct": 3,
     "evidence_accuracy": 75.0,
-    "false_positives": 0,
-    "false_negatives": 0,
+    "precision": 33.3,
+    "recall": 44.4,
+    "f1": 38.1,
+    "false_positives": 8,
+    "false_negatives": 5,
+    "status_false_positives": 0,
+    "status_false_negatives": 0,
+    "missed_requirements": [
+      "Selenium or Playwright",
+      "Python or JavaScript",
+      "CI-integrated test suites",
+      "performance testing",
+      "mobile testing"
+    ],
     "detail": [
       {
         "predicted_requirement": "test",

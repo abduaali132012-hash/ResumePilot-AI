@@ -144,7 +144,7 @@
     transition: box-shadow 150ms ease-out, transform 150ms ease-out;
   }
   .btn-glow:hover {
-    box-shadow: 0 0 24px var(--color-primary / 0.4);
+    box-shadow: 0 0 24px color-mix(in oklch, var(--color-primary) 40%, transparent);
   }
   .btn-glow:active {
     transform: scale(0.97);

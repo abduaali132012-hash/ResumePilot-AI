@@ -199,7 +199,7 @@ def aggregate(results: dict[str, dict]) -> dict:
 
 def render_table(baseline: dict, agent: dict) -> str:
     lines = [
-        "| Case | Baseline acc. | Agent acc. | Precision (B -> A) | Recall (B -> A) | F1 (B -> A) | FP (B -> A) | FN (B -> A) |",
+        "| Case | Baseline accuracy | Agent accuracy | Precision (B -> A) | Recall (B -> A) | F1 (B -> A) | FP (B -> A) | FN (B -> A) |",
         "|------|--------------:|-----------:|:-----------------:|:--------------:|:-----------:|:----------:|:----------:|",
     ]
     for case in baseline:
