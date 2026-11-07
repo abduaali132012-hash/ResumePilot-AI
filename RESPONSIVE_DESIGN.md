@@ -9,7 +9,7 @@ ResumePilot AI is now fully responsive and optimized for **mobile**, **tablet**,
 The app automatically detects the device type based on screen width:
 
 | Device | Width | Layout | Sidebar | Use Case |
-|--------|-------|--------|---------|----------|
+|-------- |-------|--------|---------|----------|
 | 📱 **Mobile** | ≤ 600px | Single column, stacked | Collapsed | Phones, small devices |
 | 📱 **Tablet** | 601–1200px | 2 columns max, flexible | Expanded | iPads, small laptops |
 | 💻 **Desktop** | > 1200px | Full multi-column | Expanded | Large laptops, desktops |
