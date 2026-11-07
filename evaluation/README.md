@@ -59,11 +59,17 @@ python evaluation/generate_comparison_pdf.py
 
 ## Metrics
 
-- **Evidence accuracy** — % of human-labelled requirements whose verdict the
-  system got right.
-- **False positives** — requirements the system claimed were `SUPPORTED` when
-  the resume has no real evidence (the failure mode this project exists to fix).
-- **False negatives** — supported requirements the system missed.
+- **Evidence accuracy** — % of aligned predictions whose verdict exactly matches
+  the human-labelled status. This legacy metric excludes unaligned requirements;
+  use precision, recall, and F1 to assess requirement extraction coverage.
+- **Precision** — aligned predictions divided by all predictions.
+- **Recall** — aligned predictions divided by all expected requirements.
+- **F1** — harmonic mean of requirement precision and recall.
+- **False positives** — predicted requirements with no expected match.
+- **False negatives** — expected requirements with no predicted match.
+- **Status false positives/negatives** — incorrect `SUPPORTED` claims and missed
+  `SUPPORTED` labels among aligned requirements, retained separately from
+  requirement-extraction errors.
 
 ## Adding a case
 
