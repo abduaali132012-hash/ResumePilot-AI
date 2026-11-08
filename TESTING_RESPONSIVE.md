@@ -272,7 +272,18 @@ Issues: ___________
 
 ## 🚀 Automated Testing (Advanced)
 
-For automated testing of responsive layouts, consider:
+The responsive utility unit tests run without a browser or API key:
+
+```bash
+pytest test_responsive_layout.py -v
+```
+
+They verify device-width boundaries, resize updates, responsive heights, page
+configuration ordering, mobile-banner visibility, and predictable column
+grouping. The viewport component itself still needs a browser check using the
+device-emulation steps above.
+
+For end-to-end testing of the browser component, consider:
 
 1. **Playwright** (headless browser automation)
    ```bash

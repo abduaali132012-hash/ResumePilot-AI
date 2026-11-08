@@ -1,6 +1,29 @@
 ---
 name: resumepilot-evidence-based-evaluator
-description: Compare a resume with a job description using explicit resume evidence. Extract requirements, map them to exact quotes, identify evidence gaps, suggest truthful resume improvements, and prepare role-specific interview questions. Use for resume reviews, job-fit analysis, or application preparation. Never invent qualifications or make hiring decisions.
+description: >-
+  Compare a resume with a job description using explicit resume evidence.
+  Extract requirements, map them to exact quotes, identify evidence gaps,
+  suggest truthful resume improvements, and prepare role-specific interview
+  questions. Use for resume reviews, job-fit analysis, or application
+  preparation. Never invent qualifications or make hiring decisions.
+summary: Evidence-based resume and job description evaluation with skills-gap analysis and interview preparation.
+version: "1.0.0"
+tags:
+  - resume
+  - career
+  - job-search
+  - ats
+  - recruitment
+keywords:
+  - resume evaluator
+  - CV reviewer
+  - job matching
+  - skills gap analysis
+use_cases:
+  - Evaluate a resume against a job description
+  - Identify missing job qualifications
+  - Improve ATS compatibility
+  - Prepare for job interviews
 ---
 
 # ResumePilot AI — Evidence-Based Resume Evaluator
@@ -116,4 +139,3 @@ Before responding, confirm that:
 - The coverage calculation follows the stated formula.
 - Recommendations do not add unverified facts.
 - Limitations are clear and the report is respectful and actionable.
-

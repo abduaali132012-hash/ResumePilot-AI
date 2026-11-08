@@ -1,20 +1,22 @@
 # 📱💻 ResumePilot AI — Responsive Features Summary
 
-ResumePilot AI is now fully responsive and optimized for **mobile**, **tablet**, and **desktop** devices!
+ResumePilot AI includes responsive helpers for **mobile**, **tablet**, and
+**desktop** viewports. A local Streamlit component measures browser width and
+updates the device classification after resize.
 
 ---
 
 ## ✨ What's New
 
 ### 1. **Device Detection System**
-- Automatically detects device type based on screen width
+- Measures browser viewport width (not an assumed Streamlit session-state value)
 - Seamless experience across all screen sizes
-- No user intervention required
+- Reclassifies after the browser is resized
 
 ### 2. **Adaptive Layouts**
 - **Mobile (≤600px):** Single-column, touch-optimized
 - **Tablet (601-1200px):** Two-column, balanced layout
-- **Desktop (>1200px):** Multi-column, full feature set
+- **Desktop (>1200px):** Up to two columns, full feature set
 
 ### 3. **Responsive Components**
 - Text areas scale by device (200px → 400px)
@@ -125,9 +127,8 @@ else:
 
 ### Example 4: Responsive Columns
 ```python
-# Automatically adjusts based on device
+# Up to 1 column on mobile and 2 on tablet/desktop
 cols = ResponsiveLayout.get_columns(num_cols=3)
-# Returns: 1 col on mobile, 2 on tablet, 3 on desktop
 ```
 
 ---
