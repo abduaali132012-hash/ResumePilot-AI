@@ -72,3 +72,7 @@ Abdu Ali Adem
   evidence. Identify supported and partially supported requirements, surface
   evidence gaps, improve resume wording honestly, and prepare for interviews.
 - **Suggested tags:** Resume, CV, Job Search, Career, ATS, Interview Preparation
+
+Review the marketplace's current packaging, listing, and payout requirements
+before publishing. No price, compatibility, marketplace approval, or earnings
+are guaranteed by this package.

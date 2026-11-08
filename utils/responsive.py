@@ -3,18 +3,36 @@
 from pathlib import Path
 from typing import Callable, Dict, List, Literal, Optional
 
-import streamlit as st
-import streamlit.components.v1 as components
+try:
+    import streamlit as st
+    import streamlit.components.v1 as components
+except ModuleNotFoundError:  # pragma: no cover - enables helper imports in tests
+    class _FallbackSessionState(dict):
+        def __getattr__(self, name):
+            return self.get(name)
+
+        def __setattr__(self, name, value):
+            self[name] = value
+
+    class _FallbackStreamlit:
+        session_state = _FallbackSessionState()
+
+        def columns(self, count):
+            return [object() for _ in range(count)]
+
+    st = _FallbackStreamlit()
+    _VIEWPORT_COMPONENT = None
+else:
+    _VIEWPORT_COMPONENT = components.declare_component(
+        "resumepilot_viewport",
+        path=str(Path(__file__).parent / "viewport_component"),
+    )
 
 DeviceType = Literal["mobile", "tablet", "desktop"]
 ContentCallback = Optional[Callable[[], object]]
 
 _VIEWPORT_STATE_KEY = "_responsive_viewport_width"
 _DEFAULT_VIEWPORT_WIDTH = 1280
-_VIEWPORT_COMPONENT = components.declare_component(
-    "resumepilot_viewport",
-    path=str(Path(__file__).parent / "viewport_component"),
-)
 
 
 class ResponsiveLayout:
@@ -38,6 +56,9 @@ class ResponsiveLayout:
     @staticmethod
     def update_viewport() -> Optional[int]:
         """Measure the browser viewport and store the latest reported width."""
+        if _VIEWPORT_COMPONENT is None:
+            return st.session_state.get(_VIEWPORT_STATE_KEY)
+
         width = _VIEWPORT_COMPONENT(key="resumepilot_viewport_width", default=None)
         if width is None:
             return st.session_state.get(_VIEWPORT_STATE_KEY)

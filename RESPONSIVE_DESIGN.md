@@ -11,10 +11,13 @@ component and refreshed when the viewport is resized.
 The app classifies the measured viewport width as follows:
 
 | Device | Width | Layout | Sidebar | Use Case |
-| -------- | ------- | -------- | --------- | ---------- |
-| 📱 **Mobile** | ≤ 600px | Single column, stacked | Collapsed | Phones, small devices |
-| 📱 **Tablet** | 601–1200px | 2 columns max, flexible | Expanded | iPads, small laptops |
-| 💻 **Desktop** | > 1200px | Up to 2 columns | Expanded | Large laptops, desktops |
+|-------|-------|--------|---------|----------|
+| 📱 **Mobile** | ≤ 600px | Single column, stacked | Auto | Phones, small devices |
+| 📱 **Tablet** | 601–1200px | 2 columns max, flexible | Auto | iPads, small laptops |
+| 💻 **Desktop** | > 1200px | Up to 2 columns | Auto | Large laptops, desktops |
+
+The page uses Streamlit's automatic sidebar state; Streamlit adapts the sidebar
+to the available viewport instead of the app forcing a device-specific state.
 
 ---
 
@@ -27,18 +30,18 @@ The app classifies the measured viewport width as follows:
 - Single-column layout for better readability
 - Resume and job description stack vertically
 - Buttons full-width for easier clicking on touch screens
-- Sidebar collapses automatically
+- Streamlit automatically adapts the sidebar to the available viewport
 
 **Tablet View:**
 
 - 2-column layout where appropriate
 - Balanced spacing and font sizes
-- Sidebar visible for navigation
+- Sidebar state follows Streamlit's automatic behavior
 
 **Desktop View:**
 - Up to 2 columns
 - Charts at optimal 400px height
-- Sidebar fully expanded
+- Sidebar state follows Streamlit's automatic behavior
 
 ### 2. **Dynamic Components**
 
