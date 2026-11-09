@@ -65,7 +65,7 @@ class ResponsiveLayoutTests(unittest.TestCase):
         self.assertEqual(self.state[responsive._VIEWPORT_STATE_KEY], 768)
 
     def test_update_viewport_rejects_invalid_measurements(self):
-        for width in (0, -1, "390", True):
+        for width in (0, -1, "390", True, 600.5):
             with self.subTest(width=width):
                 with patch.object(responsive, "_VIEWPORT_COMPONENT", return_value=width):
                     with self.assertRaises(ValueError):
