@@ -56,10 +56,11 @@ device = ResponsiveLayout.get_device_type()  # Returns: "mobile", "tablet", or "
 # Check specific device
 if ResponsiveLayout.is_mobile():
     # Mobile-specific logic
-    
+    pass
+
 # Create at most 1 mobile or 2 tablet/desktop columns.
 cols = ResponsiveLayout.get_columns(num_cols=3)
 
 # Get optimal heights
-height = ResponsiveLayout.get_text_area_height()  # 200px mobile, 300px tablet, 400px desktop
-height = ResponsiveLayout.get_chart_height()      # 300px mobile, 350px tablet, 400px desktop
+height = ResponsiveLayout.get_text_area_height()      # 200px mobile, 300px tablet, 400px desktop
+height = ResponsiveLayout.get_chart_height()          # 300px mobile, 350px tablet, 400px desktop
