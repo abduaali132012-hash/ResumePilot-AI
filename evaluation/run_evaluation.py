@@ -197,6 +197,9 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+
     cases = sorted(
         d
         for d in CASES_DIR.iterdir()
