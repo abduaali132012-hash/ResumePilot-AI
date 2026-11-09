@@ -22,9 +22,10 @@ Outputs:
 
 Metrics (all computed from REAL runs — we never invent numbers):
     evidence_accuracy      % of requirements whose verdict matches the
-                           human-labelled expected status
-    false_positives        predicted SUPPORTED but actually missing/weak
-    false_negatives        predicted missing but actually supported
+                           human-labelled expected status (aligned only; legacy)
+    precision / recall / F1 requirement extraction quality
+    false_positives        predicted requirements with no expected match
+    false_negatives        expected requirements with no predicted match
     aligned / total        how many expected requirements could be compared
 """
 from __future__ import annotations
@@ -70,8 +71,10 @@ def _overlap(a: set[str], b: set[str]) -> float:
     return len(a & b) / len(a)
 
 
-def align(verdicts: list[RequirementVerdict], expected: list[dict]) -> list[tuple]:
-    """Return (verdict, expected_dict_or_None, score) pairs aligned by text overlap."""
+def _align(
+    verdicts: list[RequirementVerdict], expected: list[dict]
+) -> tuple[list[tuple], set[int]]:
+    """Align predictions and return their matched expected-requirement indices."""
     aligned: list[tuple] = []
     used: set[int] = set()
     for v in verdicts:
@@ -88,27 +91,46 @@ def align(verdicts: list[RequirementVerdict], expected: list[dict]) -> list[tupl
             aligned.append((v, expected[best_i], best_score))
         else:
             aligned.append((v, None, best_score))
-    return aligned
+    return aligned, used
+
+
+def align(verdicts: list[RequirementVerdict], expected: list[dict]) -> list[tuple]:
+    """Return (verdict, expected_dict_or_None, score) pairs aligned by text overlap."""
+    return _align(verdicts, expected)[0]
+
+
+def _percentage(numerator: int, denominator: int) -> float:
+    return round(numerator / denominator * 100, 1) if denominator else 0.0
+
+
+def _f1(precision: float, recall: float) -> float:
+    if not precision + recall:
+        return 0.0
+    return round(2 * precision * recall / (precision + recall), 1)
 
 
 # --------------------------------------------------------------------------- #
 # Metrics
 # --------------------------------------------------------------------------- #
 def evaluate_case(verdicts: list[RequirementVerdict], expected: list[dict]) -> dict:
-    aligned = align(verdicts, expected)
+    aligned, matched_indices = _align(verdicts, expected)
     compared = [(v, e) for v, e, _ in aligned if e]
     correct = sum(1 for v, e in compared if v.status == e["status"])
 
-    false_positives = sum(
+    status_false_positives = sum(
         1
         for v, e in compared
         if v.status == "SUPPORTED" and e["status"] in {"NOT_FOUND", "NOT_VERIFIED"}
     )
-    false_negatives = sum(
+    status_false_negatives = sum(
         1
         for v, e in compared
         if v.status in {"NOT_FOUND", "NOT_VERIFIED"} and e["status"] == "SUPPORTED"
     )
+    false_positives = len(verdicts) - len(compared)
+    false_negatives = len(expected) - len(matched_indices)
+    precision = _percentage(len(compared), len(verdicts))
+    recall = _percentage(len(compared), len(expected))
 
     detail = []
     for v, e, score in aligned:
@@ -122,56 +144,85 @@ def evaluate_case(verdicts: list[RequirementVerdict], expected: list[dict]) -> d
                 "evidence_quotes": v.evidence_quotes,
             }
         )
+    missed_requirements = [
+        exp["requirement"] for i, exp in enumerate(expected) if i not in matched_indices
+    ]
 
     return {
         "aligned": len(compared),
         "total_expected": len(expected),
+        "total_predictions": len(verdicts),
+        "matched_requirements": len(compared),
         "correct": correct,
-        "evidence_accuracy": round(correct / len(compared) * 100, 1) if compared else 0.0,
+        "evidence_accuracy": _percentage(correct, len(compared)),
+        "precision": precision,
+        "recall": recall,
+        "f1": _f1(precision, recall),
         "false_positives": false_positives,
         "false_negatives": false_negatives,
+        "status_false_positives": status_false_positives,
+        "status_false_negatives": status_false_negatives,
+        "missed_requirements": missed_requirements,
         "detail": detail,
     }
 
 
 def aggregate(results: dict[str, dict]) -> dict:
-    acc, fp, fn, aligned, total = 0.0, 0, 0, 0, 0
+    acc, fp, fn, aligned, total, predictions = 0.0, 0, 0, 0, 0, 0
+    status_fp, status_fn = 0, 0
     for r in results.values():
         acc += r["evidence_accuracy"]
         fp += r["false_positives"]
         fn += r["false_negatives"]
         aligned += r["aligned"]
         total += r["total_expected"]
+        predictions += r.get("total_predictions", r["aligned"] + r["false_positives"])
+        status_fp += r.get("status_false_positives", 0)
+        status_fn += r.get("status_false_negatives", 0)
     n = len(results) or 1
+    precision = _percentage(aligned, predictions)
+    recall = _percentage(aligned, total)
     return {
         "evidence_accuracy_avg": round(acc / n, 1),
+        "precision": precision,
+        "recall": recall,
+        "f1": _f1(precision, recall),
         "false_positives_total": fp,
         "false_negatives_total": fn,
+        "status_false_positives_total": status_fp,
+        "status_false_negatives_total": status_fn,
         "aligned_total": aligned,
+        "predictions_total": predictions,
         "expected_total": total,
     }
 
 
 def render_table(baseline: dict, agent: dict) -> str:
     lines = [
-        "| Case | Baseline accuracy | Agent accuracy | Delta | FP (base -> agent) |",
-        "|------|------------------:|---------------:|:-----:|:---:|",
+        "| Case | Baseline accuracy | Agent accuracy | Precision (B -> A) | Recall (B -> A) | F1 (B -> A) | FP (B -> A) | FN (B -> A) |",
+        "|------|--------------:|-----------:|:-----------------:|:--------------:|:-----------:|:----------:|:----------:|",
     ]
     for case in baseline:
         b = baseline[case]
         a = agent.get(case, {})
-        delta = a.get("evidence_accuracy", 0) - b.get("evidence_accuracy", 0)
         lines.append(
             f"| {case} | {b.get('evidence_accuracy', 0)}% | "
-            f"{a.get('evidence_accuracy', 0)}% | {delta:+.1f}pp | "
-            f"{b.get('false_positives', 0)} -> {a.get('false_positives', 0)} |"
+            f"{a.get('evidence_accuracy', 0)}% | "
+            f"{b.get('precision', 0)}% -> {a.get('precision', 0)}% | "
+            f"{b.get('recall', 0)}% -> {a.get('recall', 0)}% | "
+            f"{b.get('f1', 0)}% -> {a.get('f1', 0)}% | "
+            f"{b.get('false_positives', 0)} -> {a.get('false_positives', 0)} | "
+            f"{b.get('false_negatives', 0)} -> {a.get('false_negatives', 0)} |"
         )
     ba, aa = aggregate(baseline), aggregate(agent)
     lines.append(
         f"| **Aggregate** | **{ba['evidence_accuracy_avg']}%** | "
         f"**{aa['evidence_accuracy_avg']}%** | "
-        f"**{aa['evidence_accuracy_avg'] - ba['evidence_accuracy_avg']:+.1f}pp** | "
-        f"**{ba['false_positives_total']} -> {aa['false_positives_total']}** |"
+        f"**{ba['precision']}% -> {aa['precision']}%** | "
+        f"**{ba['recall']}% -> {aa['recall']}%** | "
+        f"**{ba['f1']}% -> {aa['f1']}%** | "
+        f"**{ba['false_positives_total']} -> {aa['false_positives_total']}** | "
+        f"**{ba['false_negatives_total']} -> {aa['false_negatives_total']}** |"
     )
     return "\n".join(lines)
 
