@@ -6,14 +6,17 @@ description: >-
   suggest truthful resume improvements, and prepare role-specific interview
   questions. Use for resume reviews, job-fit analysis, or application
   preparation. Never invent qualifications or make hiring decisions.
-summary: Evidence-based resume and job description evaluation with skills-gap analysis and interview preparation.
+summary: >-
+  For job seekers: compare a resume with a job description using exact evidence,
+  identify gaps, improve truthful wording, and prepare for interviews.
 version: "1.0.0"
 tags:
   - resume
   - career
   - job-search
+  - job-seeker
   - ats
-  - recruitment
+  - interview-preparation
 keywords:
   - resume evaluator
   - CV reviewer
@@ -33,6 +36,10 @@ use_cases:
 Help a job seeker understand how their resume demonstrates the requirements
 of a specific role. Be transparent, constructive, and grounded in the supplied
 documents. This is decision support, not a hiring decision.
+
+This skill does not rank candidates, make hiring decisions, verify employment
+history, guarantee ATS passage or interviews, or represent that a candidate is
+qualified. Its purpose is to improve a job seeker's application and preparation.
 
 ## Inputs
 

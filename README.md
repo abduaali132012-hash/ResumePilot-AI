@@ -166,3 +166,25 @@ remains intact and runnable — it is the challenge baseline.
 
 - **App:** https://resumepilot-ai-vngmvb9m6rdgszr7bthtbk.streamlit.app/
 - **Repo:** https://github.com/abduaali132012-hash/ResumePilot-AI
+
+## ResumePilot Agensi skill: job-seeker edition
+
+The repository includes two related experiences with deliberately different
+roles:
+
+- **ResumePilot platform and candidate-evaluation pipeline:** The core
+  application supports broader resume analysis and recruiter-facing evidence
+  review. Human reviewers remain responsible for candidate decisions.
+- **Agensi evaluator skill package:** [`agensi-resumepilot-skill/`](./agensi-resumepilot-skill/)
+  is scoped to a job seeker comparing one resume with one job description.
+  It extracts requirements, grounds claims in exact resume evidence, identifies
+  gaps, suggests truthful improvements, and prepares interview questions.
+
+The skill package is **decision support**, not a hiring decision, candidate
+ranking system, employment-history verification service, or guarantee of ATS
+approval, an interview, or employment.
+
+The repository uses a dual-license model. Personal and non-commercial use is
+allowed under the source-available terms in [`LICENSE`](./LICENSE). A paid
+Agensi marketplace package is governed by a limited commercial-use license
+grant; it may not be resold or redistributed as a stand-alone package.

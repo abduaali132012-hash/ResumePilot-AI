@@ -9,6 +9,41 @@ Permission is granted to view this Software's source code for personal
 evaluation, learning, and reference purposes only, subject to the following
 restrictions:
 
+## Dual Licensing
+
+The Owner offers this repository under the following terms:
+
+### Non-Commercial Source-Available Use
+
+Individuals may view, use, and operate the Software for personal,
+non-commercial purposes without a separate commercial license. This
+source-available license does not grant permission to redistribute the
+Software or a derivative work, relaunch a competing or substantially similar
+product, or remove ownership and license notices.
+
+### Paid Commercial Marketplace License
+
+The Owner may offer the bundled Agensi skill package under a separate,
+limited commercial license to a purchaser. A commercial marketplace purchase
+authorizes the purchaser to use the packaged skill for its intended personal
+or business workflow, subject to the applicable purchase terms and these
+restrictions:
+
+- Notwithstanding restrictions 1 and 2 below, the marketplace purchase grants
+  the purchaser a limited, non-exclusive, non-transferable license to use the
+  bundled Agensi skill package for personal or internal business workflows.
+- The package may not be resold or redistributed as a stand-alone skill
+  package.
+- The purchaser may not publish or relaunch the package as a competing
+  marketplace listing.
+- A commercial purchase does not grant ownership of the Software or rights
+  to the underlying source code.
+- The underlying repository remains subject to this license unless the Owner
+  provides a separate written commercial agreement.
+- The packaged skill is provided "AS IS", without warranties. The purchaser
+  remains responsible for reviewing AI output and complying with applicable
+  privacy and marketplace terms.
+
 1. NO COMMERCIAL USE. You may not use, deploy, host, or operate this
    Software, in whole or in part, to provide any product or service to
    third parties, whether for a fee or free of charge, without prior
