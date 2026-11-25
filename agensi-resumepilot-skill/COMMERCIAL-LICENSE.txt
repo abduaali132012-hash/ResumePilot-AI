@@ -1,0 +1,39 @@
+ResumePilot AI — Agensi Skill Package License
+
+Copyright (c) 2026 abduaali132012-hash. All Rights Reserved.
+
+This license applies only to the ResumePilot AI skill package distributed
+through Agensi. It does not license the complete ResumePilot AI repository or
+application.
+
+LICENSE GRANT
+
+If you obtained this package through a paid Agensi purchase, the Owner grants
+you a limited, non-exclusive, non-transferable license to use the packaged
+skill for personal or internal business workflows.
+
+RESTRICTIONS
+
+- Do not resell, sublicense, publish, or redistribute the package as a
+  stand-alone skill or product.
+- Do not relaunch the package as a competing marketplace listing.
+- Do not remove the copyright or license notices.
+- This license does not transfer ownership or grant rights to the complete
+  ResumePilot AI source code.
+
+If you obtained a free copy, commercial use is not granted by this license.
+Contact the Owner for separate written permission before commercial use.
+
+DISCLAIMER
+
+The package is provided "AS IS", without warranties of any kind. It is
+decision-support guidance for job seekers, not a hiring decision, candidate
+ranking system, employment-history verification service, or guarantee of ATS
+approval, an interview, or employment. Review AI output and follow applicable
+privacy and marketplace terms.
+
+The applicable Agensi purchase terms also apply. If those terms conflict with
+this license, contact the Owner before relying on the conflicting term.
+
+For licensing questions, contact the Owner through the repository:
+https://github.com/abduaali132012-hash/ResumePilot-AI

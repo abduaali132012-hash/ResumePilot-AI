@@ -16,6 +16,7 @@ suggests truthful improvements, and prepares interview questions.
 
 - `SKILL.md` — portable instructions for the AI agent.
 - `README.md` — package overview and usage guide.
+- `COMMERCIAL-LICENSE.txt` — limited license terms for paid Agensi purchasers.
 
 ## How to use
 
@@ -48,9 +49,25 @@ or REST API experience without resume evidence.
 - AI output can be inaccurate; verify all claims, quotes, and recommendations.
 - Avoid sharing personal candidate information unless you are comfortable
   sharing it with the AI service you use.
+- This package is intended for job-seeker resume and job-description self-
+  evaluation. It is not a candidate ranking or automated hiring system.
 - Review the marketplace's current packaging, listing, compatibility, and payout
   requirements before publishing. No marketplace approval or earnings are
   guaranteed.
+
+## License
+
+This package is distributed under the ResumePilot AI dual-license model:
+
+- Personal, non-commercial use is governed by the repository's source-available
+  repository license.
+- A paid Agensi marketplace purchase grants a limited commercial-use right to
+  use the packaged skill in an intended workflow. It does not permit resale or
+  stand-alone redistribution of the package or relaunching it as a competing
+  marketplace listing. See [`COMMERCIAL-LICENSE.txt`](./COMMERCIAL-LICENSE.txt)
+  included with this package for the package-specific terms.
+
+This is source-available software, not an open-source license.
 
 ## Project
 
@@ -68,9 +85,11 @@ Abdu Ali Adem
 ## Marketplace listing draft
 
 - **Title:** ResumePilot AI — Evidence-Based Resume Evaluator
-- **Description:** Compare a resume with a job description using exact resume
-  evidence. Identify supported and partially supported requirements, surface
-  evidence gaps, improve resume wording honestly, and prepare for interviews.
+- **Description:** For job seekers: compare your resume with a job description
+  using exact resume evidence. Identify supported and partially supported
+  requirements, surface evidence gaps, improve resume wording honestly, and
+  prepare for interviews. This is decision support, not a hiring decision or a
+  guarantee of ATS approval, an interview, or employment.
 - **Suggested tags:** Resume, CV, Job Search, Career, ATS, Interview Preparation
 
 Review the marketplace's current packaging, listing, and payout requirements
